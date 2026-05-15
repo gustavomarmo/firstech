@@ -36,7 +36,13 @@ public class SecurityConfig {
     private final UserDetailsServiceImp userDetailsService;
 
     private static final String[] PUBLIC_ENDPOINTS = {
+            // API de autenticação
             "/api/auth/**",
+            // Páginas Thymeleaf públicas
+            "/", "/login", "/register", "/forgot-password", "/reset-password",
+            // Assets estáticos
+            "/css/**", "/js/**", "/img/**", "/favicon.ico",
+            // Ferramentas de dev
             "/h2-console/**",
             "/actuator/health",
             "/swagger-ui/**",

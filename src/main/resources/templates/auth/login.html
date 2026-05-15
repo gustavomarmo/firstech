@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{auth/layout :: layout(
+          'Login',
+          ~{::main-content},
+          'Novo na arquitetura?',
+          'Junte-se à rede',
+          '/register'
+      )}">
+<body>
+<th:block th:fragment="main-content">
+
+    <header class="auth-header">
+        <h1>Your first step</h1>
+        <p>Access the node network and manage your pulse.</p>
+    </header>
+
+    <form id="loginForm" class="auth-form" novalidate>
+
+        <!-- Alerta de erro (injetado pelo JS) -->
+
+        <!-- E-mail -->
+        <div class="form-group">
+            <label class="form-label" for="email">E-MAIL</label>
+            <div class="input-wrapper">
+                <span class="material-symbols-outlined icon" aria-hidden="true">alternate_email</span>
+                <input id="email" name="email" type="email" class="form-input"
+                       placeholder="visionary@firstech.io" required autocomplete="email"/>
+            </div>
+        </div>
+
+        <!-- Senha -->
+        <div class="form-group">
+            <label class="form-label" for="password">SENHA</label>
+            <div class="input-wrapper">
+                <span class="material-symbols-outlined icon" aria-hidden="true">lock</span>
+                <input id="password" name="password" type="password" class="form-input has-right-icon"
+                       placeholder="••••••••••••" required autocomplete="current-password"/>
+                <button type="button" class="icon-right"
+                        data-toggle-password="password" aria-label="Mostrar/ocultar senha">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+            </div>
+            <div class="forgot-row">
+                <a href="/forgot-password" class="link-subtle">Esqueceu a senha?</a>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary"
+                data-label="Entrar" data-icon="login">
+            <span class="btn-label">Entrar</span>
+            <span class="material-symbols-outlined btn-icon" aria-hidden="true">login</span>
+        </button>
+
+    </form>
+
+</th:block>
+</body>
+</html>

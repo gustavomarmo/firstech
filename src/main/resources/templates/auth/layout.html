@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, footerText, footerLink, footerHref)"
+      class="dark" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | Firstech'">Firstech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"/>
+    <link th:href="@{/css/auth.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- Linhas atmosféricas de fundo -->
+<div class="bg-line bg-line--left"></div>
+<div class="bg-line bg-line--right"></div>
+
+<main class="auth-wrapper">
+
+    <!-- Logo -->
+    <div class="auth-brand">
+        <img th:src="@{/img/logo.png}" alt="Firstech Logo"/>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+        <div th:replace="${content}"></div>
+        <div class="auth-card__glow-br"></div>
+        <div class="auth-card__glow-tl"></div>
+    </div>
+
+    <!-- Footer (opcional) -->
+    <footer class="auth-footer" th:if="${footerText != null}">
+        <p>
+            <span th:text="${footerText}"></span>
+            <a th:href="${footerHref}" th:text="${footerLink}"></a>
+        </p>
+        <div class="auth-footer__badges">
+            <span>Encryption Tier 1</span>
+            <span>Kinetic Auth v3</span>
+        </div>
+    </footer>
+
+</main>
+
+<script th:src="@{/js/auth.js}"></script>
+</body>
+</html>
