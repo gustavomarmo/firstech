@@ -1,11 +1,14 @@
 package com.firstech.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -34,6 +37,10 @@ public class EmailService {
                 "Atenciosamente,\nEquipe de Suporte"
         );
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (MailException e) {
+            log.error("Falha ao enviar e-mail para {}: {}", toEmail, e.getMessage());
+        }
     }
 }
