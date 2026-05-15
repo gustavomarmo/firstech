@@ -1,6 +1,3 @@
-/* auth.js — lógica de autenticação para as telas Thymeleaf */
-
-// ─── Token helpers ────────────────────────────────────────────────────────────
 const TOKEN_KEY   = 'firstech_access_token';
 const REFRESH_KEY = 'firstech_refresh_token';
 
@@ -11,7 +8,6 @@ const tokenStorage = {
     clear:      ()          => { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(REFRESH_KEY); },
 };
 
-// ─── HTTP helper ──────────────────────────────────────────────────────────────
 async function post(endpoint, body) {
     const res = await fetch('/api/auth' + endpoint, {
         method:  'POST',
@@ -28,7 +24,6 @@ async function post(endpoint, body) {
     return data;
 }
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
 function setLoading(form, loading) {
     const btn = form.querySelector('.btn-primary');
     if (!btn) return;
@@ -65,7 +60,6 @@ function clearAlert(form) {
     form.querySelector('.alert')?.remove();
 }
 
-// ─── Toggle senha ─────────────────────────────────────────────────────────────
 document.querySelectorAll('[data-toggle-password]').forEach(btn => {
     btn.addEventListener('click', () => {
         const targetId = btn.dataset.togglePassword;
@@ -78,7 +72,6 @@ document.querySelectorAll('[data-toggle-password]').forEach(btn => {
     });
 });
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -100,7 +93,6 @@ if (loginForm) {
     });
 }
 
-// ─── REGISTER ─────────────────────────────────────────────────────────────────
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
@@ -130,7 +122,6 @@ if (registerForm) {
     });
 }
 
-// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
 const forgotForm = document.getElementById('forgotForm');
 if (forgotForm) {
     forgotForm.addEventListener('submit', async (e) => {
@@ -138,7 +129,6 @@ if (forgotForm) {
         clearAlert(forgotForm);
         setLoading(forgotForm, true);
         try {
-            // Backend retorna msg genérica por segurança — mostramos sucesso sempre
             await post('/forgot-password', { email: forgotForm.email.value.trim() })
                 .catch(() => {});
             showSuccess(forgotForm, 'Se o e-mail estiver cadastrado, você receberá as instruções em breve.');
@@ -149,7 +139,6 @@ if (forgotForm) {
     });
 }
 
-// ─── RESET PASSWORD ───────────────────────────────────────────────────────────
 const resetForm = document.getElementById('resetForm');
 if (resetForm) {
     resetForm.addEventListener('submit', async (e) => {
