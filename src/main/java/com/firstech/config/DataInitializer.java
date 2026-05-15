@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
                     .roles(Set.of(Role.ADMINISTRADOR, Role.CANDIDATO))
                     .build();
             userRepository.save(admin);
-            log.info("✅ Usuário admin criado: admin@example.com / Admin@123");
+            log.info("Usuário admin criado: admin@example.com / Admin@123");
         }
     }
 }
