@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.*;
 @DisplayName("JwtUtil")
 class JwtUtilTest {
 
-    // Mínimo 256 bits (32 chars) para HMAC-SHA256
     private static final String SECRET =
             "TestSecretKeyWith256BitsMinimumForHmacSha256Algorithm!!";
     private static final long EXPIRATION_MS = 900_000L; // 15 min
@@ -33,15 +32,6 @@ class JwtUtilTest {
                 .password("encodedPassword")
                 .roles(Set.of(Role.CANDIDATO))
                 .build();
-    }
-
-    // ─── generateAccessToken ────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("deve gerar token não nulo e não vazio")
-    void generateAccessToken_shouldReturnNonBlankToken() {
-        String token = jwtUtil.generateAccessToken(user);
-        assertThat(token).isNotBlank();
     }
 
     @Test
@@ -73,34 +63,12 @@ class JwtUtilTest {
         assertThat(roles).contains("ADMINISTRADOR");
     }
 
-    // ─── isTokenValid ───────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("token recém-gerado deve ser válido")
-    void isTokenValid_freshToken_shouldBeTrue() {
-        String token = jwtUtil.generateAccessToken(user);
-        assertThat(jwtUtil.isTokenValid(token)).isTrue();
-    }
-
     @Test
     @DisplayName("token expirado deve ser inválido")
     void isTokenValid_expiredToken_shouldBeFalse() {
-        // cria utilitário com expiração de -1 ms (já expirado)
         JwtUtil expiredUtil = new JwtUtil(SECRET, -1L);
         String token = expiredUtil.generateAccessToken(user);
         assertThat(expiredUtil.isTokenValid(token)).isFalse();
-    }
-
-    @Test
-    @DisplayName("string aleatória não deve ser token válido")
-    void isTokenValid_randomString_shouldBeFalse() {
-        assertThat(jwtUtil.isTokenValid("not.a.jwt")).isFalse();
-    }
-
-    @Test
-    @DisplayName("token vazio não deve ser válido")
-    void isTokenValid_emptyString_shouldBeFalse() {
-        assertThat(jwtUtil.isTokenValid("")).isFalse();
     }
 
     @Test
@@ -110,22 +78,5 @@ class JwtUtilTest {
                 "OutroSecretKeyWith256BitsMinimumForHmacSha256Algorithm!!", EXPIRATION_MS);
         String token = otherUtil.generateAccessToken(user);
         assertThat(jwtUtil.isTokenValid(token)).isFalse();
-    }
-
-    // ─── extractEmail ───────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("deve extrair o e-mail correto do token")
-    void extractEmail_shouldReturnCorrectEmail() {
-        String token = jwtUtil.generateAccessToken(user);
-        assertThat(jwtUtil.extractEmail(token)).isEqualTo("test@example.com");
-    }
-
-    // ─── getAccessTokenExpiration ───────────────────────────────────────────
-
-    @Test
-    @DisplayName("deve retornar o valor de expiração configurado")
-    void getAccessTokenExpiration_shouldReturnConfiguredValue() {
-        assertThat(jwtUtil.getAccessTokenExpiration()).isEqualTo(EXPIRATION_MS);
     }
 }

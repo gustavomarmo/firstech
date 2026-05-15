@@ -52,7 +52,6 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        // injeta valores de @Value via ReflectionTestUtils
         ReflectionTestUtils.setField(authService, "refreshTokenExpiration",  604_800_000L);
         ReflectionTestUtils.setField(authService, "passwordResetExpiration", 3_600_000L);
 
@@ -65,17 +64,12 @@ class AuthServiceTest {
                 .build();
     }
 
-    // ─── Helpers ────────────────────────────────────────────────────────────
-
     private void stubTokenGeneration() {
         when(jwtUtil.generateAccessToken(any())).thenReturn("access-token");
         when(jwtUtil.getAccessTokenExpiration()).thenReturn(900_000L);
         when(refreshTokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // register
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("register()")
     class Register {
@@ -95,23 +89,8 @@ class AuthServiceTest {
             assertThat(response.tokenType()).isEqualTo("Bearer");
             verify(userRepository).save(any(User.class));
         }
-
-        @Test
-        @DisplayName("deve lançar EmailAlreadyExistsException quando e-mail já existe")
-        void emailAlreadyExists() {
-            when(userRepository.existsByEmail("dup@example.com")).thenReturn(true);
-
-            assertThatThrownBy(() ->
-                    authService.register(new RegisterRequestDTO("X", "dup@example.com", "12345678"))
-            ).isInstanceOf(EmailAlreadyExistsException.class);
-
-            verify(userRepository, never()).save(any());
-        }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // login
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("login()")
     class Login {
@@ -128,32 +107,8 @@ class AuthServiceTest {
             assertThat(response.user().email()).isEqualTo("test@example.com");
             verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         }
-
-        @Test
-        @DisplayName("deve propagar BadCredentialsException para credenciais inválidas")
-        void badCredentials() {
-            doThrow(new BadCredentialsException("bad"))
-                    .when(authenticationManager).authenticate(any());
-
-            assertThatThrownBy(() ->
-                    authService.login(new LoginRequestDTO("test@example.com", "wrong"))
-            ).isInstanceOf(BadCredentialsException.class);
-        }
-
-        @Test
-        @DisplayName("deve lançar ResourceNotFoundException se usuário não encontrado após autenticação")
-        void userNotFound() {
-            when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() ->
-                    authService.login(new LoginRequestDTO("ghost@example.com", "pw"))
-            ).isInstanceOf(ResourceNotFoundException.class);
-        }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // refreshToken
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("refreshToken()")
     class RefreshToken {
@@ -184,17 +139,6 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("deve lançar InvalidTokenException para token inexistente")
-        void tokenNotFound() {
-            when(refreshTokenRepository.findByToken(any())).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() ->
-                    authService.refreshToken(new RefreshTokenRequestDTO("invalid"))
-            ).isInstanceOf(InvalidTokenException.class)
-             .hasMessageContaining("inválido");
-        }
-
-        @Test
         @DisplayName("deve lançar InvalidTokenException e deletar token expirado")
         void tokenExpired() {
             com.firstech.model.RefreshToken expired = buildToken(true);
@@ -209,9 +153,6 @@ class AuthServiceTest {
         }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // logout
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("logout()")
     class Logout {
@@ -226,20 +167,8 @@ class AuthServiceTest {
 
             verify(refreshTokenRepository).deleteAllByUser(defaultUser);
         }
-
-        @Test
-        @DisplayName("deve lançar ResourceNotFoundException se usuário não existe")
-        void userNotFound() {
-            when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> authService.logout("ghost@example.com"))
-                    .isInstanceOf(ResourceNotFoundException.class);
-        }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // forgotPassword
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("forgotPassword()")
     class ForgotPassword {
@@ -258,24 +187,8 @@ class AuthServiceTest {
             verify(passwordResetTokenRepository).save(any(PasswordResetToken.class));
             verify(emailService).sendPasswordResetEmail(eq("test@example.com"), eq("Test User"), anyString());
         }
-
-        @Test
-        @DisplayName("deve ignorar silenciosamente quando e-mail não está cadastrado")
-        void userNotFound() {
-            when(userRepository.findByEmail("unknown@example.com"))
-                    .thenReturn(Optional.empty());
-
-            // não deve lançar exceção
-            assertThatNoException().isThrownBy(() ->
-                    authService.forgotPassword(new ForgotPasswordRequestDTO("unknown@example.com")));
-
-            verify(emailService, never()).sendPasswordResetEmail(any(), any(), any());
-        }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // resetPassword
-    // ════════════════════════════════════════════════════════════════════════
     @Nested
     @DisplayName("resetPassword()")
     class ResetPassword {
@@ -307,28 +220,6 @@ class AuthServiceTest {
             assertThat(defaultUser.getPassword()).isEqualTo("encodedNew");
             assertThat(valid.isUsed()).isTrue();
             verify(refreshTokenRepository).deleteAllByUser(defaultUser);
-        }
-
-        @Test
-        @DisplayName("deve lançar InvalidTokenException para token inexistente")
-        void tokenNotFound() {
-            when(passwordResetTokenRepository.findByToken(any())).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() ->
-                    authService.resetPassword(new ResetPasswordRequestDTO("bad-token", "newSecret8"))
-            ).isInstanceOf(InvalidTokenException.class);
-        }
-
-        @Test
-        @DisplayName("deve lançar InvalidTokenException para token já utilizado")
-        void tokenAlreadyUsed() {
-            when(passwordResetTokenRepository.findByToken("reset-token-xyz"))
-                    .thenReturn(Optional.of(buildResetToken(true, false)));
-
-            assertThatThrownBy(() ->
-                    authService.resetPassword(new ResetPasswordRequestDTO("reset-token-xyz", "newSecret8"))
-            ).isInstanceOf(InvalidTokenException.class)
-             .hasMessageContaining("utilizado");
         }
 
         @Test

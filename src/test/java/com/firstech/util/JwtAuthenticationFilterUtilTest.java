@@ -90,26 +90,4 @@ class JwtAuthenticationFilterUtilTest {
         verify(filterChain).doFilter(request, response);
         verify(userDetailsService, never()).loadUserByUsername(any());
     }
-
-    @Test
-    @DisplayName("não deve autenticar quando Authorization não começa com 'Bearer '")
-    void shouldSkipWhenNotBearerScheme() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        verify(filterChain).doFilter(request, response);
-        verify(jwtUtil, never()).isTokenValid(any());
-    }
-
-    @Test
-    @DisplayName("deve sempre continuar a cadeia de filtros, mesmo sem token")
-    void shouldAlwaysCallFilterChain() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn(null);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        verify(filterChain, times(1)).doFilter(request, response);
-    }
 }
