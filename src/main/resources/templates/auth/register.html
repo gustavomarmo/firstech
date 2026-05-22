@@ -1,60 +1,610 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{auth/layout :: layout(
-          'Create account',
+          'Criar conta',
           ~{::main-content},
-          'Already a member?',
-          'Enter',
-          '/login'
+          null, null, null
       )}">
 <body>
 <th:block th:fragment="main-content">
 
+  <!--
+    O layout já inclui:
+      - logo (/img/logo.png)
+      - glass card (.auth-card)
+      - bg-lines atmosféricos
+      - /css/auth.css  e  /js/auth.js
+
+    Este fragment injeta o conteúdo multi-step do onboarding.
+    O JS de controle fica em /js/onboarding.js (carregado abaixo do auth.js).
+  -->
+
+  <!-- ── Toast container ──────────────────────────────────────── -->
+  <div id="toastContainer" class="onb-toast-container"></div>
+
+  <!-- ── Progress bar (hidden on role screen) ─────────────────── -->
+  <div class="onb-progress" id="onbProgress" style="display:none; margin-bottom:20px;">
+    <div class="onb-progress__top">
+      <span class="onb-progress__label" id="onbLabel">Credenciais</span>
+      <span class="onb-progress__counter" id="onbCounter">1 / 4</span>
+    </div>
+    <div class="onb-progress__track">
+      <div class="onb-progress__fill" id="onbFill" style="width:25%"></div>
+    </div>
+    <div class="onb-dots" id="onbDots"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 0 · Role choice
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen active" id="screen-role">
+
     <header class="auth-header">
-        <h1>Join the network</h1>
-        <p>Create your account and start your journey.</p>
+      <h1>Como você quer começar?</h1>
+      <p>Escolha seu papel. Você pode mudar depois.</p>
     </header>
 
-    <form id="registerForm" class="auth-form" novalidate>
+    <div class="onb-role-grid">
 
-        <div class="form-group">
-            <label class="form-label" for="name">NAME</label>
-            <div class="input-wrapper">
-                <span class="material-symbols-outlined icon" aria-hidden="true">person</span>
-                <input id="name" name="name" type="text" class="form-input"
-                       placeholder="Seu nome completo" required autocomplete="name"/>
-            </div>
+      <button class="onb-role-card onb-role-card--talent"
+              onclick="Onboarding.chooseRole('talent')" type="button">
+        <div class="onb-role-card__icon">
+          <span class="material-symbols-outlined">terminal</span>
         </div>
+        <div class="onb-role-card__title">Sou um Talento</div>
+        <div class="onb-role-card__desc">Quero mostrar projetos e buscar vagas</div>
+        <span class="material-symbols-outlined onb-role-card__arrow">arrow_forward</span>
+      </button>
 
-        <div class="form-group">
-            <label class="form-label" for="email">E-MAIL</label>
-            <div class="input-wrapper">
-                <span class="material-symbols-outlined icon" aria-hidden="true">alternate_email</span>
-                <input id="email" name="email" type="email" class="form-input"
-                       placeholder="candidato@cefsa.edu.br" required autocomplete="email"/>
-            </div>
+      <button class="onb-role-card onb-role-card--recruiter"
+              onclick="Onboarding.chooseRole('recruiter')" type="button">
+        <div class="onb-role-card__icon">
+          <span class="material-symbols-outlined">work</span>
         </div>
+        <div class="onb-role-card__title">Sou Recrutador</div>
+        <div class="onb-role-card__desc">Quero postar vagas e achar talentos</div>
+        <span class="material-symbols-outlined onb-role-card__arrow">arrow_forward</span>
+      </button>
 
-        <div class="form-group">
-            <label class="form-label" for="password">PASSWORD</label>
-            <div class="input-wrapper">
-                <span class="material-symbols-outlined icon" aria-hidden="true">lock</span>
-                <input id="password" name="password" type="password" class="form-input has-right-icon"
-                       placeholder="8 characters minimum" required autocomplete="new-password"/>
-                <button type="button" class="icon-right"
-                        data-toggle-password="password" aria-label="Show/hide password">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
-            </div>
+    </div>
+
+    <p style="text-align:center; margin-top:20px; color:var(--color-on-surface-variant); font-size:14px;">
+      Já tem conta? <a href="/login" class="link-subtle" style="font-weight:700">Entrar</a>
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TALENT · Step 1 · Credenciais
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-t1">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">person</span> Sobre Você
+      </div>
+      <h1>Crie sua conta</h1>
+      <p>Seus dados de acesso à plataforma.</p>
+    </header>
+
+    <div class="auth-form" id="formT1">
+
+      <div class="form-group">
+        <label class="form-label" for="t1-name">NOME COMPLETO</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">badge</span>
+          <input id="t1-name" type="text" class="form-input"
+                 placeholder="Bianca Oliveira" autocomplete="name"/>
         </div>
+        <span class="onb-err" id="err-t1-name">Nome é obrigatório</span>
+      </div>
 
-        <button type="submit" class="btn-primary"
-                data-label="Criar conta" data-icon="person_add">
-            <span class="btn-label">Create account</span>
-            <span class="material-symbols-outlined btn-icon" aria-hidden="true">person_add</span>
-        </button>
+      <div class="form-group">
+        <label class="form-label" for="t1-email">E-MAIL</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">alternate_email</span>
+          <input id="t1-email" type="email" class="form-input"
+                 placeholder="bianca@cefsa.edu.br" autocomplete="email"/>
+        </div>
+        <span class="onb-err" id="err-t1-email">E-mail inválido</span>
+      </div>
 
-    </form>
+      <div class="onb-row">
+        <div class="form-group">
+          <label class="form-label" for="t1-pass">SENHA</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock</span>
+            <input id="t1-pass" type="password" class="form-input has-right-icon"
+                   placeholder="••••••••" autocomplete="new-password"/>
+            <button type="button" class="icon-right"
+                    onclick="Onboarding.togglePw('t1-pass',this)">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+          <span class="onb-err" id="err-t1-pass">Mínimo 8 caracteres</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="t1-pass2">CONFIRMAR SENHA</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock_clock</span>
+            <input id="t1-pass2" type="password" class="form-input has-right-icon"
+                   placeholder="••••••••" autocomplete="new-password"/>
+            <button type="button" class="icon-right"
+                    onclick="Onboarding.togglePw('t1-pass2',this)">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+          <span class="onb-err" id="err-t1-pass2">As senhas não coincidem</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-role')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextT1()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TALENT · Step 2 · Contatos e Links
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-t2">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">link</span> Contatos &amp; Links
+      </div>
+      <h1>Como te encontrar?</h1>
+      <p>Adicione seus links profissionais.</p>
+    </header>
+
+    <div class="auth-form" id="formT2">
+
+      <div class="form-group">
+        <label class="form-label">
+          TELEFONE
+          <span class="onb-badge-pend">Verificação pendente</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">phone</span>
+          <input id="t2-phone" type="tel" class="form-input"
+                 placeholder="+55 (11) 99999-9999" autocomplete="tel"/>
+        </div>
+        <span class="onb-err" id="err-t2-phone">Telefone inválido</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          LINKEDIN <span class="onb-badge-opt">Opcional</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">business_center</span>
+          <input id="t2-linkedin" type="url" class="form-input"
+                 placeholder="linkedin.com/in/seu-perfil"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          GITHUB <span class="onb-badge-opt">Opcional</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">code</span>
+          <input id="t2-github" type="url" class="form-input"
+                 placeholder="github.com/seu-usuario"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          CURRÍCULO (PDF) <span class="onb-badge-opt">Opcional</span>
+        </label>
+        <div class="onb-upload" id="uploadZone"
+             onclick="document.getElementById('t2-cv').click()">
+          <input type="file" id="t2-cv" accept=".pdf,.doc,.docx"
+                 onchange="Onboarding.handleFile(this)"/>
+          <span class="material-symbols-outlined onb-upload__icon">upload_file</span>
+          <span class="onb-upload__text">Clique para selecionar</span>
+          <span class="onb-upload__sub">PDF, DOC ou DOCX · máx. 5 MB</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-t1')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextT2()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TALENT · Step 3 · Perfil Profissional
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-t3">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">psychology</span> Perfil Profissional
+      </div>
+      <h1>Conte seu momento</h1>
+      <p>Nos ajude a mostrar você para as vagas certas.</p>
+    </header>
+
+    <div class="auth-form" id="formT3">
+
+      <div class="form-group">
+        <label class="form-label" for="t3-career">MOMENTO DE CARREIRA</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">trending_up</span>
+          <select id="t3-career" class="form-input" style="padding-left:44px">
+            <option value="">Selecione uma opção…</option>
+            <option value="estagio">Buscando Estágio</option>
+            <option value="junior">Buscando Vaga Júnior</option>
+            <option value="studying">Apenas Estudando</option>
+          </select>
+        </div>
+        <span class="onb-err" id="err-t3-career">Selecione seu momento</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">MODELO DE TRABALHO</label>
+        <div class="onb-radio-group" id="workModelGroup">
+          <label class="onb-radio" onclick="Onboarding.pickWork(this,'remote')">
+            <input type="radio" name="workModel" value="remote"/>
+            <span class="onb-radio__dot"></span>Remoto
+          </label>
+          <label class="onb-radio" onclick="Onboarding.pickWork(this,'hybrid')">
+            <input type="radio" name="workModel" value="hybrid"/>
+            <span class="onb-radio__dot"></span>Híbrido
+          </label>
+          <label class="onb-radio" onclick="Onboarding.pickWork(this,'onsite')">
+            <input type="radio" name="workModel" value="onsite"/>
+            <span class="onb-radio__dot"></span>Presencial
+          </label>
+        </div>
+        <span class="onb-err" id="err-t3-work">Selecione o modelo de trabalho</span>
+      </div>
+
+      <div class="form-group" id="cityField" style="display:none">
+        <label class="form-label" for="t3-city">CIDADE / ESTADO</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">location_on</span>
+          <input id="t3-city" type="text" class="form-input"
+                 placeholder="São Paulo, SP"/>
+        </div>
+        <span class="onb-err" id="err-t3-city">Informe sua cidade</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="t3-tagline">TAGLINE PROFISSIONAL</label>
+        <div style="position:relative">
+          <input id="t3-tagline" type="text" class="form-input"
+                 style="padding-left:16px"
+                 placeholder="Apaixonado por Back-end e Java" maxlength="60"
+                 oninput="Onboarding.charCount(this,'charTagline',60)"/>
+          <span id="charTagline"
+                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                       font-size:11px;color:var(--color-on-surface-variant);pointer-events:none">
+            0/60
+          </span>
+        </div>
+        <span class="onb-err" id="err-t3-tagline">Tagline é obrigatória</span>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-t2')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextT3()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TALENT · Step 4 · Habilidades
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-t4">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">bolt</span> Habilidades
+      </div>
+      <h1>Suas tecnologias</h1>
+      <p>Adicione pelo menos <strong>3 tecnologias</strong> que você domina ou está aprendendo.</p>
+    </header>
+
+    <div class="auth-form" id="formT4">
+
+      <div class="form-group">
+        <label class="form-label">TECNOLOGIAS</label>
+        <div class="onb-tags-wrap" id="tagsWrap"
+             onclick="document.getElementById('tagInput').focus()">
+          <input id="tagInput" class="onb-tag-input"
+                 placeholder="Java, React, Python…"
+                 onkeydown="Onboarding.handleTagKey(event)"
+                 oninput="Onboarding.filterSuggestions(this.value)"/>
+        </div>
+        <span style="font-size:11px;color:var(--color-on-surface-variant)">
+          Pressione Enter ou vírgula para adicionar
+        </span>
+        <span class="onb-err" id="tagWarn">
+          Adicione pelo menos 3 tecnologias para continuar
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">SUGESTÕES</label>
+        <div class="onb-suggestions" id="suggestions"></div>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-t3')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1" id="btnFinishTalent"
+              onclick="Onboarding.finishTalent()" type="button" disabled>
+        <span>Finalizar</span>
+        <span class="material-symbols-outlined btn-icon">check_circle</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RECRUITER · Step 1 · Credenciais
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-r1">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">person</span> Sua Conta
+      </div>
+      <h1>Crie sua conta</h1>
+      <p>Dados de acesso para recrutadores.</p>
+    </header>
+
+    <div class="auth-form" id="formR1">
+
+      <div class="form-group">
+        <label class="form-label" for="r1-name">NOME COMPLETO</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">badge</span>
+          <input id="r1-name" type="text" class="form-input"
+                 placeholder="Gustavo Marmo" autocomplete="name"/>
+        </div>
+        <span class="onb-err" id="err-r1-name">Nome é obrigatório</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r1-email">E-MAIL CORPORATIVO</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">alternate_email</span>
+          <input id="r1-email" type="email" class="form-input"
+                 placeholder="gustavo@empresa.com.br" autocomplete="email"/>
+        </div>
+        <span class="onb-err" id="err-r1-email">E-mail inválido</span>
+      </div>
+
+      <div class="onb-row">
+        <div class="form-group">
+          <label class="form-label" for="r1-pass">SENHA</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock</span>
+            <input id="r1-pass" type="password" class="form-input has-right-icon"
+                   placeholder="••••••••" autocomplete="new-password"/>
+            <button type="button" class="icon-right"
+                    onclick="Onboarding.togglePw('r1-pass',this)">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+          <span class="onb-err" id="err-r1-pass">Mínimo 8 caracteres</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="r1-pass2">CONFIRMAR SENHA</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock_clock</span>
+            <input id="r1-pass2" type="password" class="form-input has-right-icon"
+                   placeholder="••••••••" autocomplete="new-password"/>
+            <button type="button" class="icon-right"
+                    onclick="Onboarding.togglePw('r1-pass2',this)">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+          </div>
+          <span class="onb-err" id="err-r1-pass2">As senhas não coincidem</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-role')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextR1()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RECRUITER · Step 2 · Dados da Empresa
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-r2">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">apartment</span> Sua Empresa
+      </div>
+      <h1>Dados da empresa</h1>
+      <p>Informações que aparecerão no seu perfil de recrutador.</p>
+    </header>
+
+    <div class="auth-form" id="formR2">
+
+      <div class="form-group">
+        <label class="form-label" for="r2-company">NOME DA EMPRESA</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">business</span>
+          <input id="r2-company" type="text" class="form-input"
+                 placeholder="Empresa Tech Ltda."/>
+        </div>
+        <span class="onb-err" id="err-r2-company">Nome da empresa obrigatório</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r2-size">PORTE DA EMPRESA</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">group</span>
+          <select id="r2-size" class="form-input" style="padding-left:44px">
+            <option value="">Selecione o porte…</option>
+            <option value="1-10">1 – 10 funcionários</option>
+            <option value="11-50">11 – 50 funcionários</option>
+            <option value="51-200">51 – 200 funcionários</option>
+            <option value="200+">Mais de 200 funcionários</option>
+          </select>
+        </div>
+        <span class="onb-err" id="err-r2-size">Selecione o porte</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          TELEFONE COMERCIAL
+          <span class="onb-badge-pend">Verificação pendente</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">phone</span>
+          <input id="r2-phone" type="tel" class="form-input"
+                 placeholder="+55 (11) 3333-3333" autocomplete="tel"/>
+        </div>
+        <span class="onb-err" id="err-r2-phone">Telefone inválido</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          SITE / PÁGINA DE CARREIRAS <span class="onb-badge-opt">Opcional</span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined icon">public</span>
+          <input id="r2-site" type="url" class="form-input"
+                 placeholder="empresa.com.br/vagas"/>
+        </div>
+      </div>
+
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-r1')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextR2()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RECRUITER · Step 3 · Cultura
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-r3">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">emoji_people</span> Cultura
+      </div>
+      <h1>DNA da sua empresa</h1>
+      <p>Selecione até 3 tags que representam melhor sua cultura.</p>
+    </header>
+
+    <div class="auth-form" id="formR3">
+      <div class="form-group">
+        <label class="form-label">TAGS DE CULTURA</label>
+        <div class="onb-culture-grid" id="cultureGrid"></div>
+        <span class="onb-err" id="cultureLimitWarn"
+              style="display:none;color:var(--color-error)">
+          Máximo de 3 tags selecionadas
+        </span>
+        <span class="onb-err" id="err-r3-culture">Selecione ao menos 1 tag</span>
+      </div>
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-r2')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1"
+              onclick="Onboarding.nextR3()" type="button">
+        <span>Avançar</span>
+        <span class="material-symbols-outlined btn-icon">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RECRUITER · Step 4 · Objetivos
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-r4">
+    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
+      <div class="onb-badge">
+        <span class="material-symbols-outlined">flag</span> Objetivos
+      </div>
+      <h1>O que você busca?</h1>
+      <p>Selecione quantos objetivos quiser.</p>
+    </header>
+
+    <div class="auth-form" id="formR4">
+      <div class="onb-goal-list" id="goalCards"></div>
+      <span class="onb-err" id="err-r4-goals">Selecione ao menos um objetivo</span>
+    </div>
+    <div class="onb-btn-row" style="margin-top:20px">
+      <button class="onb-btn-back" onclick="Onboarding.go('screen-r3')" type="button">
+        <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      </button>
+      <button class="btn-primary" style="flex:1" id="btnFinishRecruiter"
+              onclick="Onboarding.finishRecruiter()" type="button">
+        <span class="btn-label">Finalizar</span>
+        <span class="material-symbols-outlined btn-icon">check_circle</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SUCCESS
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="onb-screen" id="screen-success">
+    <div style="text-align:center; padding:20px 0">
+      <div class="onb-success-icon">
+        <span class="material-symbols-outlined">celebration</span>
+      </div>
+      <h1 id="successTitle" style="font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px">
+        Conta criada! 🎉
+      </h1>
+      <p id="successSub"
+         style="color:var(--color-on-surface-variant);font-size:14px;line-height:1.6;margin-bottom:24px">
+        Seu cadastro foi realizado com sucesso.<br/>
+        Verifique seu e-mail para ativar a conta.
+      </p>
+      <a href="/login" class="btn-primary" style="display:inline-flex;width:auto;padding:12px 28px">
+        <span class="material-symbols-outlined btn-icon">login</span>
+        <span>Ir para o Login</span>
+      </a>
+    </div>
+  </div>
+
+  <!--
+    Carrega onboarding.js APÓS auth.js (já injetado pelo layout).
+    O módulo não conflita com auth.js pois expõe apenas o namespace `Onboarding`.
+  -->
+  <script th:src="@{/js/onboarding.js}"></script>
+  <!-- Estilos exclusivos do onboarding (complementam auth.css) -->
+  <link th:href="@{/css/onboarding.css}" rel="stylesheet"/>
 
 </th:block>
 </body>
