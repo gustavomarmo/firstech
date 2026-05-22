@@ -1,0 +1,6 @@
+1. alterar a tela de talento e recrutador
+2. o ícone de visualização de senha da tela de cadastro **teoricamente resolvido
+3. poder tickar os três modelos de trabalho (remoto, híbrido e presencial)
+4. mensagem de erro precoce na tela de selecionar minhas habilidades em tecnologia
+5. tirar o emoji da tela de bem vindo 
+6. validação token
