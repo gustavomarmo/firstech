@@ -123,8 +123,8 @@
   background: linear-gradient(135deg,rgba(138,96,194,.15),rgba(240,192,96,.1));
   color: #f0c060;
 }
-.onb-role-card__title { font-size: 14px; font-weight: 700; }
-.onb-role-card__desc  { font-size: 12px; color: var(--color-on-surface-variant); }
+.onb-role-card__title { font-size: 14px; font-weight: 700; color: var(--color-on-surface-variant);}
+.onb-role-card__desc  { font-size: 12px; font-weight: 400; color: var(--color-on-surface-variant); }
 .onb-role-card__arrow {
   font-size: 16px; color: var(--color-outline);
   transition: all .2s;
