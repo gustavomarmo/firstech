@@ -41,6 +41,6 @@ public class ViewController {
     /** Exemplo de rota protegida — substitua pelo seu dashboard real. */
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // crie templates/dashboard.html
+        return "main/index"; // crie templates/dashboard.html
     }
 }
