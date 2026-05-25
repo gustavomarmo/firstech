@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="card(post)" class="post">
+  <div class="post-head">
+    <div class="post-av"
+         th:style="'background:' + ${post.autor.corAvatar}"
+         th:text="${#strings.abbreviate(post.autor.nome, 1)}">A</div>
+    <div style="flex:1">
+      <div class="post-author" th:text="${post.autor.nome}">Autor</div>
+      <div class="post-meta"
+           th:text="${post.autor.cargo} + ' · ' + ${post.tempoRelativo}">Cargo · tempo</div>
+    </div>
+    <i class="ti ti-dots" style="color:var(--text3);cursor:pointer"></i>
+  </div>
+  <div class="post-text" th:text="${post.conteudo}">Conteúdo do post.</div>
+  <div class="post-actions">
+    <button class="act-btn"><i class="ti ti-heart"></i><span th:text="${post.curtidas}">0</span></button>
+    <button class="act-btn"><i class="ti ti-message-circle"></i><span th:text="${post.comentarios}">0</span></button>
+    <button class="act-btn"><i class="ti ti-share"></i>Compartilhar</button>
+  </div>
+</div>
+</body>
+</html>

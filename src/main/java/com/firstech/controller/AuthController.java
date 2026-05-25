@@ -3,6 +3,9 @@ package com.firstech.controller;
 import com.firstech.dto.*;
 import com.firstech.model.User;
 import com.firstech.service.AuthService;
+import com.firstech.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,15 +20,30 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request,
+                                                    HttpServletResponse response) {
+        AuthResponseDTO data = authService.register(request);
+        addJwtCookie(response, data.accessToken());
+        return ResponseEntity.status(HttpStatus.CREATED).body(data);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request,
+                                                 HttpServletResponse response) {
+        AuthResponseDTO data = authService.login(request);
+        addJwtCookie(response, data.accessToken());
+        return ResponseEntity.ok(data);
+    }
+
+    private void addJwtCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) (jwtUtil.getAccessTokenExpiration() / 1000));
+        response.addCookie(cookie);
     }
 
     @PostMapping("/refresh")

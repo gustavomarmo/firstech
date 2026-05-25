@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="home" class="screen active" id="s-home">
+  <div class="three-col">
+
+    <!-- Coluna esquerda: perfil mini -->
+    <div class="col">
+      <div th:replace="~{main/fragments/profile-mini :: card(true)}"></div>
+    </div>
+
+    <!-- Coluna central: feed de posts -->
+    <div class="col col-feed">
+
+      <!-- Compositor -->
+      <div class="composer" onclick="openModal()">
+        <div class="pavatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0"
+             th:text="${usuario.inicial}">G</div>
+        <div class="comp-input">Compartilhe um projeto ou atualização...</div>
+        <button class="comp-btn" onclick="openModal();event.stopPropagation()">Post</button>
+      </div>
+
+      <!-- Posts (loop Thymeleaf) -->
+      <th:block th:each="post : ${posts}">
+        <div th:replace="~{main/fragments/post-card :: card(${post})}"></div>
+      </th:block>
+
+      <!--
+        Enquanto o Thymeleaf não estiver integrado,
+        os posts abaixo servem como placeholder estático:
+      -->
+      <!-- th:if="${#lists.isEmpty(posts)}" -->
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">A</div>
+          <div style="flex:1">
+            <div class="post-author">Ana Paula Costa</div>
+            <div class="post-meta">Front-end Dev · TIVIT · 2h atrás</div>
+          </div>
+          <i class="ti ti-dots" style="color:var(--text3);cursor:pointer"></i>
+        </div>
+        <div class="post-text">Finalizei meu portfólio com React + TypeScript e deploy na Vercel! Foram 3 semanas de muito aprendizado, especialmente com animações usando Framer Motion. 🚀</div>
+        <div class="code-block">
+          <span class="kw">const</span> <span class="fn">Portfolio</span> = () =&gt; {<br>
+          &nbsp;&nbsp;<span class="kw">return</span> &lt;<span class="fn">motion.div</span> <span class="str">animate</span>={{ opacity: 1 }}&gt;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="fn">Projects</span> /&gt;<br>
+          &nbsp;&nbsp;&lt;/<span class="fn">motion.div</span>&gt;<br>
+          }
+        </div>
+        <div class="post-actions">
+          <button class="act-btn"><i class="ti ti-heart"></i>34</button>
+          <button class="act-btn"><i class="ti ti-message-circle"></i>8</button>
+          <button class="act-btn"><i class="ti ti-share"></i>Compartilhar</button>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">R</div>
+          <div style="flex:1">
+            <div class="post-author">Rafael Torres</div>
+            <div class="post-meta">Java Developer · 5h atrás</div>
+          </div>
+          <i class="ti ti-dots" style="color:var(--text3);cursor:pointer"></i>
+        </div>
+        <div class="post-text">Implementei Redis no Spring Boot e a performance foi absurda — de 800ms para 12ms nas queries mais pesadas. Vale muito estudar cache!</div>
+        <div class="post-img">
+          <i class="ti ti-chart-line" style="font-size:36px;color:var(--purple2)"></i>
+          <span>Gráfico: Redis Cache vs. sem cache</span>
+        </div>
+        <div class="post-actions">
+          <button class="act-btn"><i class="ti ti-heart"></i>127</button>
+          <button class="act-btn"><i class="ti ti-message-circle"></i>23</button>
+          <button class="act-btn"><i class="ti ti-share"></i>Compartilhar</button>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">M</div>
+          <div style="flex:1">
+            <div class="post-author">Marina Oliveira</div>
+            <div class="post-meta">Full Stack Dev · 1d atrás</div>
+          </div>
+          <i class="ti ti-dots" style="color:var(--text3);cursor:pointer"></i>
+        </div>
+        <div class="post-text">Conquistei minha certificação AWS Solutions Architect! 6 meses estudando, muita prática e aprovada com 89%. Próximo: AWS Developer Associate 💪</div>
+        <div class="post-actions">
+          <button class="act-btn"><i class="ti ti-heart"></i>256</button>
+          <button class="act-btn"><i class="ti ti-message-circle"></i>41</button>
+          <button class="act-btn"><i class="ti ti-share"></i>Compartilhar</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Coluna direita: sugestão de vagas -->
+    <div class="col">
+      <div class="sec-title">Vagas para você</div>
+
+      <th:block th:each="vaga : ${vagasRecomendadas}">
+        <div th:replace="~{main/fragments/job-mini :: card(${vaga})}"></div>
+      </th:block>
+
+      <!-- Placeholder estático -->
+      <div class="job-mini">
+        <div class="jm-top">
+          <div class="co-logo" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">N</div>
+          <div><div class="jm-title">Java Dev Jr</div><div class="jm-company">Nubank · São Paulo</div></div>
+        </div>
+        <div class="tags"><div class="tag">Java</div><div class="tag">Spring</div><div class="tag g">95% match</div></div>
+      </div>
+      <div class="job-mini">
+        <div class="jm-top">
+          <div class="co-logo" style="background:linear-gradient(135deg,#ff6b00,#ff9500)">i</div>
+          <div><div class="jm-title">Back-end Dev</div><div class="jm-company">iFood · Remoto</div></div>
+        </div>
+        <div class="tags"><div class="tag">AWS</div><div class="tag">Kotlin</div><div class="tag a">Novo</div></div>
+      </div>
+      <div class="job-mini">
+        <div class="jm-top">
+          <div class="co-logo" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
+          <div><div class="jm-title">Dev Júnior</div><div class="jm-company">TIVIT · Híbrido</div></div>
+        </div>
+        <div class="tags"><div class="tag">Java</div><div class="tag">Azure</div></div>
+      </div>
+      <div class="job-mini">
+        <div class="jm-top">
+          <div class="co-logo" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">C</div>
+          <div><div class="jm-title">Estágio Backend</div><div class="jm-company">CI&amp;T · SP</div></div>
+        </div>
+        <div class="tags"><div class="tag">Spring</div><div class="tag g">Urgente</div></div>
+      </div>
+
+      <button class="see-all" onclick="go('jobs')">Ver todas as vagas →</button>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

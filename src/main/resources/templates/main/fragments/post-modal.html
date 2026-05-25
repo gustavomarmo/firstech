@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="overlay" id="post-overlay" onclick="handleOverlayClick(event)">
+  <div class="post-modal" id="post-modal">
+
+    <div class="modal-head">
+      <div class="modal-author">
+        <div class="pavatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0"
+             th:text="${usuario.inicial}">G</div>
+        <div>
+          <div class="modal-name" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
+          <div class="modal-role" th:text="${usuario.cargo} + ' · ' + ${usuario.empresa}">Back-end Developer · TIVIT</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <input class="m-field" type="text" placeholder="Título do projeto" id="modal-title"
+             style="font-family:var(--display);font-size:17px;font-weight:600;">
+      <input class="m-field-sm" type="text" placeholder="Subtítulo" id="modal-sub">
+      <textarea class="m-textarea" placeholder="Descreva seu projeto..." id="modal-desc"
+                style="min-height:120px;"></textarea>
+
+      <div class="tags-area" id="tags-area" onclick="document.getElementById('tag-input').focus()">
+        <i class="ti ti-search" style="color:var(--text3);font-size:14px;flex-shrink:0"></i>
+        <div id="active-tags" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1">
+          <div class="m-tag">React <button onclick="removeTag(this)" title="remover">×</button></div>
+          <div class="m-tag">Spring Framework <button onclick="removeTag(this)" title="remover">×</button></div>
+          <div class="m-tag">Java <button onclick="removeTag(this)" title="remover">×</button></div>
+          <input class="tag-input" id="tag-input" placeholder="adicionar tags" onkeydown="handleTagKey(event)">
+        </div>
+      </div>
+    </div>
+
+    <div class="m-divider"></div>
+
+    <div class="modal-foot">
+      <div class="m-tools">
+        <button class="m-tool" title="Código"><i class="ti ti-code"></i></button>
+        <button class="m-tool" title="Arquivo"><i class="ti ti-file-text"></i></button>
+        <button class="m-tool" title="Imagem"><i class="ti ti-photo"></i></button>
+        <button class="m-tool" title="GitHub"><i class="ti ti-brand-github"></i></button>
+      </div>
+      <div class="m-foot-actions">
+        <button class="btn-draft" onclick="closeModal()">Salvar rascunho</button>
+        <button class="btn-publish" onclick="publishPost()">Publicar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

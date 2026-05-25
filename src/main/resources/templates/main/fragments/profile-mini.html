@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="card(showAvailBadge)" class="card">
+  <div class="profile-cover"></div>
+  <div class="pcard-body">
+    <div class="pcard-top">
+      <div class="pavatar" th:text="${usuario.inicial}">G</div>
+      <div class="avail-badge" th:if="${showAvailBadge}">● Disponível</div>
+    </div>
+    <div class="pname" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
+    <div class="prole" th:text="${usuario.headline}">Back-end Dev · Java · Spring · AWS</div>
+    <div class="pstats">
+      <div class="pstat">
+        <div class="pstat-num" th:text="${usuario.conexoes}">512</div>
+        <div class="pstat-label">Conexões</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num" th:text="${usuario.visualizacoes}">90</div>
+        <div class="pstat-label">Visualizações</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

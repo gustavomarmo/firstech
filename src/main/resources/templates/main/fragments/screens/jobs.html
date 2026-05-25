@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="jobs" class="screen" id="s-jobs">
+  <div class="three-col">
+
+    <!-- Coluna esquerda: perfil mini + filtros -->
+    <div class="col">
+      <div th:replace="~{main/fragments/profile-mini :: card(true)}"></div>
+
+      <div class="sec-title" style="margin-top:6px">Filtros</div>
+      <div class="filter-box">
+        <div class="fl-label">Modalidade</div>
+        <div class="ftab-row">
+          <button class="ftab active" onclick="ftoggle(this)">Remoto</button>
+          <button class="ftab" onclick="ftoggle(this)">Híbrido</button>
+          <button class="ftab" onclick="ftoggle(this)">Presencial</button>
+        </div>
+      </div>
+      <div class="filter-box">
+        <div class="fl-label">Nível</div>
+        <div class="ftab-row">
+          <button class="ftab active" onclick="ftoggle(this)">Júnior</button>
+          <button class="ftab" onclick="ftoggle(this)">Pleno</button>
+          <button class="ftab" onclick="ftoggle(this)">Estágio</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna central: feed de vagas -->
+    <div class="col col-feed">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:600;color:var(--text1)">Vagas recomendadas</div>
+        <div style="font-size:12px;color:var(--text3)" th:text="${totalVagas} + ' vagas'">142 vagas</div>
+      </div>
+
+      <!-- Loop de vagas (Thymeleaf) -->
+      <th:block th:each="vaga : ${vagas}">
+        <div th:replace="~{main/fragments/job-card :: card(${vaga})}"></div>
+      </th:block>
+
+      <!-- Placeholders estáticos -->
+      <div class="job-card">
+        <div class="jc-head">
+          <div class="jc-logo" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">N</div>
+          <div><div class="jc-title">Java Developer Júnior</div><div class="jc-company">Nubank · São Paulo · Remoto</div></div>
+        </div>
+        <div class="jc-desc">Buscamos desenvolvedor Java para integrar time de plataformas. Microsserviços, Spring Boot e Kafka em ambiente de alta disponibilidade.</div>
+        <div class="tags" style="margin-bottom:10px">
+          <div class="tag">Java</div><div class="tag">Spring Boot</div><div class="tag">Kafka</div><div class="tag">AWS</div>
+        </div>
+        <div class="jc-footer"><div class="match">● 95% match</div><button class="apply-btn">Candidatar</button></div>
+      </div>
+
+      <div class="job-card">
+        <div class="jc-head">
+          <div class="jc-logo" style="background:linear-gradient(135deg,#ff6b00,#ff9500)">i</div>
+          <div><div class="jc-title">Back-end Developer</div><div class="jc-company">iFood · São Paulo · Híbrido</div></div>
+        </div>
+        <div class="jc-desc">Time de logística busca dev com experiência em AWS, arquitetura de eventos e boas práticas de código limpo.</div>
+        <div class="tags" style="margin-bottom:10px">
+          <div class="tag">AWS</div><div class="tag">Kotlin</div><div class="tag">DynamoDB</div><div class="tag a">Novo hoje</div>
+        </div>
+        <div class="jc-footer"><div class="match">● 88% match</div><button class="apply-btn">Candidatar</button></div>
+      </div>
+
+      <div class="job-card">
+        <div class="jc-head">
+          <div class="jc-logo" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
+          <div><div class="jc-title">Desenvolvedor Júnior</div><div class="jc-company">TIVIT · São Paulo · Presencial</div></div>
+        </div>
+        <div class="jc-desc">Soluções Java com integração a serviços Azure e APIs RESTful. Ambiente corporativo com crescimento estruturado.</div>
+        <div class="tags" style="margin-bottom:10px">
+          <div class="tag">Java</div><div class="tag">Azure</div><div class="tag">REST</div>
+        </div>
+        <div class="jc-footer"><div class="match">● 82% match</div><button class="apply-btn">Candidatar</button></div>
+      </div>
+    </div>
+
+    <!-- Coluna direita: recrutadores -->
+    <div class="col">
+      <div class="sec-title">Recrutadores para contatar</div>
+      <div class="card" style="padding:14px">
+        <div th:each="rec : ${recrutadores}" class="rec-item">
+          <div class="rec-av" th:style="'background:' + ${rec.corAvatar}"
+               th:text="${#strings.abbreviate(rec.nome, 2)}">JP</div>
+          <div style="flex:1;min-width:0">
+            <div class="rec-name" th:text="${rec.nome}">Nome</div>
+            <div class="rec-role" th:text="${rec.cargo} + ' · ' + ${rec.empresa}">Cargo · Empresa</div>
+          </div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+
+        <!-- Placeholders estáticos -->
+        <div class="rec-item">
+          <div class="rec-av" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">JP</div>
+          <div style="flex:1;min-width:0"><div class="rec-name">João Paulo Silva</div><div class="rec-role">Tech Recruiter · Nubank</div></div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+        <div class="rec-item">
+          <div class="rec-av" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">CS</div>
+          <div style="flex:1;min-width:0"><div class="rec-name">Carla Santos</div><div class="rec-role">Head of Talent · iFood</div></div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+        <div class="rec-item">
+          <div class="rec-av" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">FM</div>
+          <div style="flex:1;min-width:0"><div class="rec-name">Felipe Marques</div><div class="rec-role">Recrutador Sênior · TIVIT</div></div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+        <div class="rec-item">
+          <div class="rec-av" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">LF</div>
+          <div style="flex:1;min-width:0"><div class="rec-name">Leticia Ferreira</div><div class="rec-role">Talent Acquisition · CI&amp;T</div></div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+        <div class="rec-item">
+          <div class="rec-av" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">RB</div>
+          <div style="flex:1;min-width:0"><div class="rec-name">Ricardo Brito</div><div class="rec-role">Tech Recruiter · Globo</div></div>
+          <button class="conn-btn">Conectar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="card(vaga)" class="job-card">
+  <div class="jc-head">
+    <div class="jc-logo"
+         th:style="'background:' + ${vaga.empresa.corLogo}"
+         th:text="${vaga.empresa != null and vaga.empresa.nome != null ? vaga.empresa.nome.substring(0, 1).toUpperCase() : 'E'}">E</div>
+    <div>
+      <div class="jc-title" th:text="${vaga.titulo}">Título da vaga</div>
+      <div class="jc-company"
+           th:text="${vaga.empresa.nome} + ' · ' + ${vaga.localidade} + ' · ' + ${vaga.modalidade}">
+        Empresa · Local · Modalidade
+      </div>
+    </div>
+  </div>
+  <div class="jc-desc" th:text="${vaga.descricao}">Descrição da vaga.</div>
+  <div class="tags" style="margin-bottom:10px">
+    <div th:each="tech : ${vaga.tecnologias}" class="tag" th:text="${tech}">Tech</div>
+  </div>
+  <div class="jc-footer">
+    <div class="match" th:text="'● ' + ${vaga.matchPorcentagem} + '% match'">● 90% match</div>
+    <button class="apply-btn">Candidatar</button>
+  </div>
+</div>
+</body>
+</html>

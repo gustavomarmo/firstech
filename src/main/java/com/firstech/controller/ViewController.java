@@ -1,9 +1,15 @@
 package com.firstech.controller;
 
+import com.firstech.dto.UsuarioViewModel;
+import com.firstech.model.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * Mapeia as rotas de view para os templates Thymeleaf.
@@ -38,9 +44,27 @@ public class ViewController {
         return "auth/reset-password";
     }
 
-    /** Exemplo de rota protegida — substitua pelo seu dashboard real. */
     @GetMapping("/dashboard")
-    public String dashboard() {
-        return "main/index"; // crie templates/dashboard.html
+    public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        UsuarioViewModel usuario;
+        if (userDetails instanceof User user) {
+            usuario = UsuarioViewModel.builder()
+                    .nome(user.getName())
+                    .nomeCompleto(user.getName())
+                    .build();
+        } else {
+            usuario = UsuarioViewModel.builder().build();
+        }
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("posts", List.of());
+        model.addAttribute("vagasRecomendadas", List.of());
+        model.addAttribute("vagas", List.of());
+        model.addAttribute("recrutadores", List.of());
+        model.addAttribute("totalVagas", 0);
+        model.addAttribute("termoBusca", "");
+        model.addAttribute("totalResultados", 0);
+        model.addAttribute("resultados", List.of());
+        return "main/index";
     }
 }

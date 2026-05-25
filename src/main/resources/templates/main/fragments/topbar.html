@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="topbar" class="topbar">
+  <div class="logo">
+    <span class="dim">&lt;</span><span class="accent">first</span><span class="dim">&gt;</span><span>tech</span>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="go('home')" id="nb-home">
+      <i class="ti ti-home"></i>Home
+    </button>
+    <button class="nav-btn" onclick="go('jobs')" id="nb-jobs">
+      <i class="ti ti-briefcase"></i>Jobs
+    </button>
+    <button class="nav-btn" onclick="go('search')" id="nb-search">
+      <i class="ti ti-search"></i>Search
+    </button>
+    <button class="nav-btn" onclick="go('portfolio')" id="nb-portfolio">
+      <i class="ti ti-user-circle"></i>Portfolio
+    </button>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="notif-btn">
+      <i class="ti ti-bell" style="font-size:18px"></i>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="avatar-top" th:text="${usuario.iniciais}">GM</div>
+  </div>
+</div>
+</body>
+</html>
