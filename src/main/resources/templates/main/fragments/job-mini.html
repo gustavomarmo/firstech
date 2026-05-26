@@ -4,20 +4,20 @@
 <div th:fragment="card(vaga)" class="bg-bg3 rounded-[10px] py-[10px] px-[12px] mb-2 border border-border2 cursor-pointer transition-all duration-[180ms] hover:border-border hover:bg-bg4">
   <div class="flex items-center gap-[9px] mb-[5px]">
     <div class="w-8 h-8 rounded-[7px] shrink-0 flex items-center justify-center text-xs font-[800] text-white"
-         th:style="'background:' + ${vaga.empresa.corLogo}"
-         th:text="${vaga.empresa != null and vaga.empresa.nome != null ? vaga.empresa.nome.substring(0, 1).toUpperCase() : 'E'}">E</div>
+         th:style="'background:' + ${vaga.companyLogo}"
+         th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</div>
     <div>
-      <div class="text-[13px] font-semibold text-text1" th:text="${vaga.titulo}">Título</div>
-      <div class="text-[11px] text-text2" th:text="${vaga.empresa.nome} + ' · ' + ${vaga.localidade}">Empresa · Local</div>
+      <div class="text-[13px] font-semibold text-text1" th:text="${vaga.title}">Título</div>
+      <div class="text-[11px] text-text2" th:text="${vaga.company} + ' · ' + ${vaga.location}">Empresa · Local</div>
     </div>
   </div>
   <div class="flex gap-1 flex-wrap mt-[5px]">
-    <div th:each="tech : ${vaga.tecnologias}"
+    <div th:each="tag : ${vaga.tags}"
          class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border"
-         th:text="${tech}">Tech</div>
-    <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-[rgba(52,211,153,.09)] text-green border border-[rgba(52,211,153,.22)]"
-         th:text="${vaga.matchPorcentagem} + '% match'"
-         th:if="${vaga.matchPorcentagem} >= 80">95% match</div>
+         th:text="${tag}">Tag</div>
+    <div th:if="${vaga.level != null}"
+         class="text-[10px] py-[2px] px-2 rounded-[20px] bg-[rgba(251,191,36,.09)] text-amber border border-[rgba(251,191,36,.22)]"
+         th:text="${vaga.level}">Nível</div>
   </div>
 </div>
 </body>

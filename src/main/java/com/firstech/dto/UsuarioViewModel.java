@@ -16,6 +16,7 @@ public class UsuarioViewModel {
     @Builder.Default private String sobre         = "";
     @Builder.Default private String cargo         = "";
     @Builder.Default private String empresa       = "";
+    @Builder.Default private boolean recrutador   = false;
 
     @Builder.Default private int conexoes         = 0;
     @Builder.Default private int visualizacoes    = 0;

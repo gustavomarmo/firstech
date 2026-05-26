@@ -22,6 +22,14 @@
   </nav>
 
   <div class="flex items-center gap-[10px]">
+
+    <!-- Botão "Nova Vaga" — apenas para recrutadores -->
+    <button th:if="${usuario.recrutador}"
+            class="flex items-center gap-[6px] py-[7px] px-[14px] rounded-[9px] bg-purple border border-[rgba(139,92,246,.5)] text-white font-[inherit] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2"
+            onclick="openJobModal()">
+      <i class="ti ti-plus text-sm"></i>Nova Vaga
+    </button>
+
     <div class="w-9 h-9 rounded-[9px] border border-border2 bg-bg3 text-text2 flex items-center justify-center cursor-pointer relative">
       <i class="ti ti-bell text-[18px]"></i>
       <div class="w-2 h-2 rounded-full bg-purple border-2 border-bg2 absolute top-1.5 right-1.5"></div>
