@@ -77,15 +77,53 @@
 
   <!-- Ações: curtir, comentar, compartilhar -->
   <div class="flex gap-1">
-    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
-      <i class="ti ti-heart text-base"></i><span th:text="${post.likes}">0</span>
+    <!-- Curtir -->
+    <button th:id="'like-btn-' + ${post.id}"
+            th:data-post-id="${post.id}"
+            th:data-liked="${post.likedByMe}"
+            th:classappend="${post.likedByMe} ? ' text-red' : ' text-text3 hover:text-red'"
+            class="like-btn flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3"
+            th:onclick="'toggleLike(' + ${post.id} + ', this)'">
+      <i th:class="${post.likedByMe} ? 'ti ti-heart-filled text-base' : 'ti ti-heart text-base'"></i>
+      <span th:id="'like-count-' + ${post.id}" th:text="${post.likes}">0</span>
     </button>
-    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
-      <i class="ti ti-message-circle text-base"></i><span th:text="${post.commentCount}">0</span>
+    <!-- Comentar -->
+    <button th:id="'comment-toggle-' + ${post.id}"
+            class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"
+            th:onclick="'toggleComments(' + ${post.id} + ', this)'">
+      <i class="ti ti-message-circle text-base"></i>
+      <span th:id="'comment-count-' + ${post.id}" th:text="${post.commentCount}">0</span>
     </button>
+    <!-- Compartilhar -->
     <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
       <i class="ti ti-share text-base"></i>Compartilhar
     </button>
+  </div>
+
+  <!-- Seção de comentários (oculta; expandida via JS) -->
+  <div th:id="'comments-' + ${post.id}" class="hidden mt-3 pt-3 border-t border-border2">
+    <!-- Comentários carregados via JS -->
+    <div th:id="'comments-list-' + ${post.id}" class="flex flex-col gap-[10px] mb-3"></div>
+    <!-- Campo de novo comentário -->
+    <div class="flex gap-[8px] items-start">
+      <!-- Mini-avatar do usuário logado -->
+      <div class="w-7 h-7 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-[11px] font-bold text-white"
+           th:style="'background:linear-gradient(135deg,#6d28d9,#8b5cf6)'">
+        <img th:if="${usuario.avatarBase64 != null}" th:src="${usuario.avatarBase64}" alt="" class="w-full h-full object-cover"/>
+        <span th:unless="${usuario.avatarBase64 != null}" th:text="${usuario.inicial}">G</span>
+      </div>
+      <div class="flex-1 flex gap-2 items-center bg-bg3 border border-border2 rounded-[9px] pr-2 transition-[border-color] focus-within:border-border">
+        <input th:id="'comment-input-' + ${post.id}"
+               type="text"
+               placeholder="Escreva um comentário..."
+               class="flex-1 bg-transparent border-none outline-none text-text1 font-[inherit] text-[13px] py-[8px] px-[12px] placeholder:text-text3"
+               th:onkeydown="'handleCommentKey(event, ' + ${post.id} + ')'"/>
+        <button class="shrink-0 w-7 h-7 rounded-lg bg-transparent border-none text-text3 cursor-pointer flex items-center justify-center hover:text-purple2 transition-colors"
+                th:onclick="'submitComment(' + ${post.id} + ')'">
+          <i class="ti ti-send text-sm"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="card(showAvailBadge)" class="bg-bg2 border border-border2 rounded-[14px] overflow-hidden mb-[14px]">
-  <div class="profile-cover h-[68px] bg-[linear-gradient(135deg,#1a0533_0%,#2d1b6e_50%,#0f172a_100%)] relative"></div>
+<div th:fragment="card(showAvailBadge)" class="bg-bg2 border border-border2 rounded-[14px] mb-[14px]">
+
+  <!-- Capa (banner ou gradiente padrão) — overflow-hidden aqui para clicar nos cantos -->
+  <div class="profile-cover h-[68px] rounded-t-[14px] overflow-hidden relative"
+       th:style="${usuario.bannerBase64 != null} ? 'background:transparent' : 'background:linear-gradient(135deg,#1a0533 0%,#2d1b6e 50%,#0f172a 100%)'">
+    <img th:if="${usuario.bannerBase64 != null}"
+         th:src="${usuario.bannerBase64}"
+         alt="Banner"
+         class="w-full h-full object-cover"/>
+  </div>
+
   <div class="px-[14px] pb-[14px]">
     <div class="-mt-6 mb-2 flex items-end justify-between">
       <!-- Avatar: foto real ou iniciais -->
@@ -18,8 +27,8 @@
       <div class="text-[10px] font-semibold py-[3px] px-[9px] bg-[rgba(52,211,153,.12)] text-green border border-[rgba(52,211,153,.28)] rounded-[20px]"
            th:if="${showAvailBadge}">● Disponível</div>
     </div>
-    <div class="font-display text-[15px] font-semibold text-text1 mb-0.5" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
-    <div class="text-xs text-text2 leading-[1.5] mb-[10px]" th:text="${usuario.headline}">Back-end Dev · Java · Spring · AWS</div>
+    <div class="font-display text-[15px] font-semibold text-text1 mb-0.5 truncate" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
+    <div class="text-xs text-text2 leading-[1.5] mb-[10px] line-clamp-2" th:text="${usuario.headline}">Back-end Dev · Java · Spring · AWS</div>
     <div class="grid grid-cols-2 gap-1.5">
       <div class="bg-bg3 rounded-[9px] p-[8px_10px]">
         <div class="text-[18px] font-bold font-display text-purple2" th:text="${usuario.conexoes}">512</div>

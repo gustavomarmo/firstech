@@ -76,6 +76,7 @@ public class ViewController {
                     .localizacao(user.getCity() != null ? user.getCity() : "")
                     .sobre(user.getSobre() != null ? user.getSobre() : "")
                     .avatarBase64(user.getAvatarBase64())
+                    .bannerBase64(user.getBannerBase64())
                     .cargo(cargo)
                     .empresa(empresa)
                     .recrutador(isRecruiter)
@@ -89,7 +90,7 @@ public class ViewController {
         }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("posts", postService.getAllPosts());
+        model.addAttribute("posts", userDetails instanceof User u ? postService.getAllPosts(u) : postService.getAllPosts());
         model.addAttribute("vagasRecomendadas", List.of());
         model.addAttribute("recrutadores", List.of());
         model.addAttribute("termoBusca", "");

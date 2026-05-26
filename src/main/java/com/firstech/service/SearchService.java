@@ -75,7 +75,7 @@ public class SearchService {
             String titulo = p.getTitle() != null && !p.getTitle().isBlank()
                     ? p.getTitle()
                     : truncate(p.getContent(), 60);
-            String sub    = "por " + nome + " · " + p.getLikes() + " curtidas";
+            String sub    = "por " + nome + " · " + p.getLikedByUserIds().size() + " curtidas";
             String inicial = nome.isBlank() ? "?" : nome.substring(0, 1).toUpperCase();
             results.add(new SearchResultDTO(
                     p.getId(), titulo, sub,

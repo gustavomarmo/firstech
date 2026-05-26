@@ -1,15 +1,9 @@
 package com.firstech.service;
 
-import com.firstech.dto.PostAutorDTO;
-import com.firstech.dto.PostRequestDTO;
-import com.firstech.dto.PostResponseDTO;
+import com.firstech.dto.*;
 import com.firstech.exception.ResourceNotFoundException;
-import com.firstech.model.Job;
-import com.firstech.model.Post;
-import com.firstech.model.Role;
-import com.firstech.model.User;
-import com.firstech.repository.JobRepository;
-import com.firstech.repository.PostRepository;
+import com.firstech.model.*;
+import com.firstech.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -24,8 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final PostRepository postRepository;
-    private final JobRepository  jobRepository;
+    private final PostRepository        postRepository;
+    private final PostCommentRepository commentRepository;
+    private final JobRepository         jobRepository;
 
     private static final String[] AVATAR_GRADIENTS = {
             "linear-gradient(135deg,#6d28d9,#8b5cf6)",
@@ -51,7 +46,7 @@ public class PostService {
                 .linkedJob(linkedJob)
                 .build();
 
-        return toDTO(postRepository.save(post));
+        return toDTO(postRepository.save(post), author.getId());
     }
 
     @Transactional
@@ -66,7 +61,7 @@ public class PostService {
         }
         post.setLinkedJob(resolveLinkedJob(dto.linkedJobId(), requester));
 
-        return toDTO(postRepository.save(post));
+        return toDTO(postRepository.save(post), requester.getId());
     }
 
     @Transactional
@@ -75,10 +70,61 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    /** Listagem sem usuário — likedByMe sempre false (chamada REST pública). */
     @Transactional(readOnly = true)
     public List<PostResponseDTO> getAllPosts() {
+        return getAllPosts(null);
+    }
+
+    /** Listagem com usuário — popula likedByMe (chamada do ViewController). */
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getAllPosts(User currentUser) {
+        Long uid = currentUser != null ? currentUser.getId() : null;
         return postRepository.findAllByOrderByCreatedAtDesc()
-                .stream().map(this::toDTO).toList();
+                .stream().map(p -> toDTO(p, uid)).toList();
+    }
+
+    // ── Curtidas ─────────────────────────────────────────────────────────
+
+    @Transactional
+    public LikeResponseDTO toggleLike(Long postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado."));
+        Long uid = user.getId();
+        boolean liked;
+        if (post.getLikedByUserIds().contains(uid)) {
+            post.getLikedByUserIds().remove(uid);
+            liked = false;
+        } else {
+            post.getLikedByUserIds().add(uid);
+            liked = true;
+        }
+        postRepository.save(post);
+        return new LikeResponseDTO(liked, post.getLikedByUserIds().size());
+    }
+
+    // ── Comentários ───────────────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDTO> getComments(Long postId) {
+        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId)
+                .stream().map(this::toCommentDTO).toList();
+    }
+
+    @Transactional
+    public CommentResponseDTO addComment(Long postId, String content, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado."));
+
+        PostComment comment = PostComment.builder()
+                .content(content)
+                .post(post)
+                .author(user)
+                .build();
+
+        post.setCommentCount(post.getCommentCount() + 1);
+        postRepository.save(post);
+        return toCommentDTO(commentRepository.save(comment));
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
@@ -102,7 +148,7 @@ public class PostService {
         return job;
     }
 
-    private PostResponseDTO toDTO(Post post) {
+    private PostResponseDTO toDTO(Post post, Long currentUserId) {
         User author = post.getAuthor();
         return PostResponseDTO.builder()
                 .id(post.getId())
@@ -110,7 +156,8 @@ public class PostService {
                 .title(post.getTitle())
                 .tags(post.getTags())
                 .autor(buildAutor(author))
-                .likes(post.getLikes())
+                .likes(post.getLikedByUserIds().size())
+                .likedByMe(currentUserId != null && post.getLikedByUserIds().contains(currentUserId))
                 .commentCount(post.getCommentCount())
                 .tempoRelativo(relativeTime(post.getCreatedAt()))
                 .linkedJobId(post.getLinkedJob() != null ? post.getLinkedJob().getId() : null)
@@ -130,6 +177,20 @@ public class PostService {
                 .inicial(inicial)
                 .avatarBase64(user.getAvatarBase64())
                 .build();
+    }
+
+    private CommentResponseDTO toCommentDTO(PostComment c) {
+        User a    = c.getAuthor();
+        String nome = a.getName() != null ? a.getName() : "Usuário";
+        return new CommentResponseDTO(
+                c.getId(),
+                c.getContent(),
+                nome,
+                nome.isBlank() ? "?" : nome.substring(0, 1).toUpperCase(),
+                avatarGradient(nome),
+                a.getAvatarBase64(),
+                relativeTime(c.getCreatedAt())
+        );
     }
 
     /** Gera label de cargo para exibição no card. */
@@ -154,7 +215,7 @@ public class PostService {
         return AVATAR_GRADIENTS[Math.abs(name.hashCode() % AVATAR_GRADIENTS.length)];
     }
 
-    /** Converte data de criação em string relativa: "agora", "5m atrás", "2h atrás", "3d atrás". */
+    /** Converte data de criação em string relativa. */
     private static String relativeTime(LocalDateTime createdAt) {
         if (createdAt == null) return "";
         long minutes = ChronoUnit.MINUTES.between(createdAt, LocalDateTime.now());

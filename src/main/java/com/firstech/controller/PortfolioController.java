@@ -39,6 +39,14 @@ public class PortfolioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping(value = "/banner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadBanner(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal User user) throws IOException {
+        portfolioService.updateBanner(file, user);
+        return ResponseEntity.noContent().build();
+    }
+
     // ── Perfil ─────────────────────────────────────────────────────────
 
     @PutMapping("/profile")

@@ -42,8 +42,12 @@ public class Post {
     @JoinColumn(name = "linked_job_id")
     private Job linkedJob;
 
+    /** IDs dos usuários que curtiram este post (tabela de junção simples). */
+    @ElementCollection
+    @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "user_id")
     @Builder.Default
-    private int likes = 0;
+    private java.util.Set<Long> likedByUserIds = new java.util.HashSet<>();
 
     @Builder.Default
     private int commentCount = 0;

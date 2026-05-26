@@ -4,7 +4,24 @@
 <div th:fragment="portfolio" class="port-screen" id="s-portfolio">
 
   <!-- ── Banner de capa ── -->
-  <div class="port-cover h-[130px] shrink-0 bg-[linear-gradient(135deg,#0f0521_0%,#2d1b6e_40%,#0f172a_70%,#1a0533_100%)] relative">
+  <div class="port-cover h-[130px] shrink-0 relative overflow-hidden group/banner"
+       th:style="${usuario.bannerBase64 != null} ? 'background:transparent' : 'background:linear-gradient(135deg,#0f0521 0%,#2d1b6e 40%,#0f172a 70%,#1a0533 100%)'">
+
+    <!-- Imagem do banner (se existir) -->
+    <img th:if="${usuario.bannerBase64 != null}"
+         th:src="${usuario.bannerBase64}"
+         alt="Banner"
+         class="w-full h-full object-cover absolute inset-0"/>
+
+    <!-- Overlay padrão (brilho) quando não há banner -->
+    <div th:if="${usuario.bannerBase64 == null}" class="port-cover absolute inset-0"></div>
+
+    <!-- Botão de editar banner (aparece no hover) -->
+    <label for="banner-file-input"
+           class="absolute top-3 right-3 flex items-center gap-1.5 py-[6px] px-3 rounded-lg bg-[rgba(7,10,16,.7)] text-white text-[12px] font-medium cursor-pointer opacity-0 group-hover/banner:opacity-100 transition-opacity duration-200 z-10 select-none">
+      <i class="ti ti-photo text-[14px]"></i>Alterar capa
+    </label>
+    <input type="file" id="banner-file-input" accept="image/*" class="hidden" onchange="uploadBanner(this)"/>
 
     <!-- Avatar: posicionado no limite capa/body, clicável para upload -->
     <label for="avatar-file-input"

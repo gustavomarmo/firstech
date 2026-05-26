@@ -59,6 +59,18 @@ public class PortfolioService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void updateBanner(MultipartFile file, User user) throws IOException {
+        String ct = file.getContentType();
+        if (ct == null || !ct.startsWith("image/"))
+            throw new IllegalArgumentException("O arquivo deve ser uma imagem.");
+        if (file.getSize() > 3 * 1024 * 1024)
+            throw new IllegalArgumentException("A imagem do banner deve ter no máximo 3 MB.");
+        String b64 = Base64.getEncoder().encodeToString(file.getBytes());
+        user.setBannerBase64("data:" + ct + ";base64," + b64);
+        userRepository.save(user);
+    }
+
     // ── Leitura completa para o ViewController ───────────────────────────
 
     @Transactional(readOnly = true)

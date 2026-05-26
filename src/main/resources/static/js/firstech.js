@@ -297,12 +297,12 @@ function openJobModal(vaga) {
     publishLabel.textContent = 'Salvar alterações';
     publishIcon.className    = 'ti ti-device-floppy text-sm';
 
-    document.getElementById('job-titulo').value            = vaga.title          || '';
-    document.getElementById('job-localidade').value        = vaga.location       || '';
-    document.getElementById('job-salario').value           = vaga.salary         || '';
-    document.getElementById('job-descricao').value         = vaga.description    || '';
-    document.getElementById('job-company-name').value      = vaga.jobCompany     || '';
-    document.getElementById('job-company-logo-url').value  = vaga.companyLogoUrl || '';
+    document.getElementById('job-titulo').value     = vaga.title       || '';
+    document.getElementById('job-localidade').value = vaga.location    || '';
+    document.getElementById('job-salario').value    = vaga.salary      || '';
+    document.getElementById('job-descricao').value  = vaga.description || '';
+    // Preenche campos de empresa (autocomplete + ocultos)
+    _setCompanyFields(vaga.jobCompany || '', vaga.companyLogoUrl || '');
 
     // Selects: define o valor e garante que a opção exista
     _setSelectValue('job-modalidade', vaga.modality);
@@ -372,7 +372,7 @@ async function publishJob() {
   const salary           = document.getElementById('job-salario').value.trim() || null;
   const description      = document.getElementById('job-descricao').value.trim();
   const tags             = collectJobTags();
-  const jobCompany       = document.getElementById('job-company-name').value.trim() || null;
+  const jobCompany        = document.getElementById('job-company-name').value.trim()     || null;
   const jobCompanyLogoUrl = document.getElementById('job-company-logo-url').value.trim() || null;
 
   // Valida título
@@ -435,14 +435,13 @@ async function publishJob() {
 }
 
 function resetJobModal() {
-  document.getElementById('job-titulo').value           = '';
-  document.getElementById('job-localidade').value       = '';
-  document.getElementById('job-modalidade').value       = '';
-  document.getElementById('job-nivel').value            = '';
-  document.getElementById('job-salario').value          = '';
-  document.getElementById('job-descricao').value        = '';
-  document.getElementById('job-company-name').value     = '';
-  document.getElementById('job-company-logo-url').value = '';
+  document.getElementById('job-titulo').value     = '';
+  document.getElementById('job-localidade').value = '';
+  document.getElementById('job-modalidade').value = '';
+  document.getElementById('job-nivel').value      = '';
+  document.getElementById('job-salario').value    = '';
+  document.getElementById('job-descricao').value  = '';
+  clearCompanySelection();
   document.querySelectorAll('#job-active-tags .job-tag').forEach(t => t.remove());
 }
 
@@ -742,7 +741,7 @@ async function saveSobre() {
   }
 }
 
-/* ── Autocomplete de cidades (IBGE) ──────────────────────── */
+/* ── Autocomplete de localização (IBGE) — genérico ──────── */
 
 let _ibgeCities  = null;   // cache: ["São Paulo, SP", ...]
 let _cityTimer   = null;
@@ -765,8 +764,14 @@ function _normalize(s) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-async function cityAutocomplete(input) {
-  const dd    = document.getElementById('city-ac-dropdown');
+/**
+ * Autocomplete de localização genérico.
+ * @param {HTMLInputElement} input  - o campo de texto
+ * @param {string} dropdownId       - id do div dropdown (padrão: 'city-ac-dropdown')
+ */
+async function locationAutocomplete(input, dropdownId = 'city-ac-dropdown') {
+  const dd    = document.getElementById(dropdownId);
+  if (!dd) return;
   const query = input.value.trim();
   clearTimeout(_cityTimer);
 
@@ -781,27 +786,37 @@ async function cityAutocomplete(input) {
 
     if (!matches.length) { dd.classList.add('hidden'); return; }
 
+    const inputId = input.id;
     dd.innerHTML = matches.map(c => {
-      const safe = c.replace(/'/g, "\\'");
+      const safe = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       return `<button type="button"
         class="w-full text-left px-3 py-[9px] text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0"
-        onclick="selectCity('${safe}')">${c}</button>`;
+        onclick="selectLocation('${inputId}','${dropdownId}','${safe}')">${c}</button>`;
     }).join('');
     dd.classList.remove('hidden');
   }, 280);
 }
 
-function selectCity(city) {
-  const inp = document.getElementById('port-city');
+/** Atalho para o campo do portfólio (retrocompatibilidade) */
+function cityAutocomplete(input) { locationAutocomplete(input, 'city-ac-dropdown'); }
+
+function selectLocation(inputId, dropdownId, city) {
+  const inp = document.getElementById(inputId);
   if (inp) inp.value = city;
-  document.getElementById('city-ac-dropdown')?.classList.add('hidden');
+  document.getElementById(dropdownId)?.classList.add('hidden');
 }
 
-// Fecha dropdown ao clicar fora
+/** Compatibilidade com selectCity anterior */
+function selectCity(city) { selectLocation('port-city', 'city-ac-dropdown', city); }
+
+// Fecha dropdowns de localização ao clicar fora
 document.addEventListener('click', e => {
-  if (e.target.id !== 'port-city' && !e.target.closest('#city-ac-dropdown')) {
-    document.getElementById('city-ac-dropdown')?.classList.add('hidden');
-  }
+  ['city-ac-dropdown', 'job-loc-dropdown'].forEach(id => {
+    const dd = document.getElementById(id);
+    if (dd && !e.target.closest('#' + id) && e.target.id !== dd.previousElementSibling?.id) {
+      dd.classList.add('hidden');
+    }
+  });
 });
 
 /* ── Experiências ─────────────────────────────────────────── */
@@ -1302,3 +1317,286 @@ function _escapeHtml(s) {
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BANNER DO PORTFÓLIO
+   ═══════════════════════════════════════════════════════════ */
+
+async function uploadBanner(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showJobToast('Selecione um arquivo de imagem (JPEG, PNG, WebP).', true); return;
+  }
+  if (file.size > 3 * 1024 * 1024) {
+    showJobToast('A imagem do banner deve ter no máximo 3 MB.', true); return;
+  }
+
+  const token = _portToken(); if (!token) return;
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const resp = await fetch('/api/portfolio/banner', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: formData,
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Erro ao enviar banner.');
+    }
+    showJobToast('Banner atualizado!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CURTIDAS E COMENTÁRIOS
+   ═══════════════════════════════════════════════════════════ */
+
+/** Alterna curtida no post via API e atualiza o botão */
+async function toggleLike(postId, btn) {
+  const token = localStorage.getItem('firstech_access_token');
+  if (!token) { window.location.href = '/login'; return; }
+
+  try {
+    const resp = await fetch(`/api/posts/${postId}/like`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!resp.ok) throw new Error();
+    const { liked, count } = await resp.json();
+
+    // Atualiza contagem
+    const countEl = document.getElementById('like-count-' + postId);
+    if (countEl) countEl.textContent = count;
+
+    // Atualiza ícone e cor
+    const icon = btn.querySelector('i');
+    if (liked) {
+      icon.className = 'ti ti-heart-filled text-base';
+      btn.classList.add('text-red');
+      btn.classList.remove('text-text3', 'hover:text-red');
+    } else {
+      icon.className = 'ti ti-heart text-base';
+      btn.classList.remove('text-red');
+      btn.classList.add('text-text3', 'hover:text-red');
+    }
+    btn.dataset.liked = liked ? 'true' : 'false';
+  } catch (_) {
+    showJobToast('Não foi possível registrar a curtida.', true);
+  }
+}
+
+/** Expande / recolhe seção de comentários de um post */
+async function toggleComments(postId, btn) {
+  const section = document.getElementById('comments-' + postId);
+  if (!section) return;
+
+  const isOpen = !section.classList.contains('hidden');
+  if (isOpen) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+  const list = document.getElementById('comments-list-' + postId);
+  if (!list || list.dataset.loaded) return; // já carregado
+
+  list.innerHTML = '<div class="text-[12px] text-text3">Carregando comentários...</div>';
+
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const resp = await fetch(`/api/posts/${postId}/comments`, {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    });
+    const comments = resp.ok ? await resp.json() : [];
+    list.dataset.loaded = 'true';
+    _renderComments(list, comments);
+  } catch (_) {
+    list.innerHTML = '<div class="text-[12px] text-red">Erro ao carregar comentários.</div>';
+  }
+}
+
+/** Renderiza comentários numa lista */
+function _renderComments(listEl, comments) {
+  if (!comments.length) {
+    listEl.innerHTML = '<div class="text-[12px] text-text3 italic">Ainda sem comentários. Seja o primeiro!</div>';
+    return;
+  }
+  listEl.innerHTML = comments.map(c => {
+    const avatarHtml = c.autorAvatarBase64
+      ? `<img src="${_escapeHtml(c.autorAvatarBase64)}" alt="" class="w-full h-full object-cover"/>`
+      : `<span class="text-[10px] font-bold text-white">${_escapeHtml(c.autorInicial)}</span>`;
+    return `<div class="flex gap-[8px]">
+      <div class="w-7 h-7 rounded-full shrink-0 overflow-hidden flex items-center justify-center comment-avatar">
+        ${avatarHtml}
+      </div>
+      <div class="flex-1 bg-bg3 rounded-[9px] px-3 py-2">
+        <div class="flex items-baseline gap-2 mb-[2px]">
+          <span class="text-[12px] font-semibold text-text1">${_escapeHtml(c.autorNome)}</span>
+          <span class="text-[10px] text-text3">${_escapeHtml(c.tempoRelativo)}</span>
+        </div>
+        <div class="text-[13px] text-text2 leading-[1.5]">${_escapeHtml(c.content)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/** Enter no campo de comentário */
+function handleCommentKey(e, postId) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(postId); }
+}
+
+/** Envia novo comentário */
+async function submitComment(postId) {
+  const input = document.getElementById('comment-input-' + postId);
+  const content = input?.value.trim();
+  if (!content) return;
+
+  const token = localStorage.getItem('firstech_access_token');
+  if (!token) { window.location.href = '/login'; return; }
+
+  input.value = '';
+  input.disabled = true;
+
+  try {
+    const resp = await fetch(`/api/posts/${postId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ content }),
+    });
+    if (!resp.ok) throw new Error();
+    const comment = await resp.json();
+
+    // Adiciona à lista e atualiza contagem
+    const list = document.getElementById('comments-list-' + postId);
+    if (list) {
+      if (list.querySelector('.italic')) list.innerHTML = ''; // remove "sem comentários"
+      const item = document.createElement('div');
+      item.innerHTML = _renderComments._html ? '' : ''; // trick to reuse
+      // Build the item directly
+      const avatarHtml = comment.autorAvatarBase64
+        ? `<img src="${_escapeHtml(comment.autorAvatarBase64)}" alt="" class="w-full h-full object-cover"/>`
+        : `<span class="text-[10px] font-bold text-white">${_escapeHtml(comment.autorInicial)}</span>`;
+      item.className = 'flex gap-[8px]';
+      item.innerHTML = `
+        <div class="w-7 h-7 rounded-full shrink-0 overflow-hidden flex items-center justify-center comment-avatar">
+          ${avatarHtml}
+        </div>
+        <div class="flex-1 bg-bg3 rounded-[9px] px-3 py-2">
+          <div class="flex items-baseline gap-2 mb-[2px]">
+            <span class="text-[12px] font-semibold text-text1">${_escapeHtml(comment.autorNome)}</span>
+            <span class="text-[10px] text-text3">agora</span>
+          </div>
+          <div class="text-[13px] text-text2 leading-[1.5]">${_escapeHtml(comment.content)}</div>
+        </div>`;
+      list.appendChild(item);
+    }
+
+    // Incrementa contagem no botão
+    const countEl = document.getElementById('comment-count-' + postId);
+    if (countEl) countEl.textContent = parseInt(countEl.textContent || '0') + 1;
+
+  } catch (_) {
+    showJobToast('Não foi possível enviar o comentário.', true);
+  } finally {
+    if (input) input.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTOCOMPLETE DE EMPRESA (Clearbit)
+   ═══════════════════════════════════════════════════════════ */
+
+let _companyTimer = null;
+
+/**
+ * Autocomplete de empresas usando a API do Clearbit.
+ * Popula os campos ocultos job-company-name e job-company-logo-url.
+ */
+async function companyAutocomplete(input) {
+  const query = input.value.trim();
+  const dd    = document.getElementById('job-company-dropdown');
+  clearTimeout(_companyTimer);
+
+  if (query.length < 2) { dd?.classList.add('hidden'); return; }
+
+  _companyTimer = setTimeout(async () => {
+    try {
+      const resp = await fetch(
+        `https://autocomplete.clearbit.com/v1/companies/suggest?query=${encodeURIComponent(query)}`
+      );
+      if (!resp.ok) throw new Error();
+      const companies = await resp.json(); // [{name, domain, logo}]
+
+      if (!companies.length) { dd?.classList.add('hidden'); return; }
+
+      dd.innerHTML = companies.slice(0, 7).map(c => {
+        const safe = JSON.stringify({name: c.name, logo: c.logo || '', domain: c.domain || ''});
+        return `<button type="button"
+          class="w-full text-left px-3 py-[8px] flex items-center gap-3 text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0"
+          onclick='selectCompany(${safe.replace(/'/g, "&apos;")})'
+        >
+          ${c.logo
+            ? `<img src="${_escapeHtml(c.logo)}" alt="" class="w-5 h-5 rounded object-contain shrink-0"/>`
+            : `<div class="w-5 h-5 rounded bg-bg4 flex items-center justify-center text-[10px] font-bold text-text3 shrink-0">${(c.name||'?').charAt(0).toUpperCase()}</div>`
+          }
+          <span class="flex-1 truncate">${_escapeHtml(c.name)}</span>
+          <span class="text-[11px] text-text3 shrink-0">${_escapeHtml(c.domain || '')}</span>
+        </button>`;
+      }).join('');
+      dd.classList.remove('hidden');
+    } catch (_) {
+      dd?.classList.add('hidden');
+    }
+  }, 300);
+}
+
+/** Seleciona uma empresa do dropdown */
+function selectCompany({ name, logo, domain }) {
+  _setCompanyFields(name, logo);
+  document.getElementById('job-company-dropdown')?.classList.add('hidden');
+}
+
+/** Preenche os campos de empresa (autocomplete visível + ocultos) */
+function _setCompanyFields(name, logoUrl) {
+  const ac     = document.getElementById('job-company-ac');
+  const hidden = document.getElementById('job-company-name');
+  const hidLogo= document.getElementById('job-company-logo-url');
+  const preview= document.getElementById('job-company-logo-preview');
+  const img    = document.getElementById('job-company-logo-img');
+  const icon   = document.getElementById('job-company-search-icon');
+  const clear  = document.getElementById('job-company-clear');
+
+  if (ac)      ac.value      = name || '';
+  if (hidden)  hidden.value  = name || '';
+  if (hidLogo) hidLogo.value = logoUrl || '';
+
+  if (logoUrl && preview && img) {
+    img.src = logoUrl;
+    preview.classList.remove('hidden');
+    if (icon) icon.classList.add('hidden');
+  } else if (preview) {
+    preview.classList.add('hidden');
+    if (icon) icon.classList.remove('hidden');
+  }
+
+  if (clear) clear.classList.toggle('hidden', !name);
+}
+
+/** Limpa a seleção de empresa */
+function clearCompanySelection() {
+  _setCompanyFields('', '');
+}
+
+// Fecha dropdown de empresa ao clicar fora
+document.addEventListener('click', e => {
+  if (!e.target.closest('#job-company-ac') && !e.target.closest('#job-company-dropdown')) {
+    document.getElementById('job-company-dropdown')?.classList.add('hidden');
+  }
+});
