@@ -8,8 +8,9 @@
   <!-- Cabeçalho: avatar + autor + ações -->
   <div class="flex items-center gap-[10px] mb-3">
     <!-- Avatar: foto real ou iniciais -->
-    <div class="w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white"
-         th:style="'background:' + ${post.autor.corAvatar}">
+    <div class="w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white cursor-pointer hover:opacity-90 transition-opacity"
+         th:style="'background:' + ${post.autor.corAvatar}"
+         th:onclick="'openUserProfile(' + ${post.autor.id} + ')'">
       <img th:if="${post.autor.avatarBase64 != null}"
            th:src="${post.autor.avatarBase64}"
            alt="avatar"
@@ -17,9 +18,20 @@
       <span th:unless="${post.autor.avatarBase64 != null}"
             th:text="${post.autor.inicial}">A</span>
     </div>
-    <div class="flex-1">
-      <div class="text-sm font-semibold text-text1" th:text="${post.autor.nome}">Autor</div>
-      <div class="text-[11px] text-text3 mt-px"
+    <div class="flex-1 min-w-0">
+      <!-- Nome: apenas o texto é clicável (inline-block), não a linha inteira -->
+      <div class="flex items-center gap-[6px] flex-wrap">
+        <span class="text-sm font-semibold text-text1 cursor-pointer hover:text-purple2 transition-colors"
+              th:text="${post.autor.nome}"
+              th:onclick="'openUserProfile(' + ${post.autor.id} + ')'">Autor</span>
+        <!-- Badge de status de conexão -->
+        <span th:if="${post.autor.connectionStatus == 'ACCEPTED'}"
+              class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-[rgba(52,211,153,.12)] text-green border border-[rgba(52,211,153,.25)]">Conectado</span>
+        <span th:if="${post.autor.connectionStatus == 'PENDING_RECEIVED'}"
+              class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-purplebg text-purple2 border border-border cursor-pointer"
+              th:onclick="'openUserProfile(' + ${post.autor.id} + ')'">Quer se conectar</span>
+      </div>
+      <div class="text-[11px] text-text3 mt-[1px]"
            th:text="${post.autor.cargo} + ' · ' + ${post.tempoRelativo}">Cargo · tempo</div>
     </div>
 

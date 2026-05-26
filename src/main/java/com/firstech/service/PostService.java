@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class PostService {
     private final PostRepository        postRepository;
     private final PostCommentRepository commentRepository;
     private final JobRepository         jobRepository;
+    private final ConnectionRepository  connectionRepository;
 
     private static final String[] AVATAR_GRADIENTS = {
             "linear-gradient(135deg,#6d28d9,#8b5cf6)",
@@ -76,12 +79,32 @@ public class PostService {
         return getAllPosts(null);
     }
 
-    /** Listagem com usuário — popula likedByMe (chamada do ViewController). */
+    /** Listagem com usuário — popula likedByMe e connectionStatus (chamada do ViewController). */
     @Transactional(readOnly = true)
     public List<PostResponseDTO> getAllPosts(User currentUser) {
         Long uid = currentUser != null ? currentUser.getId() : null;
+        Map<Long, String> connMap = buildConnectionStatusMap(currentUser);
         return postRepository.findAllByOrderByCreatedAtDesc()
-                .stream().map(p -> toDTO(p, uid)).toList();
+                .stream().map(p -> toDTO(p, uid, connMap)).toList();
+    }
+
+    /** Monta mapa userId → connectionStatus para uso eficiente na listagem de posts. */
+    private Map<Long, String> buildConnectionStatusMap(User user) {
+        if (user == null) return Map.of();
+        Map<Long, String> map = new HashMap<>();
+        // Aceitas (bidirecional)
+        connectionRepository.findByUserAndStatus(user, ConnectionStatus.ACCEPTED)
+            .forEach(c -> {
+                User other = c.getFromUser().getId().equals(user.getId()) ? c.getToUser() : c.getFromUser();
+                map.put(other.getId(), "ACCEPTED");
+            });
+        // Enviadas pendentes
+        connectionRepository.findByFromUserAndStatus(user, ConnectionStatus.PENDING)
+            .forEach(c -> map.putIfAbsent(c.getToUser().getId(), "PENDING_SENT"));
+        // Recebidas pendentes
+        connectionRepository.findPendingReceived(user)
+            .forEach(c -> map.putIfAbsent(c.getFromUser().getId(), "PENDING_RECEIVED"));
+        return map;
     }
 
     // ── Curtidas ─────────────────────────────────────────────────────────
@@ -148,14 +171,19 @@ public class PostService {
         return job;
     }
 
+    /** Fallback sem mapa de conexões (chamadas REST públicas). */
     private PostResponseDTO toDTO(Post post, Long currentUserId) {
+        return toDTO(post, currentUserId, Map.of());
+    }
+
+    private PostResponseDTO toDTO(Post post, Long currentUserId, Map<Long, String> connMap) {
         User author = post.getAuthor();
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .content(post.getContent())
                 .title(post.getTitle())
                 .tags(post.getTags())
-                .autor(buildAutor(author))
+                .autor(buildAutor(author, currentUserId, connMap))
                 .likes(post.getLikedByUserIds().size())
                 .likedByMe(currentUserId != null && post.getLikedByUserIds().contains(currentUserId))
                 .commentCount(post.getCommentCount())
@@ -166,9 +194,12 @@ public class PostService {
                 .build();
     }
 
-    private PostAutorDTO buildAutor(User user) {
+    private PostAutorDTO buildAutor(User user, Long currentUserId, Map<Long, String> connMap) {
         String nome    = user.getName() != null ? user.getName() : "Usuário";
         String inicial = nome.isBlank() ? "?" : nome.substring(0, 1).toUpperCase();
+        String connStatus = (currentUserId == null || currentUserId.equals(user.getId()))
+                ? "SELF"
+                : connMap.getOrDefault(user.getId(), "NONE");
         return PostAutorDTO.builder()
                 .id(user.getId())
                 .nome(nome)
@@ -176,6 +207,7 @@ public class PostService {
                 .corAvatar(avatarGradient(nome))
                 .inicial(inicial)
                 .avatarBase64(user.getAvatarBase64())
+                .connectionStatus(connStatus)
                 .build();
     }
 

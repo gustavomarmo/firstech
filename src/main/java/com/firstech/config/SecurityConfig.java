@@ -41,6 +41,8 @@ public class SecurityConfig {
             // API pública de vagas e posts (candidatos/visitantes podem listar)
             "/api/jobs",
             "/api/posts",
+            // Perfil público de usuários
+            "/api/users/*/profile",
             // Páginas Thymeleaf públicas
             "/", "/login", "/register", "/forgot-password", "/reset-password", "/dashboard",
             // Assets estáticos

@@ -67,6 +67,23 @@
     .like-btn.liked:hover{color:var(--red);}
     /* ── Seção de comentários ── */
     .comment-avatar{background:linear-gradient(135deg,#6d28d9,#8b5cf6);}
+    /* Messages screen */
+    #msg-messages-list .msg-bubble-mine { background:rgba(139,92,246,.18); border:1px solid rgba(139,92,246,.25); border-radius:14px 14px 4px 14px; }
+    #msg-messages-list .msg-bubble-other { background:var(--bg3); border:1px solid var(--border2); border-radius:14px 14px 14px 4px; }
+    .conv-item.active { background:rgba(139,92,246,.1); border-left:3px solid var(--purple2); }
+    /* Drawer lateral de perfil: desliza da direita */
+    #user-profile-overlay { transition:opacity .25s; }
+    #user-profile-overlay.open #user-profile-drawer { transform:translateX(0) !important; }
+    /* Spin animation for loaders */
+    .animate-spin { animation:spin-loader .7s linear infinite; }
+    @keyframes spin-loader { to { transform:rotate(360deg); } }
+    /* Scrollbar das mensagens */
+    #msg-messages-list::-webkit-scrollbar { width:4px; }
+    #msg-messages-list::-webkit-scrollbar-thumb { background:#222d3f; border-radius:4px; }
+    #conversations-list::-webkit-scrollbar { width:4px; }
+    #conversations-list::-webkit-scrollbar-thumb { background:#222d3f; border-radius:4px; }
+    #upm-content > div.overflow-y-auto::-webkit-scrollbar { width:4px; }
+    #upm-content > div.overflow-y-auto::-webkit-scrollbar-thumb { background:#222d3f; border-radius:4px; }
   </style>
 </head>
 <body class="h-full bg-bg text-text1 font-sans">
@@ -78,9 +95,11 @@
   <div th:replace="~{main/fragments/screens/jobs :: jobs}"></div>
   <div th:replace="~{main/fragments/screens/search :: search}"></div>
   <div th:replace="~{main/fragments/screens/portfolio :: portfolio}"></div>
+  <div th:replace="~{main/fragments/screens/messages :: messages}"></div>
 
   <div th:replace="~{main/fragments/post-modal :: modal}"></div>
   <div th:replace="~{main/fragments/job-modal :: modal}"></div>
+  <div th:replace="~{main/fragments/user-profile-modal :: modal}"></div>
 
 </div>
 

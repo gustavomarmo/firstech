@@ -1637,3 +1637,527 @@ document.addEventListener('click', e => {
     document.getElementById('job-company-dropdown')?.classList.add('hidden');
   }
 });
+
+/* ═══════════════════════════════════════════════════════════
+   PERFIL PÚBLICO DE USUÁRIO (Modal)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   PERFIL PÚBLICO DE USUÁRIO — Drawer lateral
+   ═══════════════════════════════════════════════════════════ */
+
+let _activeProfileUserId = null;
+
+async function openUserProfile(userId) {
+  _activeProfileUserId = userId;
+  const overlay = document.getElementById('user-profile-overlay');
+  const loading = document.getElementById('upm-loading');
+  const content = document.getElementById('upm-content');
+
+  // Reset para loading
+  loading.classList.remove('hidden');
+  content.classList.add('hidden');
+  content.style.display = '';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch(`/api/users/${userId}/profile`, {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (!res.ok) throw new Error();
+    const p = await res.json();
+    _renderUserProfile(p);
+  } catch {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function _renderUserProfile(p) {
+  // ── Banner ──────────────────────────────────────────────────
+  const bannerWrap = document.getElementById('upm-banner-img-wrap');
+  const bannerImg  = document.getElementById('upm-banner-img');
+  if (p.bannerBase64) {
+    bannerImg.src = p.bannerBase64;
+    bannerWrap.classList.remove('hidden');
+  } else {
+    bannerWrap.classList.add('hidden');
+  }
+
+  // ── Avatar ──────────────────────────────────────────────────
+  const avatarEl = document.getElementById('upm-avatar');
+  avatarEl.style.background = p.corAvatar;
+  avatarEl.innerHTML = p.avatarBase64
+    ? `<img src="${p.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
+    : `<span>${_escapeHtml(p.inicial)}</span>`;
+
+  // ── Texto ────────────────────────────────────────────────────
+  document.getElementById('upm-name').textContent          = p.nome;
+  document.getElementById('upm-headline').textContent      = p.headline;
+  document.getElementById('upm-location-text').textContent = p.cidade || 'Localização não informada';
+  document.getElementById('upm-connections').textContent   = p.totalConexoes;
+
+  // ── Botão de conexão ─────────────────────────────────────────
+  _updateConnectBtn(p.connectionStatus);
+
+  // ── Botão de mensagem (oculto no próprio perfil) ─────────────
+  const msgBtn = document.getElementById('upm-message-btn');
+  if (msgBtn) msgBtn.style.display = p.connectionStatus === 'SELF' ? 'none' : '';
+
+  // ── Sobre ────────────────────────────────────────────────────
+  const sobreSection = document.getElementById('upm-sobre-section');
+  const sobreEl      = document.getElementById('upm-sobre');
+  if (p.sobre) {
+    sobreEl.textContent = p.sobre;
+    sobreSection.classList.remove('hidden');
+  } else {
+    sobreSection.classList.add('hidden');
+  }
+
+  // ── Tecnologias ──────────────────────────────────────────────
+  const techSection = document.getElementById('upm-tech-section');
+  const techChips   = document.getElementById('upm-tech-chips');
+  if (p.tecnologias && p.tecnologias.length > 0) {
+    techChips.innerHTML = p.tecnologias.map(t =>
+      `<span class="text-[11px] py-[3px] px-[10px] rounded-lg bg-bg3 border border-border2 text-text2">${_escapeHtml(t)}</span>`
+    ).join('');
+    techSection.classList.remove('hidden');
+  } else {
+    techSection.classList.add('hidden');
+  }
+
+  // ── Experiências ─────────────────────────────────────────────
+  const expSection = document.getElementById('upm-exp-section');
+  const expList    = document.getElementById('upm-exp-list');
+  if (p.experiencias && p.experiencias.length > 0) {
+    expList.innerHTML = p.experiencias.map((e, i) => `
+      <div class="${i > 0 ? 'pt-4 border-t border-border2' : ''} flex gap-3">
+        <div class="w-9 h-9 rounded-[8px] shrink-0 flex items-center justify-center text-[13px] font-bold text-white"
+             style="background:${_escapeHtml(e.empresa?.corLogo || 'linear-gradient(135deg,#6d28d9,#8b5cf6)')}">
+          ${_escapeHtml(e.empresa?.inicial || 'E')}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-semibold text-text1">${_escapeHtml(e.cargo || '')}</div>
+          <div class="text-[12px] text-purple2 font-medium">${_escapeHtml(e.empresa?.nome || '')}</div>
+          <div class="text-[11px] text-text3 mt-[2px]">${_escapeHtml(e.periodo || '')}</div>
+          ${e.descricao ? `<div class="text-[12px] text-text2 mt-[5px] leading-[1.6]">${_escapeHtml(e.descricao)}</div>` : ''}
+        </div>
+      </div>`).join('');
+    expSection.classList.remove('hidden');
+  } else {
+    expSection.classList.add('hidden');
+  }
+
+  // ── Habilidades ──────────────────────────────────────────────
+  const skillsSection = document.getElementById('upm-skills-section');
+  const skillsList    = document.getElementById('upm-skills-list');
+  if (p.habilidades && p.habilidades.length > 0) {
+    skillsList.innerHTML = p.habilidades.map(h =>
+      `<span class="py-[4px] px-[12px] rounded-lg text-xs font-medium border ${h.destaque
+        ? 'bg-purplebg text-purple2 border-border'
+        : 'bg-bg4 text-text2 border-border2'}">${_escapeHtml(h.nome)}</span>`
+    ).join('');
+    skillsSection.classList.remove('hidden');
+  } else {
+    skillsSection.classList.add('hidden');
+  }
+
+  // ── Certificações ─────────────────────────────────────────────
+  const certSection = document.getElementById('upm-cert-section');
+  const certList    = document.getElementById('upm-cert-list');
+  if (p.certificacoes && p.certificacoes.length > 0) {
+    certList.innerHTML = p.certificacoes.map(c => `
+      <div class="flex items-center gap-[10px]">
+        <div class="w-9 h-9 rounded-lg bg-bg4 flex items-center justify-center text-[18px] shrink-0">${c.emoji || '📜'}</div>
+        <div class="min-w-0">
+          <div class="text-[13px] font-semibold text-text1">${_escapeHtml(c.nome || '')}</div>
+          <div class="text-[11px] text-text3">${_escapeHtml(c.emissor || '')}${c.dataEmissao ? ' · ' + _escapeHtml(c.dataEmissao) : ''}</div>
+        </div>
+      </div>`).join('');
+    certSection.classList.remove('hidden');
+  } else {
+    certSection.classList.add('hidden');
+  }
+
+  // ── Projetos ─────────────────────────────────────────────────
+  const projSection = document.getElementById('upm-proj-section');
+  const projList    = document.getElementById('upm-proj-list');
+  if (p.projetos && p.projetos.length > 0) {
+    projList.innerHTML = p.projetos.map(proj => `
+      <div class="bg-bg4 rounded-[10px] overflow-hidden border border-border2 ${proj.githubUrl ? 'cursor-pointer hover:border-border' : ''} transition-colors"
+           ${proj.githubUrl ? `onclick="window.open('${_escapeHtml(proj.githubUrl)}','_blank')"` : ''}>
+        <div class="h-[72px] flex items-center justify-center"
+             style="background:${_escapeHtml(proj.corThumb || 'linear-gradient(135deg,#0f0521,#2d1b6e)')}">
+          ${proj.thumbImageBase64
+            ? `<img src="${proj.thumbImageBase64}" class="w-full h-full object-cover" alt=""/>`
+            : `<i class="ti ${_escapeHtml(proj.icone || 'ti-code')}" style="font-size:24px;color:var(--purple2)"></i>`}
+        </div>
+        <div class="p-[8px_10px]">
+          <div class="text-[12px] font-semibold text-text1 truncate flex items-center gap-1">
+            ${_escapeHtml(proj.nome || '')}
+            ${proj.githubUrl ? '<i class="ti ti-brand-github text-[11px] text-text3 shrink-0"></i>' : ''}
+          </div>
+          <div class="text-[10px] text-text3 leading-[1.4] mt-[2px] line-clamp-2">${_escapeHtml(proj.descricao || '')}</div>
+        </div>
+      </div>`).join('');
+    projSection.classList.remove('hidden');
+  } else {
+    projSection.classList.add('hidden');
+  }
+
+  // ── Mostrar conteúdo ─────────────────────────────────────────
+  document.getElementById('upm-loading').classList.add('hidden');
+  const content = document.getElementById('upm-content');
+  content.classList.remove('hidden');
+  content.style.display = 'flex';
+}
+
+function _updateConnectBtn(status) {
+  const btn = document.getElementById('upm-connect-btn');
+  if (!btn) return;
+  const configs = {
+    'SELF':             { label: 'Você',           style: 'background:var(--bg3);color:var(--text3);border:1px solid var(--border2);cursor:default',                    disabled: true  },
+    'NONE':             { label: '+ Conectar',      style: 'background:var(--purple);color:#fff;border:none',                                                           disabled: false },
+    'PENDING_SENT':     { label: '✓ Solicitado',    style: 'background:var(--bg3);color:var(--text3);border:1px solid var(--border2);cursor:default',                   disabled: true  },
+    'PENDING_RECEIVED': { label: 'Aceitar pedido',  style: 'background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)',                   disabled: false },
+    'ACCEPTED':         { label: '✓ Conectado',     style: 'background:var(--bg3);color:var(--green);border:1px solid rgba(52,211,153,.3)',                             disabled: false },
+  };
+  const cfg = configs[status] || configs['NONE'];
+  btn.style.cssText = `display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s;${cfg.style}`;
+  btn.innerHTML  = cfg.label;
+  btn.disabled   = cfg.disabled;
+  btn.dataset.connStatus = status;
+}
+
+async function handleConnectionAction() {
+  const btn    = document.getElementById('upm-connect-btn');
+  const status = btn.dataset.connStatus;
+  const userId = _activeProfileUserId;
+  if (!userId) return;
+
+  const token = localStorage.getItem('firstech_access_token');
+  const headers = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) };
+
+  try {
+    let res;
+    if (status === 'NONE') {
+      res = await fetch(`/api/connections/request/${userId}`, { method: 'POST', headers });
+    } else if (status === 'PENDING_RECEIVED') {
+      res = await fetch(`/api/connections/accept/${userId}`, { method: 'POST', headers });
+    } else if (status === 'ACCEPTED') {
+      if (!confirm('Remover esta conexão?')) return;
+      res = await fetch(`/api/connections/${userId}`, { method: 'DELETE', headers });
+    } else {
+      return;
+    }
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    _updateConnectBtn(data.status);
+    document.getElementById('upm-connections').textContent = data.totalConnections;
+  } catch {
+    console.error('Falha ao atualizar conexão.');
+  }
+}
+
+function closeUserProfile() {
+  document.getElementById('user-profile-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  _activeProfileUserId = null;
+}
+
+function startMessageFromProfile() {
+  if (!_activeProfileUserId) return;
+  const name = document.getElementById('upm-name').textContent;
+  closeUserProfile();
+  go('messages');
+  loadConversations();
+  openConversation(_activeProfileUserId, name);
+}
+
+function openUserProfileFromMsg() {
+  if (_activeChatUserId) openUserProfile(_activeChatUserId);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MENSAGENS
+   ═══════════════════════════════════════════════════════════ */
+
+let _activeChatUserId   = null;
+let _activeChatName     = null;
+let _convData           = [];
+let _connData           = [];    // cache de conexões para nova conversa
+let _msgPollTimer       = null;
+let _newConvPanelOpen   = false;
+let _connLoaded         = false;
+
+/** Carrega e renderiza a lista de conversas. Chamado ao navegar para a tela. */
+async function loadConversations() {
+  const loading = document.getElementById('conv-loading');
+  loading && loading.classList.remove('hidden');
+
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch('/api/messages/conversations', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (!res.ok) throw new Error();
+    _convData = await res.json();
+    _renderConversations(_convData);
+    _updateUnreadBadge(_convData.reduce((s, c) => s + c.unreadCount, 0));
+  } catch {
+    console.error('Falha ao carregar conversas');
+  } finally {
+    loading && loading.classList.add('hidden');
+  }
+}
+
+function _renderConversations(convs) {
+  const list  = document.getElementById('conversations-list');
+  const empty = document.getElementById('conv-empty');
+  list.querySelectorAll('.conv-item').forEach(el => el.remove());
+
+  if (!convs.length) {
+    if (empty) empty.style.removeProperty('display');
+    return;
+  }
+  if (empty) empty.style.setProperty('display', 'none', 'important');
+
+  convs.forEach(c => {
+    const item = document.createElement('button');
+    item.className = `conv-item w-full flex items-center gap-3 px-4 py-[11px] text-left border-b border-border2 hover:bg-bg3 transition-colors duration-150${_activeChatUserId == c.userId ? ' active' : ''}`;
+    item.dataset.userId   = c.userId;
+    item.dataset.userName = c.nome;
+    item.onclick = () => openConversation(c.userId, c.nome);
+
+    const avatarHtml = c.avatarBase64
+      ? `<img src="${c.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
+      : `<span class="text-sm font-bold text-white">${_escapeHtml(c.inicial)}</span>`;
+
+    item.innerHTML = `
+      <div class="w-9 h-9 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style="background:${c.corAvatar}">
+        ${avatarHtml}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(c.nome)}</div>
+          <div class="text-[10px] text-text3 shrink-0">${_escapeHtml(c.lastMessageTime)}</div>
+        </div>
+        <div class="text-[12px] text-text3 truncate">${_escapeHtml(c.lastMessage)}</div>
+      </div>
+      ${c.unreadCount > 0
+        ? `<div class="min-w-[18px] h-[18px] rounded-full bg-purple text-white text-[9px] font-bold flex items-center justify-center px-1 shrink-0">${c.unreadCount}</div>`
+        : ''}`;
+    list.appendChild(item);
+  });
+}
+
+function filterConversations(q) {
+  const norm = q.toLowerCase().trim();
+  if (!norm) { _renderConversations(_convData); return; }
+  _renderConversations(_convData.filter(c => c.nome.toLowerCase().includes(norm)));
+}
+
+/** Mostra/oculta o painel de "nova conversa" com conexões. */
+async function toggleNewConversation() {
+  const panel = document.getElementById('new-conv-panel');
+  if (!panel) return;
+  _newConvPanelOpen = !_newConvPanelOpen;
+  panel.style.display = _newConvPanelOpen ? 'flex' : 'none';
+  if (_newConvPanelOpen && !_connLoaded) {
+    await loadMyConnections();
+    _connLoaded = true;
+  }
+}
+
+/** Carrega as conexões aceitas do usuário (para iniciar nova conversa). */
+async function loadMyConnections() {
+  const container = document.getElementById('connections-for-msg');
+  const loadingEl = document.getElementById('conn-msg-loading');
+  if (!container) return;
+  loadingEl && loadingEl.classList.remove('hidden');
+
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch('/api/connections/my', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (!res.ok) throw new Error();
+    _connData = await res.json();
+    _renderConnectionsForMsg(_connData);
+  } catch {
+    if (container) container.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao carregar conexões.</div>';
+  } finally {
+    loadingEl && loadingEl.classList.add('hidden');
+  }
+}
+
+function _renderConnectionsForMsg(conns) {
+  const container = document.getElementById('connections-for-msg');
+  if (!container) return;
+
+  if (!conns.length) {
+    container.innerHTML = '<div class="px-4 py-4 text-[12px] text-text3 text-center">Você ainda não tem conexões.<br>Conecte-se com pessoas nos posts!</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  conns.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'w-full flex items-center gap-3 px-4 py-[9px] hover:bg-bg3 transition-colors border-b border-border2 last:border-b-0';
+    btn.onclick = () => {
+      toggleNewConversation(); // fecha o painel
+      openConversation(c.id, c.nome);
+    };
+
+    const avatarHtml = c.avatarBase64
+      ? `<img src="${c.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
+      : `<span class="text-[11px] font-bold text-white">${_escapeHtml(c.inicial)}</span>`;
+
+    btn.innerHTML = `
+      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style="background:${c.corAvatar}">
+        ${avatarHtml}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(c.nome)}</div>
+        <div class="text-[11px] text-text3 truncate">${_escapeHtml(c.headline || '')}</div>
+      </div>
+      <i class="ti ti-message-circle text-text3 text-[14px] shrink-0"></i>`;
+    container.appendChild(btn);
+  });
+}
+
+/** Abre uma conversa no painel direito. */
+async function openConversation(userId, name) {
+  _activeChatUserId = userId;
+  _activeChatName   = name;
+
+  document.getElementById('msg-empty-state').classList.add('hidden');
+  const active = document.getElementById('msg-active');
+  active.classList.remove('hidden');
+  active.style.display = 'flex';
+
+  document.getElementById('msg-chat-name').textContent = name || '';
+  document.getElementById('msg-chat-sub').textContent  = 'Conectado';
+
+  // Avatar: tenta _convData primeiro, depois _connData
+  const conv = _convData.find(c => c.userId == userId)
+            || _connData.find(c => c.id == userId);
+  const headerAvatar = document.getElementById('msg-chat-avatar');
+  if (conv) {
+    const bg      = conv.corAvatar || 'linear-gradient(135deg,#6d28d9,#8b5cf6)';
+    const inicial = conv.inicial || (conv.nome ? conv.nome[0].toUpperCase() : '?');
+    const photo   = conv.avatarBase64;
+    headerAvatar.style.background = bg;
+    headerAvatar.innerHTML = photo
+      ? `<img src="${photo}" class="w-full h-full object-cover" alt=""/>`
+      : `<span class="text-sm font-bold text-white">${_escapeHtml(inicial)}</span>`;
+  }
+
+  // Marca item ativo
+  document.querySelectorAll('.conv-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.userId == userId);
+  });
+
+  await _loadMessages(userId);
+  document.getElementById('msg-input')?.focus();
+
+  clearInterval(_msgPollTimer);
+  _msgPollTimer = setInterval(() => _loadMessages(userId, true), 5000);
+}
+
+async function _loadMessages(userId, silent = false) {
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch(`/api/messages/${userId}`, {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (!res.ok) throw new Error();
+    const messages = await res.json();
+    _renderMessages(messages);
+    if (!silent) loadConversations();
+  } catch {
+    if (!silent) console.error('Falha ao carregar mensagens.');
+  }
+}
+
+function _renderMessages(messages) {
+  const list = document.getElementById('msg-messages-list');
+  if (!list) return;
+  const isNearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+
+  list.innerHTML = messages.map(m => {
+    const align     = m.mine ? 'items-end' : 'items-start';
+    const bubbleCls = m.mine ? 'msg-bubble-mine text-text1' : 'msg-bubble-other text-text2';
+    const readIcon  = m.mine
+      ? `<i class="ti ti-check${m.read ? 's text-purple2' : ' text-text3'} text-[10px]"></i>` : '';
+    return `
+      <div class="flex flex-col ${align} gap-[2px]">
+        <div class="max-w-[75%] ${bubbleCls} px-[13px] py-[9px] text-[13px] leading-[1.65]">${_escapeHtml(m.content)}</div>
+        <div class="flex items-center gap-1 text-[10px] text-text3 px-1">
+          <span>${_escapeHtml(m.time)}</span>${readIcon}
+        </div>
+      </div>`;
+  }).join('');
+
+  if (isNearBottom || !messages.length) list.scrollTop = list.scrollHeight;
+}
+
+async function sendActiveMessage() {
+  if (!_activeChatUserId) return;
+  const input   = document.getElementById('msg-input');
+  const content = input.value.trim();
+  if (!content) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch(`/api/messages/${_activeChatUserId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
+      body: JSON.stringify({ content })
+    });
+    if (!res.ok) throw new Error();
+    await _loadMessages(_activeChatUserId);
+    loadConversations();
+  } catch {
+    console.error('Falha ao enviar mensagem.');
+  }
+}
+
+function handleMsgKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendActiveMessage();
+  }
+}
+
+function _updateUnreadBadge(count) {
+  const badge = document.getElementById('msg-unread-badge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+async function _pollUnreadCount() {
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    if (!token) return;
+    const res = await fetch('/api/messages/unread-count', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    _updateUnreadBadge(data.count);
+  } catch {}
+}
+
+setInterval(_pollUnreadCount, 15000);
+_pollUnreadCount();
