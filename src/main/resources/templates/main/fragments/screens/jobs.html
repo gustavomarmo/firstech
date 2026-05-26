@@ -13,18 +13,19 @@
         <div class="text-[11px] font-semibold text-text3 uppercase tracking-[.08em] mb-[10px] mt-1.5">Filtros</div>
         <div class="bg-bg3 rounded-[10px] border border-border2 p-3 mb-2">
           <div class="text-[11px] text-text3 mb-[7px]">Modalidade</div>
-          <div class="flex flex-wrap gap-[5px]">
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border active" onclick="ftoggle(this)">Remoto</button>
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Híbrido</button>
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Presencial</button>
+          <div id="job-modality-filters" class="flex flex-wrap gap-[5px]">
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Remoto"     onclick="toggleJobFilter(this)">Remoto</button>
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Híbrido"    onclick="toggleJobFilter(this)">Híbrido</button>
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Presencial" onclick="toggleJobFilter(this)">Presencial</button>
           </div>
         </div>
         <div class="bg-bg3 rounded-[10px] border border-border2 p-3 mb-2">
           <div class="text-[11px] text-text3 mb-[7px]">Nível</div>
-          <div class="flex flex-wrap gap-[5px]">
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border active" onclick="ftoggle(this)">Júnior</button>
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Pleno</button>
-            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Estágio</button>
+          <div id="job-level-filters" class="flex flex-wrap gap-[5px]">
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Júnior"   onclick="toggleJobFilter(this)">Júnior</button>
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Pleno"    onclick="toggleJobFilter(this)">Pleno</button>
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Sênior"   onclick="toggleJobFilter(this)">Sênior</button>
+            <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" data-value="Estágio"  onclick="toggleJobFilter(this)">Estágio</button>
           </div>
         </div>
       </th:block>
@@ -55,9 +56,20 @@
 
       <!-- ── CANDIDATO: feed de vagas ── -->
       <th:block th:if="${!usuario.recrutador}">
+        <!-- Busca de vagas -->
+        <div class="relative mb-[14px]">
+          <i class="ti ti-search absolute left-[12px] top-1/2 -translate-y-1/2 text-text3 text-[13px] pointer-events-none"></i>
+          <input type="text"
+                 id="job-search-input"
+                 placeholder="Buscar vagas por título, empresa, tecnologia..."
+                 oninput="filterJobCards()"
+                 autocomplete="off"
+                 class="w-full bg-bg2 border border-border2 rounded-[10px] py-[9px] pl-9 pr-4 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 focus:border-border transition-colors"/>
+        </div>
+
         <div class="flex items-center justify-between mb-[14px]">
-          <div class="text-sm font-semibold text-text1">Vagas recomendadas</div>
-          <div class="text-xs text-text3" th:text="${totalVagas} + ' vagas'">0 vagas</div>
+          <div id="job-search-label" class="text-sm font-semibold text-text1">Vagas disponíveis</div>
+          <div id="job-count-label" class="text-xs text-text3" th:text="${totalVagas} + ' vagas'">0 vagas</div>
         </div>
 
         <!-- Loop de vagas do banco -->

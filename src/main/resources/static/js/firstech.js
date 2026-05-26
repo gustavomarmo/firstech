@@ -10,8 +10,8 @@ function go(name) {
   document.querySelectorAll('.nav-btn')
     .forEach(b => b.classList.remove('active'));
 
-  document.getElementById('s-' + name).classList.add('active');
-  document.getElementById('nb-' + name).classList.add('active');
+  document.getElementById('s-' + name)?.classList.add('active');
+  document.getElementById('nb-' + name)?.classList.add('active');
 }
 
 /* ── FILTROS (toggle individual) ── */
@@ -625,6 +625,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeModal();
     closeJobModal();
+    closeUserProfile();
     ['port-profile-overlay','port-sobre-overlay','port-exp-overlay','port-skill-overlay','port-cert-overlay','port-proj-overlay']
       .forEach(id => closePortModal(id));
   }
@@ -1284,7 +1285,8 @@ async function doSearch(q) {
 function setSearchFilter(filter, btn) {
   _currentSearchFilter = filter;
   // Atualiza estilo das abas
-  document.querySelectorAll('#s-search .ftab').forEach(t => t.classList.remove('active'));
+  btn.closest('.filter-tabs, [class*="flex gap"]')
+    ?.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   // Re-renderiza com o filtro
   const q = (document.getElementById('search-input')?.value || '').trim();
@@ -1338,6 +1340,95 @@ function _renderSearchResults(q) {
       <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap ${badge}">${_escapeHtml(r.tipoLabel)}</span>
     </div>`;
   }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILTRO DE POSTS (Home)
+   ═══════════════════════════════════════════════════════════ */
+
+function filterPosts(query) {
+  const q   = query.trim().toLowerCase();
+  const feed = document.querySelector('#s-home .col:nth-child(2)');
+  if (!feed) return;
+
+  const cards = feed.querySelectorAll('[id^="post-"]');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    const show = !q || text.includes(q);
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  // Contador
+  const countEl = document.getElementById('home-post-count');
+  if (countEl) {
+    if (q) {
+      countEl.textContent = visible + ' resultado' + (visible !== 1 ? 's' : '');
+      countEl.classList.remove('hidden');
+    } else {
+      countEl.classList.add('hidden');
+    }
+  }
+
+  // Empty state
+  const emptyEl = feed.querySelector('[class*="border-dashed"]');
+  if (emptyEl) emptyEl.style.display = (visible === 0 && !q) ? '' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILTRO DE VAGAS (Jobs)
+   ═══════════════════════════════════════════════════════════ */
+
+function toggleJobFilter(btn) {
+  btn.classList.toggle('active');
+  filterJobCards();
+}
+
+function filterJobCards() {
+  const query = (document.getElementById('job-search-input')?.value || '').trim().toLowerCase();
+
+  const activeModalities = [...document.querySelectorAll('#job-modality-filters .ftab.active')]
+    .map(b => b.dataset.value.toLowerCase());
+  const activeLevels = [...document.querySelectorAll('#job-level-filters .ftab.active')]
+    .map(b => b.dataset.value.toLowerCase());
+
+  const cards = document.querySelectorAll('#s-jobs .jcard');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const modality = (card.dataset.modality || '').toLowerCase();
+    const level    = (card.dataset.level    || '').toLowerCase();
+    const text     = (card.dataset.text     || '').toLowerCase() + ' ' + card.textContent.toLowerCase();
+
+    const matchesQuery    = !query               || text.includes(query);
+    const matchesModality = !activeModalities.length || activeModalities.some(m => modality.includes(m));
+    const matchesLevel    = !activeLevels.length    || activeLevels.some(l => level.includes(l));
+
+    const show = matchesQuery && matchesModality && matchesLevel;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  // Atualiza contador
+  const countEl = document.getElementById('job-count-label');
+  if (countEl) {
+    const total = cards.length;
+    countEl.textContent = visible + (visible !== total ? '/' + total : '') + ' vaga' + (total !== 1 ? 's' : '');
+  }
+
+  // Empty state para candidato
+  const feed = document.querySelector('#s-jobs .col:nth-child(2)');
+  let emptyState = feed?.querySelector('[id="job-filter-empty"]');
+  if (!emptyState) {
+    emptyState = document.createElement('div');
+    emptyState.id = 'job-filter-empty';
+    emptyState.className = 'text-center py-10';
+    emptyState.innerHTML = '<i class="ti ti-search-off text-[36px] text-text3 mb-2 block"></i><div class="text-sm text-text3">Nenhuma vaga encontra os filtros selecionados.</div>';
+    feed?.appendChild(emptyState);
+  }
+  emptyState.style.display = (visible === 0 && cards.length > 0) ? '' : 'none';
 }
 
 /** Escapa HTML para injeção segura via innerHTML */
@@ -1870,10 +1961,12 @@ function closeUserProfile() {
 function startMessageFromProfile() {
   if (!_activeProfileUserId) return;
   const name = document.getElementById('upm-name').textContent;
+  const userId = _activeProfileUserId;
   closeUserProfile();
   go('messages');
   loadConversations();
-  openConversation(_activeProfileUserId, name);
+  switchMsgTab('convs');
+  openConversation(userId, name);
 }
 
 function openUserProfileFromMsg() {
@@ -1881,16 +1974,60 @@ function openUserProfileFromMsg() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MENSAGENS
+   MENSAGENS — estado
    ═══════════════════════════════════════════════════════════ */
 
-let _activeChatUserId   = null;
-let _activeChatName     = null;
-let _convData           = [];
-let _connData           = [];    // cache de conexões para nova conversa
-let _msgPollTimer       = null;
-let _newConvPanelOpen   = false;
-let _connLoaded         = false;
+let _activeChatUserId = null;
+let _activeChatName   = null;
+let _convData         = [];
+let _connData         = [];       // cache de conexões aceitas
+let _requestsData     = [];       // cache de pedidos recebidos
+let _msgPollTimer     = null;
+let _activeMsgTab     = 'convs';
+let _connLoaded       = false;
+let _requestsLoaded   = false;
+let _peopleSrchTimer  = null;
+
+/* ── Troca de aba ────────────────────────────────────────── */
+
+function switchMsgTab(tab) {
+  _activeMsgTab = tab;
+  const tabs = ['convs', 'people', 'requests'];
+
+  tabs.forEach(t => {
+    const panel = document.getElementById('msg-panel-' + t);
+    const btn   = document.getElementById('msg-tab-' + t);
+    const isActive = (t === tab);
+
+    // painel
+    if (isActive) {
+      panel.classList.remove('hidden');
+      panel.style.display = 'flex';
+    } else {
+      panel.classList.add('hidden');
+      panel.style.display = '';
+    }
+
+    // estilo do botão
+    if (btn) {
+      btn.style.cssText = isActive
+        ? 'border-bottom:2px solid var(--purple2);color:var(--purple2);background:transparent;'
+        : 'border-bottom:2px solid transparent;color:var(--text3);background:transparent;';
+    }
+  });
+
+  // Carrega dados sob demanda
+  if (tab === 'people' && !_connLoaded) {
+    loadMyConnections();
+    _connLoaded = true;
+  }
+  if (tab === 'requests' && !_requestsLoaded) {
+    loadConnectionRequests();
+    _requestsLoaded = true;
+  }
+}
+
+/* ── Conversas ───────────────────────────────────────────── */
 
 /** Carrega e renderiza a lista de conversas. Chamado ao navegar para a tela. */
 async function loadConversations() {
@@ -1911,6 +2048,27 @@ async function loadConversations() {
   } finally {
     loading && loading.classList.add('hidden');
   }
+
+  // Carrega badge de pedidos pendentes silenciosamente
+  _pollPendingRequests();
+}
+
+async function _pollPendingRequests() {
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    if (!token) return;
+    const res = await fetch('/api/connections/pending-received', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    _updateRequestsBadge(data.length);
+    // Se a aba de pedidos já estiver carregada, atualiza
+    if (_requestsLoaded) {
+      _requestsData = data;
+      _renderConnectionRequests(data);
+    }
+  } catch {}
 }
 
 function _renderConversations(convs) {
@@ -1959,21 +2117,11 @@ function filterConversations(q) {
   _renderConversations(_convData.filter(c => c.nome.toLowerCase().includes(norm)));
 }
 
-/** Mostra/oculta o painel de "nova conversa" com conexões. */
-async function toggleNewConversation() {
-  const panel = document.getElementById('new-conv-panel');
-  if (!panel) return;
-  _newConvPanelOpen = !_newConvPanelOpen;
-  panel.style.display = _newConvPanelOpen ? 'flex' : 'none';
-  if (_newConvPanelOpen && !_connLoaded) {
-    await loadMyConnections();
-    _connLoaded = true;
-  }
-}
+/* ── Aba Pessoas ─────────────────────────────────────────── */
 
-/** Carrega as conexões aceitas do usuário (para iniciar nova conversa). */
+/** Carrega conexões aceitas (aba Pessoas, quando busca está vazia). */
 async function loadMyConnections() {
-  const container = document.getElementById('connections-for-msg');
+  const container = document.getElementById('msg-connections-list');
   const loadingEl = document.getElementById('conn-msg-loading');
   if (!container) return;
   loadingEl && loadingEl.classList.remove('hidden');
@@ -1994,7 +2142,7 @@ async function loadMyConnections() {
 }
 
 function _renderConnectionsForMsg(conns) {
-  const container = document.getElementById('connections-for-msg');
+  const container = document.getElementById('msg-connections-list');
   if (!container) return;
 
   if (!conns.length) {
@@ -2005,20 +2153,16 @@ function _renderConnectionsForMsg(conns) {
   container.innerHTML = '';
   conns.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'w-full flex items-center gap-3 px-4 py-[9px] hover:bg-bg3 transition-colors border-b border-border2 last:border-b-0';
+    btn.className = 'w-full flex items-center gap-3 px-4 py-[9px] hover:bg-bg3 transition-colors border-b border-border2 last:border-b-0 text-left';
     btn.onclick = () => {
-      toggleNewConversation(); // fecha o painel
+      switchMsgTab('convs');
       openConversation(c.id, c.nome);
     };
-
     const avatarHtml = c.avatarBase64
       ? `<img src="${c.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
       : `<span class="text-[11px] font-bold text-white">${_escapeHtml(c.inicial)}</span>`;
-
     btn.innerHTML = `
-      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style="background:${c.corAvatar}">
-        ${avatarHtml}
-      </div>
+      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style="background:${c.corAvatar}">${avatarHtml}</div>
       <div class="flex-1 min-w-0">
         <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(c.nome)}</div>
         <div class="text-[11px] text-text3 truncate">${_escapeHtml(c.headline || '')}</div>
@@ -2026,6 +2170,211 @@ function _renderConnectionsForMsg(conns) {
       <i class="ti ti-message-circle text-text3 text-[14px] shrink-0"></i>`;
     container.appendChild(btn);
   });
+}
+
+/** Busca pessoas (debounced). Quando vazia → mostra conexões. */
+let _peopleSrchData = [];
+function searchPeopleForMsg(q) {
+  clearTimeout(_peopleSrchTimer);
+  const query = q.trim();
+  const labelEl = document.querySelector('#msg-people-section-label span');
+
+  if (!query) {
+    if (labelEl) labelEl.textContent = 'Minhas conexões';
+    _renderConnectionsForMsg(_connData);
+    return;
+  }
+
+  _peopleSrchTimer = setTimeout(async () => {
+    const container = document.getElementById('msg-connections-list');
+    if (labelEl) labelEl.textContent = `Resultados para "${query}"`;
+    if (container) container.innerHTML = '<div class="flex items-center justify-center py-5"><div class="w-4 h-4 border-2 border-purple border-t-transparent rounded-full animate-spin"></div></div>';
+
+    try {
+      const token = localStorage.getItem('firstech_access_token');
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+      if (!res.ok) throw new Error();
+      const results = await res.json();
+      _peopleSrchData = results.filter(r => r.tipo === 'pessoa');
+      _renderPeopleSearchForMsg(_peopleSrchData);
+    } catch {
+      if (container) container.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao buscar.</div>';
+    }
+  }, 350);
+}
+
+function _renderPeopleSearchForMsg(people) {
+  const container = document.getElementById('msg-connections-list');
+  if (!container) return;
+
+  if (!people.length) {
+    container.innerHTML = '<div class="px-4 py-4 text-[12px] text-text3 text-center">Nenhuma pessoa encontrada.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  people.forEach(p => {
+    const isConn = _connData.some(c => c.id == p.id);
+    const item = document.createElement('div');
+    item.className = 'flex items-center gap-3 px-4 py-[9px] border-b border-border2 last:border-b-0';
+
+    const avatarHtml = p.avatarBase64
+      ? `<img src="${p.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
+      : `<span class="text-[11px] font-bold text-white">${_escapeHtml(p.inicial || '?')}</span>`;
+
+    const actionBtn = isConn
+      ? `<button class="text-[10px] py-[4px] px-[10px] rounded-[20px] font-semibold font-[inherit] cursor-pointer border-none shrink-0 whitespace-nowrap"
+                style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)"
+                onclick="switchMsgTab('convs');openConversation(${p.id},'${_escapeHtml(p.nome).replace(/'/g,"\\'")}')">
+           Mensagem
+         </button>`
+      : `<button class="text-[10px] py-[4px] px-[10px] rounded-[20px] font-semibold font-[inherit] cursor-pointer border-none shrink-0 whitespace-nowrap"
+                style="background:var(--purple);color:#fff"
+                onclick="openUserProfile(${p.id})">
+           Ver perfil
+         </button>`;
+
+    item.innerHTML = `
+      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80"
+           style="background:${p.corAvatar}" onclick="openUserProfile(${p.id})">${avatarHtml}</div>
+      <div class="flex-1 min-w-0 cursor-pointer" onclick="openUserProfile(${p.id})">
+        <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(p.nome)}</div>
+        <div class="text-[11px] text-text3 truncate">${_escapeHtml(p.subtitulo || '')}</div>
+      </div>
+      ${actionBtn}`;
+    container.appendChild(item);
+  });
+}
+
+/* ── Aba Pedidos de conexão ──────────────────────────────── */
+
+async function loadConnectionRequests() {
+  const list      = document.getElementById('msg-requests-list');
+  const loadingEl = document.getElementById('requests-loading');
+  if (!list) return;
+  loadingEl && loadingEl.classList.remove('hidden');
+
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch('/api/connections/pending-received', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (!res.ok) throw new Error();
+    _requestsData = await res.json();
+    _renderConnectionRequests(_requestsData);
+    _updateRequestsBadge(_requestsData.length);
+  } catch {
+    list.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao carregar pedidos.</div>';
+  } finally {
+    loadingEl && loadingEl.classList.add('hidden');
+  }
+}
+
+function _renderConnectionRequests(requests) {
+  const list = document.getElementById('msg-requests-list');
+  if (!list) return;
+
+  if (!requests.length) {
+    list.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-12 gap-2 text-text3">
+        <i class="ti ti-user-check text-[32px]"></i>
+        <div class="text-[13px] font-medium">Nenhum pedido pendente</div>
+        <div class="text-[11px] text-center px-4">Quando alguém quiser se conectar com você, aparecerá aqui.</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  requests.forEach(r => {
+    const item = document.createElement('div');
+    item.id = 'req-item-' + r.id;
+    item.className = 'flex items-start gap-3 px-4 py-[12px] border-b border-border2 last:border-b-0';
+
+    const avatarHtml = r.avatarBase64
+      ? `<img src="${r.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
+      : `<span class="text-[12px] font-bold text-white">${_escapeHtml(r.inicial)}</span>`;
+
+    item.innerHTML = `
+      <div class="w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80"
+           style="background:${r.corAvatar}" onclick="openUserProfile(${r.id})">${avatarHtml}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[13px] font-semibold text-text1 truncate cursor-pointer hover:text-purple2"
+             onclick="openUserProfile(${r.id})">${_escapeHtml(r.nome)}</div>
+        <div class="text-[11px] text-text3 truncate mb-[8px]">${_escapeHtml(r.headline || '')}</div>
+        <div class="flex gap-2">
+          <button class="flex-1 py-[5px] rounded-[7px] text-[11px] font-semibold font-[inherit] cursor-pointer border-none transition-all duration-150"
+                  style="background:var(--purple);color:#fff"
+                  onclick="acceptConnectionRequest(${r.id}, this)">
+            Aceitar
+          </button>
+          <button class="flex-1 py-[5px] rounded-[7px] text-[11px] font-semibold font-[inherit] cursor-pointer border-none transition-all duration-150"
+                  style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2)"
+                  onclick="rejectConnectionRequest(${r.id}, this)">
+            Recusar
+          </button>
+        </div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+async function acceptConnectionRequest(fromId, btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch(`/api/connections/accept/${fromId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }
+    });
+    if (!res.ok) throw new Error();
+    _removeRequestItem(fromId);
+    _connLoaded = false; // força reload das conexões
+    showJobToast('Conexão aceita!');
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Aceitar';
+    showJobToast('Erro ao aceitar pedido.', true);
+  }
+}
+
+async function rejectConnectionRequest(fromId, btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch(`/api/connections/${fromId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }
+    });
+    if (!res.ok) throw new Error();
+    _removeRequestItem(fromId);
+    showJobToast('Pedido recusado.');
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Recusar';
+    showJobToast('Erro ao recusar pedido.', true);
+  }
+}
+
+function _removeRequestItem(fromId) {
+  document.getElementById('req-item-' + fromId)?.remove();
+  _requestsData = _requestsData.filter(r => r.id !== fromId);
+  _updateRequestsBadge(_requestsData.length);
+  if (!_requestsData.length) _renderConnectionRequests([]);
+}
+
+function _updateRequestsBadge(count) {
+  const badge = document.getElementById('msg-requests-badge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
 }
 
 /** Abre uma conversa no painel direito. */
@@ -2150,12 +2499,18 @@ async function _pollUnreadCount() {
   try {
     const token = localStorage.getItem('firstech_access_token');
     if (!token) return;
-    const res = await fetch('/api/messages/unread-count', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    _updateUnreadBadge(data.count);
+    const [msgRes, reqRes] = await Promise.all([
+      fetch('/api/messages/unread-count', { headers: { 'Authorization': 'Bearer ' + token } }),
+      fetch('/api/connections/pending-received', { headers: { 'Authorization': 'Bearer ' + token } })
+    ]);
+    if (msgRes.ok) {
+      const data = await msgRes.json();
+      _updateUnreadBadge(data.count);
+    }
+    if (reqRes.ok) {
+      const reqs = await reqRes.json();
+      _updateRequestsBadge(reqs.length);
+    }
   } catch {}
 }
 

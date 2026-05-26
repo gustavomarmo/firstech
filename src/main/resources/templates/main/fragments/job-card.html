@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="card(vaga)" class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
+<div th:fragment="card(vaga)"
+     class="jcard bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border"
+     th:data-modality="${vaga.modality}"
+     th:data-level="${vaga.level}"
+     th:attr="data-text=${#strings.toLowerCase((vaga.title != null ? vaga.title : '') + ' ' + (vaga.company != null ? vaga.company : '') + ' ' + (vaga.description != null ? vaga.description : '') + ' ' + #strings.listJoin(vaga.tags, ' '))}">
   <div class="flex items-center gap-[13px] mb-[10px]">
     <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white overflow-hidden"
          th:style="'background:' + ${vaga.companyLogo}">

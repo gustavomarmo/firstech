@@ -44,6 +44,18 @@
                 onclick="openModal();event.stopPropagation()">Post</button>
       </div>
 
+      <!-- Busca de posts -->
+      <div class="relative mb-[14px]">
+        <i class="ti ti-search absolute left-[12px] top-1/2 -translate-y-1/2 text-text3 text-[13px] pointer-events-none"></i>
+        <input type="text"
+               id="home-post-search"
+               placeholder="Buscar nos posts..."
+               oninput="filterPosts(this.value)"
+               autocomplete="off"
+               class="w-full bg-bg2 border border-border2 rounded-[10px] py-[9px] pl-9 pr-3 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 focus:border-border transition-colors"/>
+        <span id="home-post-count" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-text3"></span>
+      </div>
+
       <!-- Posts (loop Thymeleaf) -->
       <th:block th:each="post : ${posts}">
         <div th:replace="~{main/fragments/post-card :: card(${post})}"></div>

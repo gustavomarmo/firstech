@@ -52,4 +52,12 @@ public class ConnectionController {
     ) {
         return ResponseEntity.ok(connectionService.getMyConnections(currentUser));
     }
+
+    /** Pedidos de conexão recebidos e ainda pendentes. */
+    @GetMapping("/pending-received")
+    public ResponseEntity<List<PublicProfileDTO>> pendingReceived(
+        @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(connectionService.getPendingReceived(currentUser));
+    }
 }

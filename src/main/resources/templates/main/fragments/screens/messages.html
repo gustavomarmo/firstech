@@ -4,59 +4,95 @@
 <div th:fragment="messages" class="screen" id="s-messages">
   <div class="flex h-full overflow-hidden">
 
-    <!-- ── Painel esquerdo: lista de conversas ── -->
+    <!-- ── Painel esquerdo ── -->
     <div class="w-[300px] shrink-0 border-r border-border2 flex flex-col bg-bg2">
 
-      <!-- Header -->
-      <div class="px-4 py-3 border-b border-border2 shrink-0">
-        <div class="flex items-center justify-between mb-3">
-          <div class="font-display text-[15px] font-bold text-text1">Mensagens</div>
-          <!-- Botão Nova Conversa -->
-          <button onclick="toggleNewConversation()"
-                  id="new-conv-toggle-btn"
-                  title="Nova conversa"
-                  class="w-7 h-7 rounded-lg border border-border2 bg-bg3 text-text3 flex items-center justify-center cursor-pointer hover:bg-bg4 hover:text-purple2 transition-colors">
-            <i class="ti ti-edit text-[14px]"></i>
+      <!-- Header com título + tabs -->
+      <div class="px-4 pt-3 pb-0 border-b border-border2 shrink-0">
+        <div class="font-display text-[15px] font-bold text-text1 mb-3">Rede</div>
+        <!-- Barra de abas -->
+        <div class="flex gap-px">
+          <button id="msg-tab-convs"
+                  onclick="switchMsgTab('convs')"
+                  class="msg-tab-btn flex-1 py-[7px] text-[11px] font-semibold cursor-pointer border-none font-[inherit] transition-all duration-150 border-b-2 border-purple2 text-purple2 bg-transparent">
+            Conversas
           </button>
-        </div>
-        <!-- Busca -->
-        <div class="relative">
-          <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-text3 text-[12px] pointer-events-none"></i>
-          <input type="text" placeholder="Buscar conversa..."
-                 id="msg-search-input"
-                 oninput="filterConversations(this.value)"
-                 class="w-full bg-bg3 border border-border2 rounded-[9px] py-[7px] pl-8 pr-3 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 focus:border-border transition-colors"/>
+          <button id="msg-tab-people"
+                  onclick="switchMsgTab('people')"
+                  class="msg-tab-btn flex-1 py-[7px] text-[11px] font-semibold cursor-pointer border-none font-[inherit] transition-all duration-150 border-b-2 border-transparent text-text3 bg-transparent hover:text-text2">
+            Pessoas
+          </button>
+          <button id="msg-tab-requests"
+                  onclick="switchMsgTab('requests')"
+                  class="msg-tab-btn relative flex-1 py-[7px] text-[11px] font-semibold cursor-pointer border-none font-[inherit] transition-all duration-150 border-b-2 border-transparent text-text3 bg-transparent hover:text-text2">
+            Pedidos
+            <span id="msg-requests-badge"
+                  class="hidden absolute -top-[3px] -right-[2px] min-w-[15px] h-[15px] rounded-full bg-purple text-white text-[8px] font-bold leading-none flex items-center justify-center px-[3px]">0</span>
+          </button>
         </div>
       </div>
 
-      <!-- Painel Nova Conversa: conexões -->
-      <div id="new-conv-panel" class="hidden border-b border-border2 flex-col">
-        <div class="px-4 pt-3 pb-2 flex items-center justify-between">
-          <span class="text-[11px] font-semibold text-text3 uppercase tracking-wider">Suas conexões</span>
-          <button onclick="toggleNewConversation()"
-                  class="text-[11px] text-text3 hover:text-text1 cursor-pointer border-none bg-transparent font-[inherit]">
-            <i class="ti ti-x text-[12px]"></i>
-          </button>
+      <!-- ── ABA: Conversas ── -->
+      <div id="msg-panel-convs" class="flex flex-col flex-1 overflow-hidden">
+        <!-- Busca de conversas -->
+        <div class="px-3 py-2 border-b border-border2 shrink-0">
+          <div class="relative">
+            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-text3 text-[12px] pointer-events-none"></i>
+            <input type="text" placeholder="Buscar conversa..."
+                   id="msg-search-input"
+                   oninput="filterConversations(this.value)"
+                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-[7px] pl-8 pr-3 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 focus:border-border transition-colors"/>
+          </div>
         </div>
-        <div id="connections-for-msg" class="max-h-[240px] overflow-y-auto">
-          <div id="conn-msg-loading" class="flex items-center justify-center py-5">
-            <div class="w-4 h-4 border-2 border-purple border-t-transparent rounded-full animate-spin"></div>
+        <!-- Lista de conversas -->
+        <div id="conversations-list" class="flex-1 overflow-y-auto">
+          <div class="flex flex-col items-center justify-center py-12 gap-2 text-text3 text-sm" id="conv-empty" style="display:none!important">
+            <i class="ti ti-message-off text-[28px]"></i>
+            <span>Nenhuma conversa ainda</span>
+            <span class="text-[11px] text-center px-4">Vá até a aba Pessoas e envie uma mensagem!</span>
+          </div>
+          <div id="conv-loading" class="flex items-center justify-center py-8">
+            <div class="w-5 h-5 border-2 border-purple border-t-transparent rounded-full animate-spin"></div>
           </div>
         </div>
       </div>
 
-      <!-- Lista de conversas -->
-      <div id="conversations-list" class="flex-1 overflow-y-auto">
-        <div class="flex flex-col items-center justify-center py-12 gap-2 text-text3 text-sm" id="conv-empty" style="display:none!important">
-          <i class="ti ti-message-off text-[28px]"></i>
-          <span>Nenhuma conversa ainda</span>
-          <span class="text-[11px] text-text3 text-center px-4">Conecte-se com pessoas e inicie uma conversa</span>
+      <!-- ── ABA: Pessoas ── -->
+      <div id="msg-panel-people" class="hidden flex-col flex-1 overflow-hidden">
+        <!-- Busca de pessoas -->
+        <div class="px-3 py-2 border-b border-border2 shrink-0">
+          <div class="relative">
+            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-text3 text-[12px] pointer-events-none"></i>
+            <input type="text" placeholder="Buscar pessoas..."
+                   id="msg-people-search"
+                   oninput="searchPeopleForMsg(this.value)"
+                   autocomplete="off"
+                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-[7px] pl-8 pr-3 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 focus:border-border transition-colors"/>
+          </div>
         </div>
-        <div id="conv-loading" class="flex items-center justify-center py-8">
-          <div class="w-5 h-5 border-2 border-purple border-t-transparent rounded-full animate-spin"></div>
+        <!-- Resultados / lista de conexões -->
+        <div id="msg-people-results" class="flex-1 overflow-y-auto">
+          <div id="msg-people-section-label" class="px-4 pt-3 pb-1">
+            <span class="text-[10px] font-semibold text-text3 uppercase tracking-wider">Minhas conexões</span>
+          </div>
+          <div id="msg-connections-list">
+            <div id="conn-msg-loading" class="flex items-center justify-center py-5">
+              <div class="w-4 h-4 border-2 border-purple border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- ── ABA: Pedidos de conexão ── -->
+      <div id="msg-panel-requests" class="hidden flex-col flex-1 overflow-hidden">
+        <div id="msg-requests-list" class="flex-1 overflow-y-auto">
+          <div id="requests-loading" class="flex items-center justify-center py-8">
+            <div class="w-5 h-5 border-2 border-purple border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /painel esquerdo -->
 
     <!-- ── Painel direito: conversa ativa ── -->
     <div class="flex-1 flex flex-col overflow-hidden bg-bg">
@@ -68,9 +104,7 @@
         </div>
         <div class="font-display text-[17px] font-semibold text-text1">Suas mensagens</div>
         <div class="text-sm text-text3 max-w-[280px] leading-relaxed">
-          Selecione uma conversa à esquerda ou clique em
-          <i class="ti ti-edit text-purple2 text-[13px]"></i>
-          para iniciar uma nova.
+          Selecione uma conversa ou use a aba <strong class="text-purple2">Pessoas</strong> para iniciar uma nova.
         </div>
       </div>
 

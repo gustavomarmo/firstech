@@ -62,6 +62,15 @@ public class ConnectionService {
         );
     }
 
+    /** Pedidos de conexão pendentes recebidos pelo usuário. */
+    @Transactional(readOnly = true)
+    public List<PublicProfileDTO> getPendingReceived(User user) {
+        return connectionRepository.findPendingReceived(user)
+            .stream()
+            .map(c -> getPublicProfile(c.getFromUser().getId(), user))
+            .toList();
+    }
+
     /** Lista as conexões aceitas do usuário atual (para "nova conversa"). */
     @Transactional(readOnly = true)
     public List<PublicProfileDTO> getMyConnections(User user) {
