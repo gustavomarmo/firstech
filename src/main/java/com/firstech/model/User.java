@@ -52,6 +52,9 @@ public class User implements UserDetails {
     @Column(length = 2000)
     private String sobre;          // Seção "Sobre" do portfólio
 
+    @Column(columnDefinition = "TEXT")
+    private String avatarBase64;   // Data URL da foto de perfil (data:image/...;base64,...)
+
     @ElementCollection
     @CollectionTable(name = "user_technologies", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "technology")

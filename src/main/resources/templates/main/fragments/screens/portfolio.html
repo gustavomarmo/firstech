@@ -2,20 +2,45 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="portfolio" class="port-screen" id="s-portfolio">
-  <div class="port-cover h-[130px] shrink-0 bg-[linear-gradient(135deg,#0f0521_0%,#2d1b6e_40%,#0f172a_70%,#1a0533_100%)] relative"></div>
+
+  <!-- ── Banner de capa ── -->
+  <div class="port-cover h-[130px] shrink-0 bg-[linear-gradient(135deg,#0f0521_0%,#2d1b6e_40%,#0f172a_70%,#1a0533_100%)] relative">
+
+    <!-- Avatar: posicionado no limite capa/body, clicável para upload -->
+    <label for="avatar-file-input"
+           class="absolute bottom-0 left-6 translate-y-1/2 w-[84px] h-[84px] rounded-full border-4 border-bg cursor-pointer z-10 group overflow-hidden block"
+           style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
+           title="Alterar foto de perfil">
+      <!-- Foto real (se existir) -->
+      <img th:if="${usuario.avatarBase64 != null}"
+           th:src="${usuario.avatarBase64}"
+           alt="Foto de perfil"
+           class="w-full h-full object-cover"/>
+      <!-- Iniciais (fallback) -->
+      <span th:if="${usuario.avatarBase64 == null}"
+            class="w-full h-full flex items-center justify-center text-[30px] font-bold text-white font-display"
+            th:text="${usuario.inicial}">G</span>
+      <!-- Overlay de câmera no hover -->
+      <span class="absolute inset-0 bg-[rgba(0,0,0,.55)] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <i class="ti ti-camera text-white text-[22px]"></i>
+        <span class="text-white text-[9px] mt-0.5 font-medium">Alterar</span>
+      </span>
+    </label>
+    <input type="file" id="avatar-file-input" accept="image/*" class="hidden"
+           onchange="uploadAvatar(this)"/>
+
+  </div><!-- /port-cover -->
+
+  <!-- ── Corpo rolável ── -->
   <div class="port-body overflow-y-auto flex-1 px-6 pb-7">
 
-    <!-- Avatar + ações -->
-    <div class="flex items-end justify-between mb-[14px]">
-      <div class="w-[84px] h-[84px] rounded-full bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-4 border-bg -mt-[42px] flex items-center justify-center text-[30px] font-bold text-white font-display"
-           th:text="${usuario.inicial}">G</div>
-      <div class="flex gap-2 pb-1">
-        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
-                onclick="openPortfolioProfileModal()"
-                title="Editar perfil">
-          <i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i>
-        </button>
-      </div>
+    <!-- Espaço para o avatar + botão de edição alinhado à direita -->
+    <div class="flex items-center justify-end pt-[52px] mb-[14px]">
+      <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
+              onclick="openPortfolioProfileModal()"
+              title="Editar perfil">
+        <i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i> Editar perfil
+      </button>
     </div>
 
     <!-- Cabeçalho do perfil -->
@@ -46,7 +71,7 @@
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Sobre
         <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
-                onclick="openPortfolioProfileModal()"><i class="ti ti-pencil"></i></button>
+                onclick="openSobreModal()"><i class="ti ti-pencil"></i></button>
       </div>
       <div th:if="${!usuario.sobre.isBlank()}"
            class="text-sm text-text2 leading-[1.75]"
@@ -218,7 +243,7 @@
        MODAIS DE EDIÇÃO DO PORTFÓLIO
        ═══════════════════════════════════════════════════════════ -->
 
-  <!-- ── Modal: Editar Perfil / Sobre ── -->
+  <!-- ── Modal: Editar Perfil (nome, headline, localização) ── -->
   <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
        id="port-profile-overlay" onclick="if(event.target===this)closePortModal('port-profile-overlay')">
     <div class="bg-bg2 border border-border rounded-[18px] w-[520px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
@@ -234,18 +259,47 @@
         <input id="port-headline" type="text" placeholder="Headline (ex: Back-end Dev · Java · Spring)"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
                th:value="${usuario.headline}"/>
-        <input id="port-city" type="text" placeholder="Localização (ex: São Paulo, SP)"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
-               th:value="${usuario.localizacao}"/>
-        <textarea id="port-sobre" rows="5" placeholder="Conte um pouco sobre você..."
-                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"
-                  th:text="${usuario.sobre}"></textarea>
+        <!-- Localização com autocomplete IBGE -->
+        <div class="relative">
+          <input id="port-city" type="text" autocomplete="off"
+                 placeholder="Localização (ex: São Paulo, SP)"
+                 class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+                 th:value="${usuario.localizacao}"
+                 oninput="cityAutocomplete(this)"
+                 onfocus="cityAutocomplete(this)"/>
+          <div id="city-ac-dropdown"
+               class="hidden absolute top-full left-0 right-0 mt-1 bg-bg2 border border-border rounded-[9px] z-[300] max-h-[200px] overflow-y-auto shadow-[0_8px_24px_rgba(0,0,0,.4)]">
+          </div>
+        </div>
       </div>
       <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
                 onclick="closePortModal('port-profile-overlay')">Cancelar</button>
         <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
                 onclick="savePortProfile()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Editar Sobre ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-sobre-overlay" onclick="if(event.target===this)closePortModal('port-sobre-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[540px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1">Editar Sobre</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-sobre-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5">
+        <textarea id="port-sobre" rows="7" placeholder="Conte um pouco sobre você, suas experiências e objetivos..."
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.7] resize-none focus:border-border placeholder:text-text3"
+                  th:text="${usuario.sobre}"></textarea>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-sobre-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="saveSobre()">Salvar</button>
       </div>
     </div>
   </div>
@@ -259,14 +313,62 @@
         <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
                 onclick="closePortModal('port-exp-overlay')"><i class="ti ti-x"></i></button>
       </div>
-      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
+      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[72vh]">
         <input type="hidden" id="exp-editing-id"/>
         <input id="exp-title" type="text" placeholder="Cargo / título*"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
         <input id="exp-company" type="text" placeholder="Empresa*"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
-        <input id="exp-period" type="text" placeholder="Período (ex: Jan 2024 – Presente · São Paulo, SP)"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+
+        <!-- Datas: início -->
+        <div>
+          <div class="text-[11px] text-text3 mb-[6px]">Data de início</div>
+          <div class="flex gap-2">
+            <select id="exp-start-month"
+                    class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[13px] focus:border-border appearance-none cursor-pointer">
+              <option value="">Mês</option>
+              <option value="Jan">Janeiro</option><option value="Fev">Fevereiro</option>
+              <option value="Mar">Março</option><option value="Abr">Abril</option>
+              <option value="Mai">Maio</option><option value="Jun">Junho</option>
+              <option value="Jul">Julho</option><option value="Ago">Agosto</option>
+              <option value="Set">Setembro</option><option value="Out">Outubro</option>
+              <option value="Nov">Novembro</option><option value="Dez">Dezembro</option>
+            </select>
+            <select id="exp-start-year"
+                    class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[13px] focus:border-border appearance-none cursor-pointer">
+              <option value="">Ano</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Datas: fim ou presente -->
+        <div>
+          <div class="flex items-center justify-between mb-[6px]">
+            <div class="text-[11px] text-text3">Data de término</div>
+            <label class="flex items-center gap-[6px] cursor-pointer text-[12px] text-text2">
+              <input type="checkbox" id="exp-presente" class="w-[14px] h-[14px] rounded accent-purple"
+                     onchange="toggleExpPresente(this)"/>
+              Trabalho aqui atualmente
+            </label>
+          </div>
+          <div id="exp-end-date-row" class="flex gap-2">
+            <select id="exp-end-month"
+                    class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[13px] focus:border-border appearance-none cursor-pointer">
+              <option value="">Mês</option>
+              <option value="Jan">Janeiro</option><option value="Fev">Fevereiro</option>
+              <option value="Mar">Março</option><option value="Abr">Abril</option>
+              <option value="Mai">Maio</option><option value="Jun">Junho</option>
+              <option value="Jul">Julho</option><option value="Ago">Agosto</option>
+              <option value="Set">Setembro</option><option value="Out">Outubro</option>
+              <option value="Nov">Novembro</option><option value="Dez">Dezembro</option>
+            </select>
+            <select id="exp-end-year"
+                    class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[13px] focus:border-border appearance-none cursor-pointer">
+              <option value="">Ano</option>
+            </select>
+          </div>
+        </div>
+
         <textarea id="exp-desc" rows="4" placeholder="Descrição das atividades (opcional)"
                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
       </div>

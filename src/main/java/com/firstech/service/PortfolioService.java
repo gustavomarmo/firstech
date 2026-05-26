@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -36,12 +39,22 @@ public class PortfolioService {
 
     @Transactional
     public void updateProfile(ProfileUpdateDTO dto, User user) {
-        if (dto.name() != null && !dto.name().isBlank()) {
-            user.setName(dto.name());
-        }
-        user.setTagline(dto.headline());
-        user.setCity(dto.city());
-        user.setSobre(dto.about());
+        if (dto.name() != null && !dto.name().isBlank()) user.setName(dto.name());
+        if (dto.headline() != null) user.setTagline(dto.headline());
+        if (dto.city() != null)     user.setCity(dto.city());
+        if (dto.about()  != null)   user.setSobre(dto.about());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateAvatar(MultipartFile file, User user) throws IOException {
+        String ct = file.getContentType();
+        if (ct == null || !ct.startsWith("image/"))
+            throw new IllegalArgumentException("O arquivo deve ser uma imagem (JPEG, PNG, WebP, etc.).");
+        if (file.getSize() > 2 * 1024 * 1024)
+            throw new IllegalArgumentException("A imagem deve ter no máximo 2 MB.");
+        String b64 = Base64.getEncoder().encodeToString(file.getBytes());
+        user.setAvatarBase64("data:" + ct + ";base64," + b64);
         userRepository.save(user);
     }
 

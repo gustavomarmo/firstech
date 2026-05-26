@@ -589,7 +589,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeModal();
     closeJobModal();
-    ['port-profile-overlay','port-exp-overlay','port-skill-overlay','port-cert-overlay','port-proj-overlay']
+    ['port-profile-overlay','port-sobre-overlay','port-exp-overlay','port-skill-overlay','port-cert-overlay','port-proj-overlay']
       .forEach(id => closePortModal(id));
   }
 });
@@ -615,7 +615,38 @@ function _highlightInvalid(el) {
   setTimeout(() => { el.style.borderColor = ''; }, 2000);
 }
 
-/* ── Perfil / Sobre ──────────────────────────────────────── */
+/* ── Avatar Upload ────────────────────────────────────────── */
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showJobToast('Selecione uma imagem (JPEG, PNG, WebP...)', true); return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    showJobToast('A imagem deve ter no máximo 2 MB.', true); return;
+  }
+  const token = _portToken(); if (!token) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  showJobToast('Enviando foto...');
+  try {
+    const resp = await fetch('/api/portfolio/avatar', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: formData,
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao enviar foto.');
+    showJobToast('Foto atualizada!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Perfil (nome, headline, cidade) ─────────────────────── */
 
 function openPortfolioProfileModal() {
   document.getElementById('port-profile-overlay').classList.add('open');
@@ -626,7 +657,6 @@ async function savePortProfile() {
   const name     = document.getElementById('port-name').value.trim();
   const headline = document.getElementById('port-headline').value.trim();
   const city     = document.getElementById('port-city').value.trim();
-  const about    = document.getElementById('port-sobre').value.trim();
 
   if (!name) { _highlightInvalid(document.getElementById('port-name')); return; }
 
@@ -636,7 +666,8 @@ async function savePortProfile() {
     const resp = await fetch('/api/portfolio/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ name, headline, city, about }),
+      // about: null → service ignores it (null-safe) — Sobre tem modal próprio
+      body: JSON.stringify({ name, headline, city, about: null }),
     });
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar perfil.');
     closePortModal('port-profile-overlay');
@@ -647,25 +678,190 @@ async function savePortProfile() {
   }
 }
 
+/* ── Sobre (modal separado) ──────────────────────────────── */
+
+function openSobreModal() {
+  document.getElementById('port-sobre-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('port-sobre')?.focus(), 80);
+}
+
+async function saveSobre() {
+  const about = document.getElementById('port-sobre').value.trim();
+  const token = _portToken(); if (!token) return;
+
+  try {
+    const resp = await fetch('/api/portfolio/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      // name/headline/city: null → service ignores them
+      body: JSON.stringify({ name: null, headline: null, city: null, about }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar.');
+    closePortModal('port-sobre-overlay');
+    showJobToast('Sobre atualizado!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Autocomplete de cidades (IBGE) ──────────────────────── */
+
+let _ibgeCities  = null;   // cache: ["São Paulo, SP", ...]
+let _cityTimer   = null;
+
+async function _loadCities() {
+  if (_ibgeCities) return _ibgeCities;
+  try {
+    const r = await fetch(
+      'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome'
+    );
+    const data = await r.json();
+    _ibgeCities = data.map(m => `${m.nome}, ${m.microrregiao.mesorregiao.UF.sigla}`);
+  } catch (_) {
+    _ibgeCities = [];
+  }
+  return _ibgeCities;
+}
+
+function _normalize(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+async function cityAutocomplete(input) {
+  const dd    = document.getElementById('city-ac-dropdown');
+  const query = input.value.trim();
+  clearTimeout(_cityTimer);
+
+  if (query.length < 2) { dd.classList.add('hidden'); return; }
+
+  _cityTimer = setTimeout(async () => {
+    const cities  = await _loadCities();
+    const q       = _normalize(query);
+    const matches = cities
+      .filter(c => _normalize(c).includes(q))
+      .slice(0, 8);
+
+    if (!matches.length) { dd.classList.add('hidden'); return; }
+
+    dd.innerHTML = matches.map(c => {
+      const safe = c.replace(/'/g, "\\'");
+      return `<button type="button"
+        class="w-full text-left px-3 py-[9px] text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0"
+        onclick="selectCity('${safe}')">${c}</button>`;
+    }).join('');
+    dd.classList.remove('hidden');
+  }, 280);
+}
+
+function selectCity(city) {
+  const inp = document.getElementById('port-city');
+  if (inp) inp.value = city;
+  document.getElementById('city-ac-dropdown')?.classList.add('hidden');
+}
+
+// Fecha dropdown ao clicar fora
+document.addEventListener('click', e => {
+  if (e.target.id !== 'port-city' && !e.target.closest('#city-ac-dropdown')) {
+    document.getElementById('city-ac-dropdown')?.classList.add('hidden');
+  }
+});
+
 /* ── Experiências ─────────────────────────────────────────── */
 
+// Meses curtos em PT-BR (mesmo índice das <option value="...">)
+const _EXP_MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+/** Preenche selects de ano (atual → 1970) se ainda estiverem vazios. */
+function _populateYearSelects() {
+  const cur = new Date().getFullYear();
+  ['exp-start-year','exp-end-year'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel || sel.options.length > 1) return; // já preenchido
+    for (let y = cur; y >= 1970; y--) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = y;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+/** Mostra/oculta a linha de data final conforme checkbox "Presente". */
+function toggleExpPresente(chk) {
+  const row = document.getElementById('exp-end-date-row');
+  row.style.opacity        = chk.checked ? '0.35' : '1';
+  row.style.pointerEvents  = chk.checked ? 'none'  : '';
+}
+
+/** Converte string de período em objeto {startM, startY, endM, endY, presente}. */
+function _parsePeriod(period) {
+  const result = { startM:'', startY:'', endM:'', endY:'', presente: false };
+  if (!period) return result;
+  const parts = period.split(' – ');
+  if (parts[0]) {
+    const [m, y] = parts[0].split(' ');
+    result.startM = _EXP_MONTHS.includes(m) ? m : '';
+    result.startY = y || '';
+  }
+  if (parts[1]) {
+    if (parts[1].toLowerCase() === 'presente') {
+      result.presente = true;
+    } else {
+      const [m, y] = parts[1].split(' ');
+      result.endM = _EXP_MONTHS.includes(m) ? m : '';
+      result.endY = y || '';
+    }
+  }
+  return result;
+}
+
 function openExpModal(ds) {
-  const heading = document.getElementById('exp-modal-heading');
-  document.getElementById('exp-editing-id').value = ds?.id || '';
-  document.getElementById('exp-title').value       = ds?.title   || '';
-  document.getElementById('exp-company').value     = ds?.company || '';
-  document.getElementById('exp-period').value      = ds?.period  || '';
-  document.getElementById('exp-desc').value        = ds?.desc    || '';
-  heading.textContent = ds?.id ? 'Editar experiência' : 'Adicionar experiência';
+  _populateYearSelects();
+  document.getElementById('exp-modal-heading').textContent = ds?.id ? 'Editar experiência' : 'Adicionar experiência';
+  document.getElementById('exp-editing-id').value = ds?.id      || '';
+  document.getElementById('exp-title').value      = ds?.title   || '';
+  document.getElementById('exp-company').value    = ds?.company || '';
+  document.getElementById('exp-desc').value       = ds?.desc    || '';
+
+  const p = _parsePeriod(ds?.period || '');
+  document.getElementById('exp-start-month').value = p.startM;
+  document.getElementById('exp-start-year').value  = p.startY;
+  document.getElementById('exp-end-month').value   = p.endM;
+  document.getElementById('exp-end-year').value    = p.endY;
+
+  const chk = document.getElementById('exp-presente');
+  chk.checked = p.presente;
+  toggleExpPresente(chk);
+
   document.getElementById('port-exp-overlay').classList.add('open');
   setTimeout(() => document.getElementById('exp-title').focus(), 80);
+}
+
+/** Monta string de período a partir dos selects. Ex: "Jan 2022 – Presente" */
+function _buildPeriod() {
+  const sm = document.getElementById('exp-start-month').value;
+  const sy = document.getElementById('exp-start-year').value;
+  const presente = document.getElementById('exp-presente').checked;
+  const em = document.getElementById('exp-end-month').value;
+  const ey = document.getElementById('exp-end-year').value;
+
+  const start = [sm, sy].filter(Boolean).join(' ') || '';
+  let end = '';
+  if (presente) {
+    end = 'Presente';
+  } else {
+    end = [em, ey].filter(Boolean).join(' ');
+  }
+  if (!start && !end) return '';
+  if (!end) return start;
+  return `${start} – ${end}`;
 }
 
 async function saveExperience() {
   const editingId   = document.getElementById('exp-editing-id').value;
   const title       = document.getElementById('exp-title').value.trim();
   const companyName = document.getElementById('exp-company').value.trim();
-  const period      = document.getElementById('exp-period').value.trim();
+  const period      = _buildPeriod();
   const description = document.getElementById('exp-desc').value.trim();
 
   if (!title)       { _highlightInvalid(document.getElementById('exp-title'));   return; }

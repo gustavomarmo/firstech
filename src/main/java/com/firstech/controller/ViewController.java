@@ -75,6 +75,7 @@ public class ViewController {
                     .headline(user.getTagline() != null ? user.getTagline() : "")
                     .localizacao(user.getCity() != null ? user.getCity() : "")
                     .sobre(user.getSobre() != null ? user.getSobre() : "")
+                    .avatarBase64(user.getAvatarBase64())
                     .cargo(cargo)
                     .empresa(empresa)
                     .recrutador(isRecruiter)

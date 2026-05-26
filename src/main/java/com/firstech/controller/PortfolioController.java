@@ -6,10 +6,13 @@ import com.firstech.service.PortfolioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,6 +21,16 @@ import java.util.List;
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+
+    // ── Avatar ─────────────────────────────────────────────────────────
+
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal User user) throws IOException {
+        portfolioService.updateAvatar(file, user);
+        return ResponseEntity.noContent().build();
+    }
 
     // ── Perfil ─────────────────────────────────────────────────────────
 
