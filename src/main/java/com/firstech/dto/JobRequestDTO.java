@@ -13,5 +13,7 @@ public record JobRequestDTO(
         String modality,   // "Remoto" | "Híbrido" | "Presencial"
         String level,      // "Estágio" | "Júnior" | "Pleno"
         String salary,
-        List<String> tags
+        List<String> tags,
+        String jobCompany,
+        String jobCompanyLogoUrl
 ) {}

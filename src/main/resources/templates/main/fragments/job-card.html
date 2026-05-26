@@ -3,9 +3,11 @@
 <body>
 <div th:fragment="card(vaga)" class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
   <div class="flex items-center gap-[13px] mb-[10px]">
-    <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white"
-         th:style="'background:' + ${vaga.companyLogo}"
-         th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</div>
+    <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white overflow-hidden"
+         th:style="'background:' + ${vaga.companyLogo}">
+      <span th:if="${vaga.companyLogoUrl == null or vaga.companyLogoUrl.isBlank()}"
+            th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</span>
+    </div>
     <div>
       <div class="font-display text-[15px] font-semibold text-text1" th:text="${vaga.title}">Título da vaga</div>
       <div class="text-xs text-text2"

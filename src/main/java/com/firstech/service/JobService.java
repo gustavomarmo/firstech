@@ -40,6 +40,8 @@ public class JobService {
                 .modality(dto.modality())
                 .level(dto.level())
                 .salary(dto.salary())
+                .jobCompany(dto.jobCompany())
+                .jobCompanyLogoUrl(dto.jobCompanyLogoUrl())
                 .tags(dto.tags() != null ? new ArrayList<>(dto.tags()) : new ArrayList<>())
                 .recruiter(recruiter)
                 .build();
@@ -56,6 +58,8 @@ public class JobService {
         job.setModality(dto.modality());
         job.setLevel(dto.level());
         job.setSalary(dto.salary());
+        job.setJobCompany(dto.jobCompany());
+        job.setJobCompanyLogoUrl(dto.jobCompanyLogoUrl());
         if (dto.tags() != null) {
             job.getTags().clear();
             job.getTags().addAll(dto.tags());
@@ -98,15 +102,28 @@ public class JobService {
     }
 
     private JobResponseDTO toDTO(Job job) {
-        String company = job.getRecruiter().getCompany() != null
-                ? job.getRecruiter().getCompany()
-                : job.getRecruiter().getName();
+        // Empresa: usa o override da vaga se informado; senão, cai para empresa do recrutador
+        String rawJobCompany = job.getJobCompany();
+        String company = (rawJobCompany != null && !rawJobCompany.isBlank())
+                ? rawJobCompany
+                : (job.getRecruiter().getCompany() != null
+                        ? job.getRecruiter().getCompany()
+                        : job.getRecruiter().getName());
+
+        // Logo: usa URL se informada; senão, gera gradiente
+        String rawLogoUrl = job.getJobCompanyLogoUrl();
+        boolean hasImage  = rawLogoUrl != null && !rawLogoUrl.isBlank();
+        String logoStyle  = hasImage
+                ? "url(" + rawLogoUrl + ") center/cover"
+                : logoGradient(company);
 
         return JobResponseDTO.builder()
                 .id(job.getId())
                 .title(job.getTitle())
                 .company(company)
-                .companyLogo(logoGradient(company))
+                .companyLogo(logoStyle)
+                .companyLogoUrl(hasImage ? rawLogoUrl : null)
+                .jobCompany(rawJobCompany)
                 .location(job.getLocation())
                 .modality(job.getModality())
                 .level(job.getLevel())

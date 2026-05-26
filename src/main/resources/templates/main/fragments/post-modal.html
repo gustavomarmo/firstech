@@ -13,7 +13,8 @@
              th:text="${usuario.inicial}">G</div>
         <div>
           <div class="text-sm font-semibold text-text1" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
-          <div class="text-[11px] text-text3" th:text="${usuario.cargo} + ' · ' + ${usuario.empresa}">Back-end Developer · TIVIT</div>
+          <div class="text-[11px] text-text3"
+               th:text="${usuario.empresa != null and !usuario.empresa.isBlank()} ? ${usuario.cargo} + ' · ' + ${usuario.empresa} : ${usuario.cargo}">Back-end Developer · TIVIT</div>
         </div>
       </div>
       <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
@@ -27,6 +28,20 @@
              type="text" placeholder="Subtítulo" id="modal-sub"/>
       <textarea class="w-full min-h-[120px] bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
                 placeholder="Descreva seu projeto..." id="modal-desc"></textarea>
+
+      <!-- Vincular à vaga — apenas recrutadores -->
+      <div th:if="${usuario.recrutador}" class="relative">
+        <select id="modal-linked-job"
+                class="w-full appearance-none bg-bg3 border border-border2 rounded-[9px] py-2 pl-[14px] pr-9 outline-none text-text1 font-[inherit] text-[13px] transition-[border-color] duration-200 focus:border-border cursor-pointer">
+          <option value="" class="text-text3">Vincular à uma vaga ativa (opcional)</option>
+          <th:block th:each="vaga : ${minhasVagas}">
+            <option th:if="${vaga.status == 'ATIVA'}"
+                    th:value="${vaga.id}"
+                    th:text="${vaga.title}">Vaga</option>
+          </th:block>
+        </select>
+        <i class="ti ti-link absolute right-3 top-1/2 -translate-y-1/2 text-text3 text-sm pointer-events-none"></i>
+      </div>
 
       <div class="bg-bg3 border border-border2 rounded-[9px] py-2 px-3 flex flex-wrap gap-[7px] items-center cursor-text transition-[border-color] duration-200 focus-within:border-border"
            id="tags-area" onclick="document.getElementById('tag-input').focus()">

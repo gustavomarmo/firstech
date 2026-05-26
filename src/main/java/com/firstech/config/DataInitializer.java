@@ -27,9 +27,24 @@ public class DataInitializer implements CommandLineRunner {
                     .email("admin@example.com")
                     .password(passwordEncoder.encode("Admin@123"))
                     .roles(Set.of(Role.ADMINISTRADOR, Role.RECRUTADOR))
+                    .company("Firstech")
                     .build();
             userRepository.save(admin);
-            log.info("Usuário admin criado: admin@example.com / Admin@123");
+            log.info("Usuário admin (recrutador) criado: admin@example.com / Admin@123");
+        }
+
+        if (!userRepository.existsByEmail("candidato@example.com")) {
+            User candidato = User.builder()
+                    .name("Dev Candidato")
+                    .email("candidato@example.com")
+                    .password(passwordEncoder.encode("Admin@123"))
+                    .roles(Set.of(Role.CANDIDATO))
+                    .careerMoment("junior")
+                    .city("São Paulo, SP")
+                    .tagline("Desenvolvedor Java apaixonado por tecnologia")
+                    .build();
+            userRepository.save(candidato);
+            log.info("Usuário candidato criado: candidato@example.com / Admin@123");
         }
     }
 }

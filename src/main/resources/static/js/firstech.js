@@ -97,10 +97,12 @@ function openJobModal(vaga) {
     publishLabel.textContent = 'Salvar alterações';
     publishIcon.className    = 'ti ti-device-floppy text-sm';
 
-    document.getElementById('job-titulo').value     = vaga.title       || '';
-    document.getElementById('job-localidade').value = vaga.location    || '';
-    document.getElementById('job-salario').value    = vaga.salary      || '';
-    document.getElementById('job-descricao').value  = vaga.description || '';
+    document.getElementById('job-titulo').value            = vaga.title          || '';
+    document.getElementById('job-localidade').value        = vaga.location       || '';
+    document.getElementById('job-salario').value           = vaga.salary         || '';
+    document.getElementById('job-descricao').value         = vaga.description    || '';
+    document.getElementById('job-company-name').value      = vaga.jobCompany     || '';
+    document.getElementById('job-company-logo-url').value  = vaga.companyLogoUrl || '';
 
     // Selects: define o valor e garante que a opção exista
     _setSelectValue('job-modalidade', vaga.modality);
@@ -163,13 +165,15 @@ function collectJobTags() {
 
 /* ── Publicar ou atualizar vaga via API ── */
 async function publishJob() {
-  const title       = document.getElementById('job-titulo').value.trim();
-  const location    = document.getElementById('job-localidade').value.trim();
-  const modality    = document.getElementById('job-modalidade').value || null;
-  const level       = document.getElementById('job-nivel').value      || null;
-  const salary      = document.getElementById('job-salario').value.trim() || null;
-  const description = document.getElementById('job-descricao').value.trim();
-  const tags        = collectJobTags();
+  const title            = document.getElementById('job-titulo').value.trim();
+  const jobLocation      = document.getElementById('job-localidade').value.trim();
+  const modality         = document.getElementById('job-modalidade').value || null;
+  const level            = document.getElementById('job-nivel').value      || null;
+  const salary           = document.getElementById('job-salario').value.trim() || null;
+  const description      = document.getElementById('job-descricao').value.trim();
+  const tags             = collectJobTags();
+  const jobCompany       = document.getElementById('job-company-name').value.trim() || null;
+  const jobCompanyLogoUrl = document.getElementById('job-company-logo-url').value.trim() || null;
 
   // Valida título
   if (!title) {
@@ -203,7 +207,7 @@ async function publishJob() {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({ title, location, modality, level, salary, description, tags }),
+      body: JSON.stringify({ title, location: jobLocation, modality, level, salary, description, tags, jobCompany, jobCompanyLogoUrl }),
     });
 
     if (!resp.ok) {
@@ -216,7 +220,7 @@ async function publishJob() {
 
     if (isEdit) {
       showJobToast('Vaga atualizada com sucesso!');
-      location.reload();
+      window.location.reload();
     } else {
       showJobToast('Vaga "' + vaga.title + '" publicada com sucesso!');
       injectJobCard(vaga);
@@ -231,26 +235,30 @@ async function publishJob() {
 }
 
 function resetJobModal() {
-  document.getElementById('job-titulo').value      = '';
-  document.getElementById('job-localidade').value  = '';
-  document.getElementById('job-modalidade').value  = '';
-  document.getElementById('job-nivel').value       = '';
-  document.getElementById('job-salario').value     = '';
-  document.getElementById('job-descricao').value   = '';
+  document.getElementById('job-titulo').value           = '';
+  document.getElementById('job-localidade').value       = '';
+  document.getElementById('job-modalidade').value       = '';
+  document.getElementById('job-nivel').value            = '';
+  document.getElementById('job-salario').value          = '';
+  document.getElementById('job-descricao').value        = '';
+  document.getElementById('job-company-name').value     = '';
+  document.getElementById('job-company-logo-url').value = '';
   document.querySelectorAll('#job-active-tags .job-tag').forEach(t => t.remove());
 }
 
 /* ── Abrir edição a partir do botão do card (server-side rendered) ── */
 function editJobFromBtn(btn) {
   const vaga = {
-    id:          btn.dataset.id,
-    title:       btn.dataset.title       || '',
-    location:    btn.dataset.location    || '',
-    modality:    btn.dataset.modality    || '',
-    level:       btn.dataset.level       || '',
-    salary:      btn.dataset.salary      || '',
-    description: btn.dataset.description || '',
-    tags:        btn.dataset.tags ? btn.dataset.tags.split(',').filter(Boolean) : [],
+    id:               btn.dataset.id,
+    title:            btn.dataset.title           || '',
+    location:         btn.dataset.location        || '',
+    modality:         btn.dataset.modality        || '',
+    level:            btn.dataset.level           || '',
+    salary:           btn.dataset.salary          || '',
+    description:      btn.dataset.description     || '',
+    tags:             btn.dataset.tags ? btn.dataset.tags.split(',').filter(Boolean) : [],
+    jobCompany:       btn.dataset.jobCompany      || '',
+    companyLogoUrl:   btn.dataset.jobCompanyLogoUrl || '',
   };
   openJobModal(vaga);
 }
@@ -267,17 +275,17 @@ function injectJobCard(vaga) {
     .map(t => `<div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">${t}</div>`)
     .join('');
 
-  const initial  = (vaga.company || 'E').charAt(0).toUpperCase();
-  const gradient = vaga.companyLogo || 'linear-gradient(135deg,#6d28d9,#8b5cf6)';
-  const meta     = [vaga.location, vaga.modality, vaga.level].filter(Boolean).join(' · ');
+  const logoStyle = vaga.companyLogo || 'linear-gradient(135deg,#6d28d9,#8b5cf6)';
+  const initial   = vaga.companyLogoUrl ? '' : (vaga.company || 'E').charAt(0).toUpperCase();
+  const meta      = [vaga.location, vaga.modality, vaga.level].filter(Boolean).join(' · ');
 
   const card = document.createElement('div');
   card.className = 'bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] transition-all duration-200 hover:border-border';
   card.style.animation = 'modalIn .3s ease';
   card.innerHTML = `
     <div class="flex items-center gap-[13px] mb-[10px]">
-      <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white"
-           style="background:${gradient}">${initial}</div>
+      <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white overflow-hidden"
+           style="background:${logoStyle}">${initial}</div>
       <div class="flex-1 min-w-0">
         <div class="font-display text-[15px] font-semibold text-text1 flex items-center gap-2">
           <span>${vaga.title}</span>
@@ -296,6 +304,7 @@ function injectJobCard(vaga) {
                 data-modality="${vaga.modality || ''}" data-level="${vaga.level || ''}"
                 data-salary="${vaga.salary || ''}" data-description="${vaga.description || ''}"
                 data-tags="${(vaga.tags || []).join(',')}"
+                data-job-company="${vaga.jobCompany || ''}" data-job-company-logo-url="${vaga.companyLogoUrl || ''}"
                 onclick="editJobFromBtn(this)">
           <i class="ti ti-pencil text-sm"></i>Editar
         </button>
@@ -331,7 +340,7 @@ async function closeJob(id) {
       headers: { 'Authorization': 'Bearer ' + token },
     });
     if (!resp.ok) throw new Error('Erro ao encerrar vaga.');
-    location.reload();
+    window.location.reload();
   } catch (err) {
     showJobToast('Erro: ' + err.message, true);
   }
@@ -348,7 +357,7 @@ async function deleteJob(id) {
       headers: { 'Authorization': 'Bearer ' + token },
     });
     if (!resp.ok) throw new Error('Erro ao excluir vaga.');
-    location.reload();
+    window.location.reload();
   } catch (err) {
     showJobToast('Erro: ' + err.message, true);
   }

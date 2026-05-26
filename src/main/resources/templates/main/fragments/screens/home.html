@@ -25,18 +25,17 @@
                 onclick="openModal();event.stopPropagation()">Post</button>
       </div>
 
-      <!-- Compositor recrutador: atalho rápido para publicar vaga -->
+      <!-- Compositor recrutador: mesma interface de post do candidato -->
       <div th:if="${usuario.recrutador}"
            class="bg-bg2 border border-border2 rounded-[14px] p-[14px] mb-[14px] flex gap-[10px] items-center cursor-pointer"
-           onclick="openJobModal()">
-        <div class="w-9 h-9 rounded-lg shrink-0 bg-purplebg border border-border flex items-center justify-center text-[17px] text-purple2">
-          <i class="ti ti-briefcase"></i>
-        </div>
+           onclick="openModal()">
+        <div class="w-9 h-9 rounded-full shrink-0 bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-[3px] border-bg2 flex items-center justify-center text-[13px] font-bold text-white font-display"
+             th:text="${usuario.inicial}">G</div>
         <div class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] text-text3 font-[inherit] text-[13px] cursor-pointer">
-          Publique uma nova vaga para candidatos...
+          Compartilhe uma atualização ou oportunidade...
         </div>
-        <button class="bg-purple border-none text-white rounded-lg py-2 px-4 text-[13px] font-semibold cursor-pointer font-[inherit] transition-all duration-200 hover:bg-purple2"
-                onclick="openJobModal();event.stopPropagation()">Publicar</button>
+        <button class="bg-purplebg border border-border text-purple2 rounded-lg py-2 px-4 text-[13px] font-semibold cursor-pointer font-[inherit] transition-all duration-200 hover:bg-purple hover:text-white"
+                onclick="openModal();event.stopPropagation()">Post</button>
       </div>
 
       <!-- Posts (loop Thymeleaf) -->
@@ -139,9 +138,11 @@
         <th:block th:each="vaga : ${minhasVagas}" th:if="${vaga.status == 'ATIVA'}">
           <div class="bg-bg3 rounded-[10px] py-[10px] px-[12px] mb-2 border border-border2 transition-all duration-[180ms] hover:border-border hover:bg-bg4">
             <div class="flex items-center gap-[9px] mb-[5px]">
-              <div class="w-8 h-8 rounded-[7px] shrink-0 flex items-center justify-center text-xs font-[800] text-white"
-                   th:style="'background:' + ${vaga.companyLogo}"
-                   th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</div>
+              <div class="w-8 h-8 rounded-[7px] shrink-0 flex items-center justify-center text-xs font-[800] text-white overflow-hidden"
+                   th:style="'background:' + ${vaga.companyLogo}">
+                <span th:if="${vaga.companyLogoUrl == null or vaga.companyLogoUrl.isBlank()}"
+                      th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</span>
+              </div>
               <div class="flex-1 min-w-0">
                 <div class="text-[13px] font-semibold text-text1 truncate" th:text="${vaga.title}">Título</div>
                 <div class="text-[11px] text-text2" th:text="${vaga.location} + ' · ' + ${vaga.modality}">Local · Modalidade</div>

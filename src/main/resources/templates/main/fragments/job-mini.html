@@ -3,9 +3,11 @@
 <body>
 <div th:fragment="card(vaga)" class="bg-bg3 rounded-[10px] py-[10px] px-[12px] mb-2 border border-border2 cursor-pointer transition-all duration-[180ms] hover:border-border hover:bg-bg4">
   <div class="flex items-center gap-[9px] mb-[5px]">
-    <div class="w-8 h-8 rounded-[7px] shrink-0 flex items-center justify-center text-xs font-[800] text-white"
-         th:style="'background:' + ${vaga.companyLogo}"
-         th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</div>
+    <div class="w-8 h-8 rounded-[7px] shrink-0 flex items-center justify-center text-xs font-[800] text-white overflow-hidden"
+         th:style="'background:' + ${vaga.companyLogo}">
+      <span th:if="${vaga.companyLogoUrl == null or vaga.companyLogoUrl.isBlank()}"
+            th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</span>
+    </div>
     <div>
       <div class="text-[13px] font-semibold text-text1" th:text="${vaga.title}">Título</div>
       <div class="text-[11px] text-text2" th:text="${vaga.company} + ' · ' + ${vaga.location}">Empresa · Local</div>

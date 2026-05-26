@@ -91,9 +91,11 @@
 
             <!-- Cabeçalho do card -->
             <div class="flex items-center gap-[13px] mb-[10px]">
-              <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white"
-                   th:style="'background:' + ${vaga.companyLogo}"
-                   th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</div>
+              <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white overflow-hidden"
+                   th:style="'background:' + ${vaga.companyLogo}">
+                <span th:if="${vaga.companyLogoUrl == null or vaga.companyLogoUrl.isBlank()}"
+                      th:text="${vaga.company != null ? vaga.company.substring(0, 1).toUpperCase() : 'E'}">E</span>
+              </div>
               <div class="flex-1 min-w-0">
                 <div class="font-display text-[15px] font-semibold text-text1 flex items-center gap-2">
                   <span th:text="${vaga.title}">Título</span>
@@ -138,6 +140,8 @@
                         th:data-salary="${vaga.salary}"
                         th:data-description="${vaga.description}"
                         th:data-tags="${#strings.listJoin(vaga.tags, ',')}"
+                        th:data-job-company="${vaga.jobCompany}"
+                        th:data-job-company-logo-url="${vaga.companyLogoUrl}"
                         onclick="editJobFromBtn(this)">
                   <i class="ti ti-pencil text-sm"></i>Editar
                 </button>

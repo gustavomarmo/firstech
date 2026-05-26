@@ -31,6 +31,12 @@ public class Job {
     private String level;      // "Estágio" | "Júnior" | "Pleno"
     private String salary;
 
+    /** Nome da empresa contratante para esta vaga (sobrescreve o padrão do recrutador). */
+    private String jobCompany;
+
+    /** URL da logo da empresa (se vazio, usa gradiente gerado automaticamente). */
+    private String jobCompanyLogoUrl;
+
     @ElementCollection
     @CollectionTable(name = "job_tags", joinColumns = @JoinColumn(name = "job_id"))
     @Column(name = "tag")
