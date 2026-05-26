@@ -128,6 +128,7 @@ public class PostService {
                 .cargo(cargoLabel(user))
                 .corAvatar(avatarGradient(nome))
                 .inicial(inicial)
+                .avatarBase64(user.getAvatarBase64())
                 .build();
     }
 

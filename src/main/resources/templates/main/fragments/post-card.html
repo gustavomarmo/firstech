@@ -7,9 +7,16 @@
 
   <!-- Cabeçalho: avatar + autor + ações -->
   <div class="flex items-center gap-[10px] mb-3">
-    <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
-         th:style="'background:' + ${post.autor.corAvatar}"
-         th:text="${post.autor.inicial}">A</div>
+    <!-- Avatar: foto real ou iniciais -->
+    <div class="w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white"
+         th:style="'background:' + ${post.autor.corAvatar}">
+      <img th:if="${post.autor.avatarBase64 != null}"
+           th:src="${post.autor.avatarBase64}"
+           alt="avatar"
+           class="w-full h-full object-cover"/>
+      <span th:unless="${post.autor.avatarBase64 != null}"
+            th:text="${post.autor.inicial}">A</span>
+    </div>
     <div class="flex-1">
       <div class="text-sm font-semibold text-text1" th:text="${post.autor.nome}">Autor</div>
       <div class="text-[11px] text-text3 mt-px"

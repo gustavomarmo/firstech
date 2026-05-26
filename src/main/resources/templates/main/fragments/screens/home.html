@@ -16,8 +16,11 @@
       <div th:if="${!usuario.recrutador}"
            class="bg-bg2 border border-border2 rounded-[14px] p-[14px] mb-[14px] flex gap-[10px] items-center cursor-pointer"
            onclick="openModal()">
-        <div class="w-9 h-9 rounded-full shrink-0 bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-[3px] border-bg2 flex items-center justify-center text-[13px] font-bold text-white font-display"
-             th:text="${usuario.inicial}">G</div>
+        <div class="w-9 h-9 rounded-full shrink-0 overflow-hidden border-[3px] border-bg2 flex items-center justify-center text-[13px] font-bold text-white font-display"
+             style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">
+          <img th:if="${usuario.avatarBase64 != null}" th:src="${usuario.avatarBase64}" alt="avatar" class="w-full h-full object-cover"/>
+          <span th:unless="${usuario.avatarBase64 != null}" th:text="${usuario.inicial}">G</span>
+        </div>
         <div class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] text-text3 font-[inherit] text-[13px] cursor-pointer">
           Compartilhe um projeto ou atualização...
         </div>
@@ -29,8 +32,11 @@
       <div th:if="${usuario.recrutador}"
            class="bg-bg2 border border-border2 rounded-[14px] p-[14px] mb-[14px] flex gap-[10px] items-center cursor-pointer"
            onclick="openModal()">
-        <div class="w-9 h-9 rounded-full shrink-0 bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-[3px] border-bg2 flex items-center justify-center text-[13px] font-bold text-white font-display"
-             th:text="${usuario.inicial}">G</div>
+        <div class="w-9 h-9 rounded-full shrink-0 overflow-hidden border-[3px] border-bg2 flex items-center justify-center text-[13px] font-bold text-white font-display"
+             style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">
+          <img th:if="${usuario.avatarBase64 != null}" th:src="${usuario.avatarBase64}" alt="avatar" class="w-full h-full object-cover"/>
+          <span th:unless="${usuario.avatarBase64 != null}" th:text="${usuario.inicial}">G</span>
+        </div>
         <div class="flex-1 bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] text-text3 font-[inherit] text-[13px] cursor-pointer">
           Compartilhe uma atualização ou oportunidade...
         </div>

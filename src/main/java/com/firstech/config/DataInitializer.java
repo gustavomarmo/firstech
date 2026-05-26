@@ -123,37 +123,31 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        if (!userRepository.existsByEmail("admin@example.com")) {
-            User admin = User.builder()
-                    .name("Administrador")
-                    .email("admin@example.com")
-                    .password(passwordEncoder.encode("Admin@123"))
-                    .roles(Set.of(Role.ADMINISTRADOR, Role.RECRUTADOR))
-                    .company("Firstech")
-                    .build();
-            userRepository.save(admin);
-            log.info("Usuário admin (recrutador) criado: admin@example.com / Admin@123");
-        }
+        // create-drop + H2 in-memory → tabelas sempre vazias ao iniciar; seed direto
+        User admin = User.builder()
+                .name("Administrador")
+                .email("admin@example.com")
+                .password(passwordEncoder.encode("Admin@123"))
+                .roles(Set.of(Role.ADMINISTRADOR, Role.RECRUTADOR))
+                .company("Firstech")
+                .build();
+        userRepository.save(admin);
+        log.info("Usuário admin (recrutador) criado: admin@example.com / Admin@123");
 
-        if (!userRepository.existsByEmail("candidato@example.com")) {
-            User candidato = User.builder()
-                    .name("Dev Candidato")
-                    .email("candidato@example.com")
-                    .password(passwordEncoder.encode("Admin@123"))
-                    .roles(Set.of(Role.CANDIDATO))
-                    .careerMoment("junior")
-                    .city("São Paulo, SP")
-                    .tagline("Desenvolvedor Java apaixonado por tecnologia")
-                    .build();
-            userRepository.save(candidato);
-            log.info("Usuário candidato criado: candidato@example.com / Admin@123");
-        }
+        User candidato = User.builder()
+                .name("Dev Candidato")
+                .email("candidato@example.com")
+                .password(passwordEncoder.encode("Admin@123"))
+                .roles(Set.of(Role.CANDIDATO))
+                .careerMoment("junior")
+                .city("São Paulo, SP")
+                .tagline("Desenvolvedor Java apaixonado por tecnologia")
+                .build();
+        userRepository.save(candidato);
+        log.info("Usuário candidato criado: candidato@example.com / Admin@123");
     }
 
     private void seedTechSkills() {
-        long existing = techSkillRepository.count();
-        if (existing > 0) return; // já populado
-
         TECH_SKILLS.forEach(s -> techSkillRepository.save(
                 TechSkill.builder().name(s[0]).category(s[1]).build()
         ));

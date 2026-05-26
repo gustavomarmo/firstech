@@ -5,8 +5,16 @@
   <div class="profile-cover h-[68px] bg-[linear-gradient(135deg,#1a0533_0%,#2d1b6e_50%,#0f172a_100%)] relative"></div>
   <div class="px-[14px] pb-[14px]">
     <div class="-mt-6 mb-2 flex items-end justify-between">
-      <div class="w-[50px] h-[50px] rounded-full shrink-0 bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-[3px] border-bg2 flex items-center justify-center text-[18px] font-bold text-white font-display"
-           th:text="${usuario.inicial}">G</div>
+      <!-- Avatar: foto real ou iniciais -->
+      <div class="w-[50px] h-[50px] rounded-full shrink-0 overflow-hidden border-[3px] border-bg2 flex items-center justify-center text-[18px] font-bold text-white font-display"
+           style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">
+        <img th:if="${usuario.avatarBase64 != null}"
+             th:src="${usuario.avatarBase64}"
+             alt="Foto de perfil"
+             class="w-full h-full object-cover"/>
+        <span th:unless="${usuario.avatarBase64 != null}"
+              th:text="${usuario.inicial}">G</span>
+      </div>
       <div class="text-[10px] font-semibold py-[3px] px-[9px] bg-[rgba(52,211,153,.12)] text-green border border-[rgba(52,211,153,.28)] rounded-[20px]"
            th:if="${showAvailBadge}">● Disponível</div>
     </div>

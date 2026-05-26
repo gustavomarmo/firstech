@@ -1180,3 +1180,125 @@ async function deletePortfolioItem(type, id) {
     showJobToast('Erro: ' + err.message, true);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BUSCA — search screen
+   ═══════════════════════════════════════════════════════════ */
+
+let _searchTimer        = null;
+let _currentSearchData  = [];   // todos os resultados da última busca
+let _currentSearchFilter = 'tudo'; // filtro ativo
+
+/** Debounce: dispara doSearch após 350 ms de inatividade */
+function searchDebounced(q) {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => doSearch(q.trim()), 350);
+}
+
+/** Busca os resultados no backend e renderiza */
+async function doSearch(q) {
+  const emptyState = document.getElementById('search-empty-state');
+  const countEl    = document.getElementById('search-count');
+  const results    = document.getElementById('search-results');
+  const spinner    = document.getElementById('search-spinner');
+
+  if (!q) {
+    // Sem termo → mostra estado inicial
+    _currentSearchData = [];
+    results.innerHTML = '';
+    countEl.classList.add('hidden');
+    emptyState && emptyState.classList.remove('hidden');
+    return;
+  }
+
+  emptyState && emptyState.classList.add('hidden');
+  spinner && spinner.classList.remove('hidden');
+
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const resp  = await fetch('/api/search?q=' + encodeURIComponent(q), {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    });
+    if (!resp.ok) throw new Error('Falha na busca');
+    _currentSearchData = await resp.json();
+  } catch (err) {
+    _currentSearchData = [];
+    results.innerHTML = '<div class="text-sm text-text3 text-center py-8">Erro ao buscar. Tente novamente.</div>';
+    countEl.classList.add('hidden');
+    spinner && spinner.classList.add('hidden');
+    return;
+  }
+
+  spinner && spinner.classList.add('hidden');
+  _renderSearchResults(q);
+}
+
+/** Troca o filtro ativo e re-renderiza sem nova requisição */
+function setSearchFilter(filter, btn) {
+  _currentSearchFilter = filter;
+  // Atualiza estilo das abas
+  document.querySelectorAll('#s-search .ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  // Re-renderiza com o filtro
+  const q = (document.getElementById('search-input')?.value || '').trim();
+  if (q) _renderSearchResults(q);
+}
+
+/** Renderiza os cards de resultado aplicando o filtro ativo */
+function _renderSearchResults(q) {
+  const countEl = document.getElementById('search-count');
+  const container = document.getElementById('search-results');
+  if (!container) return;
+
+  const filtered = _currentSearchFilter === 'tudo'
+    ? _currentSearchData
+    : _currentSearchData.filter(r => r.tipo === _currentSearchFilter);
+
+  // Contador
+  const total = filtered.length;
+  if (countEl) {
+    countEl.textContent = total + ' resultado' + (total !== 1 ? 's' : '') + ' para "' + q + '"';
+    countEl.classList.toggle('hidden', false);
+  }
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <i class="ti ti-search-off text-[38px] text-text3 mb-3 block"></i>
+        <div class="text-sm font-semibold text-text2 mb-1">Nenhum resultado encontrado</div>
+        <div class="text-[13px] text-text3">Tente outros termos ou verifique a ortografia</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(r => {
+    const isJob    = r.tipo === 'vaga';
+    const radius   = isJob ? 'border-radius:8px' : '';
+    const badge    = `badge-${r.tipo}`;
+    const avatar   = r.avatarBase64
+      ? `<img src="${r.avatarBase64}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"/>`
+      : _escapeHtml(r.inicial || '?');
+
+    return `<div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+      <div class="w-[42px] h-[42px] shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white"
+           style="background:${r.corAvatar};${radius};border-radius:${isJob ? '8px' : '50%'}">
+        ${avatar}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold text-text1 truncate">${_escapeHtml(r.nome)}</div>
+        <div class="text-xs text-text2 mt-px truncate">${_escapeHtml(r.subtitulo)}</div>
+      </div>
+      <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap ${badge}">${_escapeHtml(r.tipoLabel)}</span>
+    </div>`;
+  }).join('');
+}
+
+/** Escapa HTML para injeção segura via innerHTML */
+function _escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
