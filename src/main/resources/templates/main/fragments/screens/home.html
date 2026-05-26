@@ -43,67 +43,12 @@
         <div th:replace="~{main/fragments/post-card :: card(${post})}"></div>
       </th:block>
 
-      <!-- Placeholders estáticos -->
-      <div class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border">
-        <div class="flex items-center gap-[10px] mb-3">
-          <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">A</div>
-          <div class="flex-1">
-            <div class="text-sm font-semibold text-text1">Ana Paula Costa</div>
-            <div class="text-[11px] text-text3 mt-px">Front-end Dev · TIVIT · 2h atrás</div>
-          </div>
-          <i class="ti ti-dots text-text3 cursor-pointer"></i>
-        </div>
-        <div class="text-sm text-text2 leading-[1.7] mb-3">Finalizei meu portfólio com React + TypeScript e deploy na Vercel! Foram 3 semanas de muito aprendizado, especialmente com animações usando Framer Motion. 🚀</div>
-        <div class="bg-bg border border-border2 rounded-[9px] p-[13px] mb-3 font-mono text-xs text-purple2 leading-[1.8]">
-          <span class="text-[#f472b6]">const</span> <span class="text-[#34d399]">Portfolio</span> = () =&gt; {<br>
-          &nbsp;&nbsp;<span class="text-[#f472b6]">return</span> &lt;<span class="text-[#34d399]">motion.div</span> <span class="text-[#fbbf24]">animate</span>={{ opacity: 1 }}&gt;<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="text-[#34d399]">Projects</span> /&gt;<br>
-          &nbsp;&nbsp;&lt;/<span class="text-[#34d399]">motion.div</span>&gt;<br>
-          }
-        </div>
-        <div class="flex gap-1">
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-heart text-base"></i>34</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-message-circle text-base"></i>8</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-share text-base"></i>Compartilhar</button>
-        </div>
-      </div>
-
-      <div class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border">
-        <div class="flex items-center gap-[10px] mb-3">
-          <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">R</div>
-          <div class="flex-1">
-            <div class="text-sm font-semibold text-text1">Rafael Torres</div>
-            <div class="text-[11px] text-text3 mt-px">Java Developer · 5h atrás</div>
-          </div>
-          <i class="ti ti-dots text-text3 cursor-pointer"></i>
-        </div>
-        <div class="text-sm text-text2 leading-[1.7] mb-3">Implementei Redis no Spring Boot e a performance foi absurda — de 800ms para 12ms nas queries mais pesadas. Vale muito estudar cache!</div>
-        <div class="rounded-[10px] h-[150px] mb-3 bg-bg3 border border-border2 flex items-center justify-center flex-col gap-2 text-text3 text-[13px]">
-          <i class="ti ti-chart-line text-[36px] text-purple2"></i>
-          <span>Gráfico: Redis Cache vs. sem cache</span>
-        </div>
-        <div class="flex gap-1">
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-heart text-base"></i>127</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-message-circle text-base"></i>23</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-share text-base"></i>Compartilhar</button>
-        </div>
-      </div>
-
-      <div class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border">
-        <div class="flex items-center gap-[10px] mb-3">
-          <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">M</div>
-          <div class="flex-1">
-            <div class="text-sm font-semibold text-text1">Marina Oliveira</div>
-            <div class="text-[11px] text-text3 mt-px">Full Stack Dev · 1d atrás</div>
-          </div>
-          <i class="ti ti-dots text-text3 cursor-pointer"></i>
-        </div>
-        <div class="text-sm text-text2 leading-[1.7] mb-3">Conquistei minha certificação AWS Solutions Architect! 6 meses estudando, muita prática e aprovada com 89%. Próximo: AWS Developer Associate 💪</div>
-        <div class="flex gap-1">
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-heart text-base"></i>256</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-message-circle text-base"></i>41</button>
-          <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"><i class="ti ti-share text-base"></i>Compartilhar</button>
-        </div>
+      <!-- Empty state quando não há posts -->
+      <div th:if="${#lists.isEmpty(posts)}"
+           class="bg-bg2 border border-dashed border-border2 rounded-[18px] p-10 text-center mt-2">
+        <i class="ti ti-writing text-[40px] text-text3 mb-3 block"></i>
+        <div class="text-sm font-semibold text-text2 mb-1">Nenhum post ainda</div>
+        <div class="text-[13px] text-text3">Seja o primeiro a compartilhar um projeto ou atualização!</div>
       </div>
 
     </div>

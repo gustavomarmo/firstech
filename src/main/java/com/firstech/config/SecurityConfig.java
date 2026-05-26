@@ -38,8 +38,9 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             // API de autenticação
             "/api/auth/**",
-            // API pública de vagas (candidatos/visitantes podem listar)
+            // API pública de vagas e posts (candidatos/visitantes podem listar)
             "/api/jobs",
+            "/api/posts",
             // Páginas Thymeleaf públicas
             "/", "/login", "/register", "/forgot-password", "/reset-password", "/dashboard",
             // Assets estáticos

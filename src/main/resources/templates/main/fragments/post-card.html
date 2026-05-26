@@ -1,30 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="card(post)" class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border">
+<div th:fragment="card(post)"
+     class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border"
+     th:id="'post-' + ${post.id}">
+
+  <!-- Cabeçalho: avatar + autor + ações -->
   <div class="flex items-center gap-[10px] mb-3">
     <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
          th:style="'background:' + ${post.autor.corAvatar}"
-         th:text="${#strings.abbreviate(post.autor.nome, 1)}">A</div>
+         th:text="${post.autor.inicial}">A</div>
     <div class="flex-1">
       <div class="text-sm font-semibold text-text1" th:text="${post.autor.nome}">Autor</div>
       <div class="text-[11px] text-text3 mt-px"
            th:text="${post.autor.cargo} + ' · ' + ${post.tempoRelativo}">Cargo · tempo</div>
     </div>
-    <i class="ti ti-dots text-text3 cursor-pointer"></i>
+
+    <!-- Ações do próprio autor -->
+    <div th:if="${usuario.userId != null and post.autor.id == usuario.userId}"
+         class="flex gap-1">
+      <button class="w-[30px] h-[30px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[16px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2"
+              title="Editar post"
+              th:data-post-id="${post.id}"
+              th:data-post-title="${post.title}"
+              th:data-post-content="${post.content}"
+              th:data-post-tags="${#strings.listJoin(post.tags, ',')}"
+              th:data-linked-job-id="${post.linkedJobId}"
+              onclick="editPostFromBtn(this)">
+        <i class="ti ti-pencil"></i>
+      </button>
+      <button class="w-[30px] h-[30px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[16px] transition-all duration-[180ms] hover:bg-bg3 hover:text-red"
+              title="Excluir post"
+              th:onclick="'deletePost(' + ${post.id} + ')'">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>
+
+    <!-- Ícone de opções para outros usuários -->
+    <i th:unless="${usuario.userId != null and post.autor.id == usuario.userId}"
+       class="ti ti-dots text-text3 cursor-pointer"></i>
   </div>
-  <div class="text-sm text-text2 leading-[1.7] mb-3" th:text="${post.conteudo}">Conteúdo do post.</div>
+
+  <!-- Título (opcional) -->
+  <div th:if="${post.title != null and !post.title.isBlank()}"
+       class="font-display text-[15px] font-semibold text-text1 mb-1"
+       th:text="${post.title}">Título do post</div>
+
+  <!-- Conteúdo -->
+  <div class="text-sm text-text2 leading-[1.7] mb-3" th:text="${post.content}">Conteúdo do post.</div>
+
+  <!-- Tags -->
+  <div th:if="${!#lists.isEmpty(post.tags)}" class="flex gap-1 flex-wrap mb-3">
+    <div th:each="tag : ${post.tags}"
+         class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border"
+         th:text="${tag}">Tag</div>
+  </div>
+
+  <!-- Vaga vinculada (apenas quando presente) -->
+  <div th:if="${post.linkedJobId != null}"
+       class="flex items-center gap-[10px] bg-bg3 border border-border2 rounded-[10px] px-[12px] py-[9px] mb-3 cursor-pointer transition-all duration-200 hover:border-border"
+       onclick="go('jobs')">
+    <i class="ti ti-briefcase text-purple2 text-[15px]"></i>
+    <div class="flex-1 min-w-0">
+      <div class="text-[11px] text-text3 mb-[1px]">Vaga vinculada</div>
+      <div class="text-xs font-semibold text-text1 truncate" th:text="${post.linkedJobTitle}">Título da vaga</div>
+    </div>
+    <i class="ti ti-arrow-right text-text3 text-sm"></i>
+  </div>
+
+  <!-- Ações: curtir, comentar, compartilhar -->
   <div class="flex gap-1">
     <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
-      <i class="ti ti-heart text-base"></i><span th:text="${post.curtidas}">0</span>
+      <i class="ti ti-heart text-base"></i><span th:text="${post.likes}">0</span>
     </button>
     <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
-      <i class="ti ti-message-circle text-base"></i><span th:text="${post.comentarios}">0</span>
+      <i class="ti ti-message-circle text-base"></i><span th:text="${post.commentCount}">0</span>
     </button>
     <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
       <i class="ti ti-share text-base"></i>Compartilhar
     </button>
   </div>
+
 </div>
 </body>
 </html>

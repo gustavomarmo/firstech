@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UsuarioViewModel {
 
+    @Builder.Default private Long   userId         = null;
     @Builder.Default private String nome          = "";
     @Builder.Default private String nomeCompleto  = "";
     @Builder.Default private String headline      = "";

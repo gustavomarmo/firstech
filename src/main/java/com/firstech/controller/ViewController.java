@@ -4,6 +4,7 @@ import com.firstech.dto.UsuarioViewModel;
 import com.firstech.model.Role;
 import com.firstech.model.User;
 import com.firstech.service.JobService;
+import com.firstech.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ViewController {
 
-    private final JobService jobService;
+    private final JobService  jobService;
+    private final PostService postService;
 
     @GetMapping({"/", "/login"})
     public String login() {
@@ -65,6 +67,7 @@ public class ViewController {
                     : "";
 
             usuario = UsuarioViewModel.builder()
+                    .userId(user.getId())
                     .nome(user.getName())
                     .nomeCompleto(user.getName())
                     .headline(user.getTagline() != null ? user.getTagline() : "")
@@ -78,7 +81,7 @@ public class ViewController {
         }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("posts", List.of());
+        model.addAttribute("posts", postService.getAllPosts());
         model.addAttribute("vagasRecomendadas", List.of());
         model.addAttribute("recrutadores", List.of());
         model.addAttribute("termoBusca", "");

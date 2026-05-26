@@ -28,49 +28,249 @@ function stab(el) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MODAL DE NOVO POST
+   MODAL DE POST — criar e editar
    ═══════════════════════════════════════════════════════════ */
 
-function openModal() {
+/** ID do post sendo editado. null = modo criação. */
+let editingPostId = null;
+
+/**
+ * Abre o modal de post.
+ * @param {object|null} post - Se fornecido, entra em modo de edição.
+ */
+function openModal(post) {
+  if (post) {
+    editingPostId = Number(post.id);
+    document.getElementById('post-modal-heading').textContent  = 'Editar post';
+    document.getElementById('post-publish-label').textContent  = 'Salvar';
+    document.getElementById('post-publish-icon').className     = 'ti ti-device-floppy text-sm';
+
+    document.getElementById('modal-title').value = post.title   || '';
+    document.getElementById('modal-desc').value  = post.content || '';
+
+    // Repopula tags
+    document.querySelectorAll('#active-tags .m-tag').forEach(t => t.remove());
+    (post.tags || []).forEach(addPostTag);
+
+    // Restaura vaga vinculada (se houver select)
+    const jobSel = document.getElementById('modal-linked-job');
+    if (jobSel) jobSel.value = post.linkedJobId || '';
+  } else {
+    editingPostId = null;
+    resetPostModal();
+  }
+
   document.getElementById('post-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('modal-title').focus(), 80);
+  setTimeout(() => document.getElementById('modal-desc').focus(), 80);
 }
 
 function closeModal() {
   document.getElementById('post-overlay').classList.remove('open');
+  editingPostId = null;
 }
 
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('post-overlay')) closeModal();
 }
 
-/* ── Tags do modal de post ── */
-function removeTag(btn) {
-  btn.closest('.m-tag').remove();
+function resetPostModal() {
+  document.getElementById('post-modal-heading').textContent  = 'Novo post';
+  document.getElementById('post-publish-label').textContent  = 'Publicar';
+  document.getElementById('post-publish-icon').className     = 'ti ti-send text-sm';
+  document.getElementById('modal-title').value = '';
+  document.getElementById('modal-desc').value  = '';
+  document.querySelectorAll('#active-tags .m-tag').forEach(t => t.remove());
+  const jobSel = document.getElementById('modal-linked-job');
+  if (jobSel) jobSel.value = '';
 }
 
+/* ── Tags do modal de post ── */
 function handleTagKey(e) {
   if ((e.key === 'Enter' || e.key === ',') && e.target.value.trim()) {
     e.preventDefault();
     const val = e.target.value.trim().replace(/,$/, '');
     if (!val) return;
-
-    const tag = document.createElement('div');
-    tag.className = 'm-tag';
-    tag.innerHTML = val + ' <button onclick="removeTag(this)" title="remover">×</button>';
-    document.getElementById('active-tags').insertBefore(tag, e.target);
+    addPostTag(val);
     e.target.value = '';
   }
 }
 
-/* ── Publicar post (DOM only) ── */
-function publishPost() {
-  const title = document.getElementById('modal-title').value || 'Novo projeto';
-  closeModal();
+function addPostTag(val) {
+  const tag = document.createElement('div');
+  tag.className = 'm-tag flex items-center gap-[5px] bg-purplebg text-purple2 border border-border rounded-[20px] py-[3px] px-[10px] text-xs font-medium';
+  tag.innerHTML = `${val}<button type="button" class="bg-transparent border-none text-purple2 cursor-pointer flex items-center p-0 text-sm leading-none opacity-70 hover:opacity-100" onclick="this.closest('.m-tag').remove()" title="remover">×</button>`;
+  document.getElementById('active-tags').insertBefore(tag, document.getElementById('tag-input'));
+}
 
-  document.getElementById('modal-title').value = '';
-  document.getElementById('modal-sub').value   = '';
-  document.getElementById('modal-desc').value  = '';
+function collectPostTags() {
+  return [...document.querySelectorAll('#active-tags .m-tag')]
+    .map(el => el.childNodes[0].textContent.trim())
+    .filter(Boolean);
+}
+
+/* ── Publicar ou atualizar post via API ── */
+async function publishPost() {
+  const title    = document.getElementById('modal-title').value.trim() || null;
+  const content  = document.getElementById('modal-desc').value.trim();
+  const tags     = collectPostTags();
+  const jobSel   = document.getElementById('modal-linked-job');
+  const linkedJobId = jobSel && jobSel.value ? Number(jobSel.value) : null;
+
+  // Valida conteúdo
+  if (!content) {
+    const ta = document.getElementById('modal-desc');
+    ta.focus();
+    ta.style.borderColor = 'var(--red)';
+    setTimeout(() => { ta.style.borderColor = ''; }, 2000);
+    return;
+  }
+
+  const token = localStorage.getItem('firstech_access_token');
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    window.location.href = '/login';
+    return;
+  }
+
+  const isEdit = editingPostId !== null;
+  const method = isEdit ? 'PUT'  : 'POST';
+  const url    = isEdit ? `/api/posts/${editingPostId}` : '/api/posts';
+
+  const btn = document.getElementById('post-publish-btn');
+  btn.disabled = true;
+  const savedHTML = btn.innerHTML;
+  btn.innerHTML = '<i class="ti ti-loader-2 text-sm animate-spin"></i><span>Aguarde...</span>';
+
+  try {
+    const resp = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({ title, content, tags, linkedJobId }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Erro ao salvar post.');
+    }
+
+    const post = await resp.json();
+    closeModal();
+
+    if (isEdit) {
+      showJobToast('Post atualizado com sucesso!');
+      window.location.reload();
+    } else {
+      showJobToast('Post publicado!');
+      injectPostCard(post);
+    }
+
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  } finally {
+    btn.disabled  = false;
+    btn.innerHTML = savedHTML;
+  }
+}
+
+/* ── Abrir edição a partir do botão do card (server-side rendered) ── */
+function editPostFromBtn(btn) {
+  const post = {
+    id:         btn.dataset.postId,
+    title:      btn.dataset.postTitle   || '',
+    content:    btn.dataset.postContent || '',
+    tags:       btn.dataset.postTags ? btn.dataset.postTags.split(',').filter(Boolean) : [],
+    linkedJobId: btn.dataset.linkedJobId || '',
+  };
+  openModal(post);
+}
+
+/* ── Excluir post ── */
+async function deletePost(id) {
+  if (!confirm('Excluir este post? Esta ação não pode ser desfeita.')) return;
+
+  const token = localStorage.getItem('firstech_access_token');
+  try {
+    const resp = await fetch(`/api/posts/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!resp.ok) throw new Error('Erro ao excluir post.');
+
+    // Remove card do DOM sem recarregar
+    document.getElementById('post-' + id)?.remove();
+    showJobToast('Post excluído.');
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Inserir card de novo post no DOM (sem reload) ── */
+function injectPostCard(post) {
+  const feed = document.querySelector('#s-home .col:nth-child(2)');
+  if (!feed) return;
+
+  const tagsHtml = (post.tags || [])
+    .map(t => `<div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">${t}</div>`)
+    .join('');
+
+  const autorInicial = (post.autor?.nome || 'U').charAt(0).toUpperCase();
+  const autorCor     = post.autor?.corAvatar || 'linear-gradient(135deg,#6d28d9,#8b5cf6)';
+
+  const card = document.createElement('div');
+  card.id = 'post-' + post.id;
+  card.className = 'bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border';
+  card.style.animation = 'modalIn .3s ease';
+  card.innerHTML = `
+    <div class="flex items-center gap-[10px] mb-3">
+      <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
+           style="background:${autorCor}">${autorInicial}</div>
+      <div class="flex-1">
+        <div class="text-sm font-semibold text-text1">${post.autor?.nome || 'Você'}</div>
+        <div class="text-[11px] text-text3 mt-px">${post.autor?.cargo || ''} · agora</div>
+      </div>
+      <div class="flex gap-1">
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[16px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2"
+                title="Editar post"
+                data-post-id="${post.id}"
+                data-post-title="${post.title || ''}"
+                data-post-content="${post.content || ''}"
+                data-post-tags="${(post.tags || []).join(',')}"
+                data-linked-job-id="${post.linkedJobId || ''}"
+                onclick="editPostFromBtn(this)">
+          <i class="ti ti-pencil"></i>
+        </button>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[16px] transition-all duration-[180ms] hover:bg-bg3 hover:text-red"
+                title="Excluir post"
+                onclick="deletePost(${post.id})">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+    </div>
+    ${post.title ? `<div class="font-display text-[15px] font-semibold text-text1 mb-1">${post.title}</div>` : ''}
+    <div class="text-sm text-text2 leading-[1.7] mb-3">${post.content}</div>
+    ${tagsHtml ? `<div class="flex gap-1 flex-wrap mb-3">${tagsHtml}</div>` : ''}
+    <div class="flex gap-1">
+      <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+        <i class="ti ti-heart text-base"></i><span>0</span>
+      </button>
+      <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+        <i class="ti ti-message-circle text-base"></i><span>0</span>
+      </button>
+      <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+        <i class="ti ti-share text-base"></i>Compartilhar
+      </button>
+    </div>`;
+
+  // Insere imediatamente abaixo do compositor
+  const compositor = feed.firstElementChild;
+  if (compositor) {
+    compositor.insertAdjacentElement('afterend', card);
+  } else {
+    feed.prepend(card);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
