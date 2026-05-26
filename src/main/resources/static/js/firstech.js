@@ -584,6 +584,43 @@ function showJobToast(msg, isError = false) {
   setTimeout(() => toast.remove(), 4000);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MENU DO USUÁRIO (topbar)
+   ═══════════════════════════════════════════════════════════ */
+
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('user-menu').classList.toggle('hidden');
+}
+
+function closeUserMenu() {
+  document.getElementById('user-menu')?.classList.add('hidden');
+}
+
+document.addEventListener('click', e => {
+  const menu = document.getElementById('user-menu');
+  const btn  = document.getElementById('user-avatar-btn');
+  if (menu && !menu.classList.contains('hidden') &&
+      !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
+async function doLogout() {
+  const token = localStorage.getItem('firstech_access_token');
+  try {
+    if (token) {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+    }
+  } catch (_) { /* ignora erros de rede */ }
+  localStorage.removeItem('firstech_access_token');
+  localStorage.removeItem('firstech_refresh_token');
+  window.location.href = '/login';
+}
+
 /* ── Fechar modais com ESC ── */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
@@ -886,36 +923,96 @@ async function saveExperience() {
   }
 }
 
-/* ── Habilidades ──────────────────────────────────────────── */
+/* ── Habilidades (catálogo) ───────────────────────────────── */
 
-function openSkillModal(ds) {
-  document.getElementById('skill-editing-id').value  = ds?.id   || '';
-  document.getElementById('skill-name').value         = ds?.name || '';
-  document.getElementById('skill-highlight').checked  = false;
+let _skillCatalog = null; // cache: ["Java", "Python", ...]
+
+async function _loadSkillCatalog() {
+  if (_skillCatalog) return _skillCatalog;
+  const token = localStorage.getItem('firstech_access_token');
+  try {
+    const resp = await fetch('/api/portfolio/skills/catalog', {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    _skillCatalog = resp.ok ? await resp.json() : [];
+  } catch (_) { _skillCatalog = []; }
+  return _skillCatalog;
+}
+
+function _renderSkillChips(skills) {
+  const container = document.getElementById('skill-catalog-chips');
+  if (!container) return;
+  const selected = document.getElementById('skill-selected-name')?.value || '';
+
+  if (!skills.length) {
+    container.innerHTML = '<div class="text-xs text-text3 italic">Nenhuma habilidade encontrada.</div>';
+    return;
+  }
+  container.innerHTML = skills.map(s => {
+    const isSel = s === selected;
+    const base  = 'skill-chip py-[4px] px-[11px] rounded-lg text-xs font-medium cursor-pointer border transition-all duration-150 ';
+    const cls   = isSel
+      ? base + 'bg-purple text-white border-purple'
+      : base + 'bg-bg3 text-text2 border-border2 hover:border-purple2 hover:text-text1';
+    const safe  = s.replace(/'/g, "\\'");
+    return `<button type="button" class="${cls}" onclick="selectSkillFromCatalog('${safe}')">${s}</button>`;
+  }).join('');
+}
+
+function filterSkillCatalog(query) {
+  if (!_skillCatalog) return;
+  const q = query.trim().toLowerCase();
+  const filtered = q ? _skillCatalog.filter(s => s.toLowerCase().includes(q)) : _skillCatalog;
+  _renderSkillChips(filtered);
+}
+
+function selectSkillFromCatalog(name) {
+  document.getElementById('skill-selected-name').value = name;
+  const badge = document.getElementById('skill-selected-badge');
+  if (badge) badge.textContent = name;
+  document.getElementById('skill-selected-display')?.classList.remove('hidden');
+  // Re-renderiza chips para marcar selecionada
+  const query = document.getElementById('skill-search')?.value || '';
+  filterSkillCatalog(query);
+}
+
+async function openSkillModal(ds) {
+  document.getElementById('skill-editing-id').value    = '';
+  document.getElementById('skill-selected-name').value = '';
+  document.getElementById('skill-search').value        = '';
+  document.getElementById('skill-highlight').checked   = false;
+  document.getElementById('skill-selected-display')?.classList.add('hidden');
+  document.getElementById('skill-catalog-chips').innerHTML =
+    '<div class="text-xs text-text3 italic">Carregando habilidades...</div>';
+
   document.getElementById('port-skill-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('skill-name').focus(), 80);
+
+  const catalog = await _loadSkillCatalog();
+  _renderSkillChips(catalog);
+  setTimeout(() => document.getElementById('skill-search')?.focus(), 80);
 }
 
 async function saveSkill() {
-  const editingId = document.getElementById('skill-editing-id').value;
-  const name      = document.getElementById('skill-name').value.trim();
+  const name      = document.getElementById('skill-selected-name').value.trim();
   const highlight = document.getElementById('skill-highlight').checked;
 
-  if (!name) { _highlightInvalid(document.getElementById('skill-name')); return; }
+  if (!name) {
+    showJobToast('Selecione uma habilidade da lista.', true);
+    _highlightInvalid(document.getElementById('skill-search'));
+    return;
+  }
 
   const token = _portToken(); if (!token) return;
-  const isEdit = !!editingId;
-  const url    = isEdit ? `/api/portfolio/skills/${editingId}` : '/api/portfolio/skills';
 
   try {
-    const resp = await fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
+    const resp = await fetch('/api/portfolio/skills', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ name, highlight, orderIndex: 0 }),
     });
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar habilidade.');
     closePortModal('port-skill-overlay');
-    showJobToast(isEdit ? 'Habilidade atualizada!' : 'Habilidade adicionada!');
+    showJobToast('Habilidade adicionada!');
     window.location.reload();
   } catch (err) {
     showJobToast('Erro: ' + err.message, true);
@@ -966,42 +1063,74 @@ async function saveCertification() {
 
 /* ── Projetos ─────────────────────────────────────────────── */
 
-const _DEFAULT_PROJ_GRADIENT = 'linear-gradient(135deg,#0f0521,#2d1b6e)';
+/** Base64 da imagem de thumbnail selecionada no modal (null = sem nova imagem). */
+let _projImageBase64 = null;
+
+/** Abre o GitHub em nova aba (chamado pelo onclick do card). */
+function openProjGithub(url) {
+  if (url) window.open(url, '_blank', 'noopener');
+}
+
+/** Trata seleção de imagem para o thumbnail do projeto. */
+function handleProjImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 1024 * 1024) {
+    showJobToast('A imagem deve ter no máximo 1 MB.', true);
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _projImageBase64 = ev.target.result;
+    document.getElementById('proj-image-preview-img').src = _projImageBase64;
+    document.getElementById('proj-image-preview').classList.remove('hidden');
+    document.getElementById('proj-image-upload-label').classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+/** Remove a imagem selecionada no modal de projeto. */
+function clearProjImage() {
+  _projImageBase64 = '';           // string vazia → sinaliza "remover imagem existente"
+  document.getElementById('proj-image-preview').classList.add('hidden');
+  document.getElementById('proj-image-upload-label').classList.remove('hidden');
+  document.getElementById('proj-image-input').value = '';
+}
 
 function openProjModal(ds) {
   const heading = document.getElementById('proj-modal-heading');
-  document.getElementById('proj-editing-id').value = ds?.id       || '';
-  document.getElementById('proj-name').value        = ds?.name     || '';
-  document.getElementById('proj-desc').value        = ds?.desc     || '';
-  document.getElementById('proj-icon').value        = ds?.icon     || '';
-  document.getElementById('proj-gradient').value    = ds?.gradient || _DEFAULT_PROJ_GRADIENT;
+  document.getElementById('proj-editing-id').value = ds?.id     || '';
+  document.getElementById('proj-name').value        = ds?.name   || '';
+  document.getElementById('proj-desc').value        = ds?.desc   || '';
+  document.getElementById('proj-github').value      = ds?.github || '';
   heading.textContent = ds?.id ? 'Editar projeto' : 'Adicionar projeto';
 
-  // Marca o botão de tema correspondente (ou o primeiro se não houver match)
-  const activGrad = ds?.gradient || _DEFAULT_PROJ_GRADIENT;
-  document.querySelectorAll('#proj-theme-picker .proj-theme-btn').forEach(btn => {
-    const active = btn.dataset.gradient === activGrad;
-    btn.style.borderColor = active ? 'white' : 'transparent';
-  });
+  // Restaura imagem (se existente)
+  const existingImage = ds?.image || null;
+  if (existingImage && existingImage !== 'null') {
+    _projImageBase64 = existingImage;
+    document.getElementById('proj-image-preview-img').src = existingImage;
+    document.getElementById('proj-image-preview').classList.remove('hidden');
+    document.getElementById('proj-image-upload-label').classList.add('hidden');
+  } else {
+    _projImageBase64 = null;
+    document.getElementById('proj-image-preview').classList.add('hidden');
+    document.getElementById('proj-image-upload-label').classList.remove('hidden');
+    document.getElementById('proj-image-input').value = '';
+  }
 
   document.getElementById('port-proj-overlay').classList.add('open');
   setTimeout(() => document.getElementById('proj-name').focus(), 80);
 }
 
-function selectProjTheme(btn) {
-  document.querySelectorAll('#proj-theme-picker .proj-theme-btn').forEach(b => {
-    b.style.borderColor = 'transparent';
-  });
-  btn.style.borderColor = 'white';
-  document.getElementById('proj-gradient').value = btn.dataset.gradient;
-}
-
 async function saveProject() {
-  const editingId    = document.getElementById('proj-editing-id').value;
-  const name         = document.getElementById('proj-name').value.trim();
-  const description  = document.getElementById('proj-desc').value.trim();
-  const icon         = document.getElementById('proj-icon').value.trim() || 'ti-code';
-  const thumbGradient = document.getElementById('proj-gradient').value || _DEFAULT_PROJ_GRADIENT;
+  const editingId       = document.getElementById('proj-editing-id').value;
+  const name            = document.getElementById('proj-name').value.trim();
+  const description     = document.getElementById('proj-desc').value.trim();
+  const githubUrl       = document.getElementById('proj-github').value.trim() || null;
+  // _projImageBase64: null = não alterar, '' = remover, 'data:...' = nova imagem
+  const thumbImageBase64 = _projImageBase64;
 
   if (!name) { _highlightInvalid(document.getElementById('proj-name')); return; }
 
@@ -1013,7 +1142,7 @@ async function saveProject() {
     const resp = await fetch(url, {
       method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ name, description, thumbGradient, icon, orderIndex: 0 }),
+      body: JSON.stringify({ name, description, githubUrl, thumbImageBase64, orderIndex: 0 }),
     });
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar projeto.');
     closePortModal('port-proj-overlay');

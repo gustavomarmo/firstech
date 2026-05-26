@@ -11,34 +11,29 @@
            class="absolute bottom-0 left-6 translate-y-1/2 w-[84px] h-[84px] rounded-full border-4 border-bg cursor-pointer z-10 group overflow-hidden block"
            style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
            title="Alterar foto de perfil">
-      <!-- Foto real (se existir) -->
       <img th:if="${usuario.avatarBase64 != null}"
            th:src="${usuario.avatarBase64}"
            alt="Foto de perfil"
            class="w-full h-full object-cover"/>
-      <!-- Iniciais (fallback) -->
       <span th:if="${usuario.avatarBase64 == null}"
             class="w-full h-full flex items-center justify-center text-[30px] font-bold text-white font-display"
             th:text="${usuario.inicial}">G</span>
-      <!-- Overlay de câmera no hover -->
       <span class="absolute inset-0 bg-[rgba(0,0,0,.55)] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <i class="ti ti-camera text-white text-[22px]"></i>
         <span class="text-white text-[9px] mt-0.5 font-medium">Alterar</span>
       </span>
     </label>
-    <input type="file" id="avatar-file-input" accept="image/*" class="hidden"
-           onchange="uploadAvatar(this)"/>
+    <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="uploadAvatar(this)"/>
 
   </div><!-- /port-cover -->
 
   <!-- ── Corpo rolável ── -->
   <div class="port-body overflow-y-auto flex-1 px-6 pb-7">
 
-    <!-- Espaço para o avatar + botão de edição alinhado à direita -->
+    <!-- Botão de edição alinhado à direita (espaço para o avatar) -->
     <div class="flex items-center justify-end pt-[52px] mb-[14px]">
       <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
-              onclick="openPortfolioProfileModal()"
-              title="Editar perfil">
+              onclick="openPortfolioProfileModal()" title="Editar perfil">
         <i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i> Editar perfil
       </button>
     </div>
@@ -103,7 +98,6 @@
                      class="text-[13px] text-text2 mt-[5px] leading-[1.6]"
                      th:text="${exp.descricao}">Descrição</div>
               </div>
-              <!-- Ações -->
               <div class="flex gap-1 shrink-0">
                 <button class="w-6 h-6 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[13px] opacity-0 group-hover:opacity-100 transition-all hover:text-purple2"
                         th:data-id="${exp.id}"
@@ -126,9 +120,7 @@
       </div>
 
       <div th:if="${#lists.isEmpty(usuario.experiencias)}"
-           class="text-sm text-text3 italic text-center py-3">
-        Nenhuma experiência adicionada ainda.
-      </div>
+           class="text-sm text-text3 italic text-center py-3">Nenhuma experiência adicionada ainda.</div>
     </div>
 
     <!-- ── HABILIDADES ── -->
@@ -188,9 +180,7 @@
       </div>
 
       <div th:if="${#lists.isEmpty(usuario.certificacoes)}"
-           class="text-sm text-text3 italic text-center py-3">
-        Nenhuma certificação adicionada ainda.
-      </div>
+           class="text-sm text-text3 italic text-center py-3">Nenhuma certificação adicionada ainda.</div>
     </div>
 
     <!-- ── PROJETOS ── -->
@@ -203,28 +193,44 @@
 
       <div th:if="${!#lists.isEmpty(usuario.projetos)}" class="grid grid-cols-2 gap-[10px]">
         <div th:each="proj : ${usuario.projetos}"
-             class="group relative bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center"
+             class="group relative bg-bg3 rounded-[11px] overflow-hidden border border-border2 transition-all duration-200 hover:border-border"
+             th:classappend="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? ' cursor-pointer' : ' cursor-default'"
+             th:onclick="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? 'openProjGithub(\'' + ${proj.githubUrl} + '\')' : 'void 0'">
+
+          <!-- Thumbnail: imagem enviada pelo usuário ou gradiente (fallback) -->
+          <div th:if="${proj.thumbImageBase64 != null}"
+               class="h-[84px] overflow-hidden">
+            <img th:src="${proj.thumbImageBase64}" class="w-full h-full object-cover" alt=""/>
+          </div>
+          <div th:if="${proj.thumbImageBase64 == null}"
+               class="h-[84px] flex items-center justify-center"
                th:style="'background:' + ${proj.corThumb}">
             <i th:class="'ti ' + ${proj.icone}" style="font-size:30px;color:var(--purple2)"></i>
           </div>
+
           <div class="p-[10px_12px]">
-            <div class="text-[13px] font-semibold text-text1 mb-[3px]" th:text="${proj.nome}">Projeto</div>
-            <div class="text-[11px] text-text3 leading-[1.55]" th:text="${proj.descricao}">Descrição.</div>
+            <div class="flex items-center gap-1 mb-[3px]">
+              <div class="text-[13px] font-semibold text-text1 flex-1 truncate" th:text="${proj.nome}">Projeto</div>
+              <!-- Badge GitHub -->
+              <i th:if="${proj.githubUrl != null and !proj.githubUrl.isBlank()}"
+                 class="ti ti-brand-github text-[13px] text-text3 shrink-0" title="Ver no GitHub"></i>
+            </div>
+            <div class="text-[11px] text-text3 leading-[1.55] line-clamp-2" th:text="${proj.descricao}">Descrição.</div>
           </div>
-          <!-- Ações (hover) -->
+
+          <!-- Ações (hover) — param propagation para evitar abrir GitHub ao editar -->
           <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
             <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-purple2"
                     th:data-id="${proj.id}"
                     th:data-name="${proj.nome}"
                     th:data-desc="${proj.descricao}"
-                    th:data-gradient="${proj.corThumb}"
-                    th:data-icon="${proj.icone}"
-                    onclick="openProjModal(this.dataset)">
+                    th:data-github="${proj.githubUrl}"
+                    th:data-image="${proj.thumbImageBase64}"
+                    onclick="event.stopPropagation(); openProjModal(this.dataset)">
               <i class="ti ti-pencil"></i>
             </button>
             <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-red"
-                    th:onclick="'deletePortfolioItem(\'projects\',' + ${proj.id} + ')'">
+                    th:onclick="'event.stopPropagation(); deletePortfolioItem(\'projects\',' + ${proj.id} + ')'">
               <i class="ti ti-trash"></i>
             </button>
           </div>
@@ -232,9 +238,7 @@
       </div>
 
       <div th:if="${#lists.isEmpty(usuario.projetos)}"
-           class="text-sm text-text3 italic text-center py-3">
-        Nenhum projeto adicionado ainda.
-      </div>
+           class="text-sm text-text3 italic text-center py-3">Nenhum projeto adicionado ainda.</div>
     </div>
 
   </div><!-- /port-body -->
@@ -319,8 +323,7 @@
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
         <input id="exp-company" type="text" placeholder="Empresa*"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
-
-        <!-- Datas: início -->
+        <!-- Data início -->
         <div>
           <div class="text-[11px] text-text3 mb-[6px]">Data de início</div>
           <div class="flex gap-2">
@@ -340,8 +343,7 @@
             </select>
           </div>
         </div>
-
-        <!-- Datas: fim ou presente -->
+        <!-- Data fim -->
         <div>
           <div class="flex items-center justify-between mb-[6px]">
             <div class="text-[11px] text-text3">Data de término</div>
@@ -368,7 +370,6 @@
             </select>
           </div>
         </div>
-
         <textarea id="exp-desc" rows="4" placeholder="Descrição das atividades (opcional)"
                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
       </div>
@@ -381,10 +382,10 @@
     </div>
   </div>
 
-  <!-- ── Modal: Adicionar / Editar Habilidade ── -->
+  <!-- ── Modal: Adicionar Habilidade (do catálogo) ── -->
   <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
        id="port-skill-overlay" onclick="if(event.target===this)closePortModal('port-skill-overlay')">
-    <div class="bg-bg2 border border-border rounded-[18px] w-[400px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[480px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
       <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
         <div class="text-sm font-semibold text-text1">Adicionar habilidade</div>
         <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
@@ -392,9 +393,29 @@
       </div>
       <div class="p-5 flex flex-col gap-3">
         <input type="hidden" id="skill-editing-id"/>
-        <input id="skill-name" type="text" placeholder="Nome da habilidade*"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
-        <label class="flex items-center gap-2 cursor-pointer text-sm text-text2">
+        <input type="hidden" id="skill-selected-name"/>
+
+        <!-- Busca no catálogo -->
+        <input id="skill-search" type="text" autocomplete="off"
+               placeholder="Buscar habilidade... (ex: Java, React, Docker)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+               oninput="filterSkillCatalog(this.value)"/>
+
+        <!-- Selecionada -->
+        <div id="skill-selected-display" class="hidden flex items-center gap-2 py-2">
+          <div class="text-[11px] text-text3">Selecionada:</div>
+          <div id="skill-selected-badge"
+               class="py-[3px] px-[11px] rounded-lg text-xs font-semibold bg-purple text-white border border-[rgba(139,92,246,.5)]"></div>
+        </div>
+
+        <!-- Chips do catálogo -->
+        <div id="skill-catalog-chips"
+             class="flex flex-wrap gap-[7px] max-h-[200px] overflow-y-auto py-1">
+          <!-- preenchido pelo JS -->
+          <div class="text-xs text-text3 italic">Carregando habilidades...</div>
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-text2 pt-1 border-t border-border2">
           <input id="skill-highlight" type="checkbox" class="w-4 h-4 rounded accent-purple"/>
           Destacar esta habilidade (badge roxo)
         </label>
@@ -403,7 +424,7 @@
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
                 onclick="closePortModal('port-skill-overlay')">Cancelar</button>
         <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
-                onclick="saveSkill()">Salvar</button>
+                onclick="saveSkill()">Adicionar</button>
       </div>
     </div>
   </div>
@@ -448,28 +469,46 @@
         <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
                 onclick="closePortModal('port-proj-overlay')"><i class="ti ti-x"></i></button>
       </div>
-      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
+      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[72vh]">
         <input type="hidden" id="proj-editing-id"/>
+
         <input id="proj-name" type="text" placeholder="Nome do projeto*"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+
         <textarea id="proj-desc" rows="3" placeholder="Breve descrição do projeto"
                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
-        <!-- Ícone Tabler -->
-        <input id="proj-icon" type="text" placeholder="Ícone Tabler (ex: ti-code, ti-database, ti-cloud)"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
-        <!-- Tema / cor do thumbnail -->
-        <div>
-          <div class="text-[11px] text-text3 mb-[6px]">Tema do thumbnail</div>
-          <div class="flex gap-2 flex-wrap" id="proj-theme-picker">
-            <button th:each="theme : ${ {'linear-gradient(135deg,#0f0521,#2d1b6e)','linear-gradient(135deg,#0a2540,#1a56db)','linear-gradient(135deg,#052e16,#166534)','linear-gradient(135deg,#2d1515,#7f1d1d)','linear-gradient(135deg,#0e2942,#0e7490)','linear-gradient(135deg,#2d1b00,#854f0b)'} }"
-                    type="button"
-                    class="proj-theme-btn w-8 h-8 rounded-lg border-2 border-transparent cursor-pointer transition-all hover:border-white"
-                    th:style="'background:' + ${theme}"
-                    th:data-gradient="${theme}"
-                    onclick="selectProjTheme(this)"></button>
-          </div>
+
+        <!-- Link do GitHub -->
+        <div class="flex items-center gap-2 bg-bg3 border border-border2 rounded-[9px] px-[14px] focus-within:border-border transition-colors">
+          <i class="ti ti-brand-github text-text3 text-[18px] shrink-0"></i>
+          <input id="proj-github" type="url" placeholder="https://github.com/usuario/repositorio"
+                 class="flex-1 bg-transparent border-none py-2 outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 min-w-0"/>
         </div>
-        <input type="hidden" id="proj-gradient" value="linear-gradient(135deg,#0f0521,#2d1b6e)"/>
+
+        <!-- Upload de imagem do thumbnail -->
+        <div>
+          <div class="text-[11px] text-text3 mb-[6px]">Imagem do projeto</div>
+
+          <!-- Preview (quando imagem selecionada) -->
+          <div id="proj-image-preview" class="hidden relative rounded-[9px] overflow-hidden border border-border2 mb-2">
+            <img id="proj-image-preview-img" src="" alt="" class="w-full h-[130px] object-cover"/>
+            <button type="button"
+                    class="absolute top-2 right-2 w-7 h-7 rounded-lg bg-[rgba(7,10,16,.8)] text-text2 border border-border2 flex items-center justify-center cursor-pointer text-[16px] hover:text-red hover:border-red transition-colors"
+                    onclick="clearProjImage()">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+
+          <!-- Label de upload -->
+          <label id="proj-image-upload-label" for="proj-image-input"
+                 class="flex flex-col items-center justify-center gap-2 w-full h-[120px] border-2 border-dashed border-border2 rounded-[9px] cursor-pointer transition-all duration-200 hover:border-purple2 hover:bg-[rgba(139,92,246,.04)]">
+            <i class="ti ti-photo-up text-[28px] text-text3"></i>
+            <div class="text-[13px] text-text2 font-medium">Clique para anexar imagem</div>
+            <div class="text-[11px] text-text3">JPEG, PNG, WebP · máx 1 MB</div>
+          </label>
+          <input type="file" id="proj-image-input" accept="image/jpeg,image/png,image/webp,image/gif"
+                 class="hidden" onchange="handleProjImage(this)"/>
+        </div>
       </div>
       <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"

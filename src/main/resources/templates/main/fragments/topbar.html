@@ -2,25 +2,33 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="topbar" class="flex items-center justify-between px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0 z-20">
+
+  <!-- Logo -->
   <div class="font-display text-[19px] font-bold flex items-center gap-px select-none">
     <span class="text-text3 font-light">&lt;</span><span class="text-purple2">first</span><span class="text-text3 font-light">&gt;</span><span>tech</span>
   </div>
 
+  <!-- Navegação central -->
   <nav class="flex gap-1">
-    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1 active" onclick="go('home')" id="nb-home">
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1 active"
+            onclick="go('home')" id="nb-home">
       <i class="ti ti-home text-[17px]"></i>Home
     </button>
-    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('jobs')" id="nb-jobs">
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
+            onclick="go('jobs')" id="nb-jobs">
       <i class="ti ti-briefcase text-[17px]"></i>Jobs
     </button>
-    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('search')" id="nb-search">
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
+            onclick="go('search')" id="nb-search">
       <i class="ti ti-search text-[17px]"></i>Search
     </button>
-    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('portfolio')" id="nb-portfolio">
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
+            onclick="go('portfolio')" id="nb-portfolio">
       <i class="ti ti-user-circle text-[17px]"></i>Portfolio
     </button>
   </nav>
 
+  <!-- Ações à direita -->
   <div class="flex items-center gap-[10px]">
 
     <!-- Botão "Nova Vaga" — apenas para recrutadores -->
@@ -30,12 +38,58 @@
       <i class="ti ti-plus text-sm"></i>Nova Vaga
     </button>
 
-    <div class="w-9 h-9 rounded-[9px] border border-border2 bg-bg3 text-text2 flex items-center justify-center cursor-pointer relative">
-      <i class="ti ti-bell text-[18px]"></i>
-      <div class="w-2 h-2 rounded-full bg-purple border-2 border-bg2 absolute top-1.5 right-1.5"></div>
-    </div>
-    <div class="w-9 h-9 rounded-full cursor-pointer bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] flex items-center justify-center text-[13px] font-bold text-white border-2 border-border"
-         th:text="${usuario.iniciais}">GM</div>
+    <!-- Avatar do usuário com dropdown -->
+    <div class="relative" id="user-avatar-container">
+
+      <!-- Botão avatar -->
+      <button id="user-avatar-btn"
+              onclick="toggleUserMenu(event)"
+              class="w-9 h-9 rounded-full cursor-pointer border-2 border-border overflow-hidden flex items-center justify-center p-0 focus:outline-none focus:ring-2 focus:ring-purple focus:ring-offset-2 focus:ring-offset-bg2"
+              style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
+              title="Menu do usuário">
+        <!-- Foto real (se disponível) -->
+        <img th:if="${usuario.avatarBase64 != null}"
+             th:src="${usuario.avatarBase64}"
+             alt="Foto de perfil"
+             class="w-full h-full object-cover"/>
+        <!-- Iniciais (fallback) -->
+        <span th:if="${usuario.avatarBase64 == null}"
+              class="text-[13px] font-bold text-white leading-none"
+              th:text="${usuario.iniciais}">GM</span>
+      </button>
+
+      <!-- Menu dropdown -->
+      <div id="user-menu"
+           class="hidden absolute right-0 top-full mt-2 w-[190px] bg-bg2 border border-border rounded-[13px] shadow-[0_12px_40px_rgba(0,0,0,.65)] overflow-hidden z-50"
+           style="animation:modalIn .2s ease">
+
+        <!-- Cabeçalho do menu -->
+        <div class="px-4 py-3 border-b border-border2">
+          <div class="text-[13px] font-semibold text-text1 truncate" th:text="${usuario.nomeCompleto}">Nome</div>
+          <div class="text-[11px] text-text3 truncate" th:text="${usuario.cargo}">Cargo</div>
+        </div>
+
+        <!-- Itens -->
+        <div class="py-1">
+          <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors duration-150 font-[inherit]"
+                  onclick="go('portfolio'); closeUserMenu()">
+            <i class="ti ti-user-circle text-[16px] text-text3"></i>Meu Perfil
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors duration-150 font-[inherit]"
+                  onclick="go('portfolio'); closeUserMenu()">
+            <i class="ti ti-settings text-[16px] text-text3"></i>Configurações
+          </button>
+        </div>
+        <div class="h-px bg-border2"></div>
+        <div class="py-1">
+          <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-red hover:bg-bg3 transition-colors duration-150 font-[inherit]"
+                  onclick="doLogout()">
+            <i class="ti ti-logout text-[16px]"></i>Sair
+          </button>
+        </div>
+      </div>
+    </div><!-- /user-avatar-container -->
+
   </div>
 </div>
 </body>

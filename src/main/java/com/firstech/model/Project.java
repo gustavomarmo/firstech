@@ -31,10 +31,18 @@ public class Project {
 
     /**
      * Classe do ícone Tabler sem o prefixo "ti " (ex: "ti-code").
-     * O template renderiza: class="ti ti-code"
+     * Mantido para compatibilidade com registros anteriores.
      */
     @Builder.Default
     private String icon = "ti-code";
+
+    /** Data-URL da imagem de thumbnail enviada pelo usuário (data:image/...;base64,...). */
+    @Column(columnDefinition = "TEXT")
+    private String thumbImageBase64;
+
+    /** URL do repositório no GitHub (para redirecionamento ao clicar no card). */
+    @Column(length = 500)
+    private String githubUrl;
 
     @Builder.Default
     private int orderIndex = 0;

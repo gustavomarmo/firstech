@@ -22,6 +22,13 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
 
+    // ── Catálogo de habilidades ─────────────────────────────────────────
+
+    @GetMapping("/skills/catalog")
+    public ResponseEntity<List<String>> getSkillsCatalog() {
+        return ResponseEntity.ok(portfolioService.getSkillsCatalog());
+    }
+
     // ── Avatar ─────────────────────────────────────────────────────────
 
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

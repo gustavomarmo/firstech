@@ -23,6 +23,7 @@ public class PortfolioService {
     private final SkillRepository         skillRepository;
     private final CertificationRepository certificationRepository;
     private final ProjectRepository       projectRepository;
+    private final TechSkillRepository     techSkillRepository;
 
     // Gradientes para logos de empresas (determinístico via hash)
     private static final String[] COMPANY_GRADIENTS = {
@@ -182,6 +183,8 @@ public class PortfolioService {
                 .description(dto.description())
                 .thumbGradient(dto.thumbGradient() != null ? dto.thumbGradient() : "linear-gradient(135deg,#0f0521,#2d1b6e)")
                 .icon(dto.icon() != null ? dto.icon() : "ti-code")
+                .thumbImageBase64(dto.thumbImageBase64())
+                .githubUrl(dto.githubUrl())
                 .orderIndex(dto.orderIndex())
                 .user(user)
                 .build();
@@ -193,10 +196,21 @@ public class PortfolioService {
         Project proj = ownedProject(id, user);
         proj.setName(dto.name());
         proj.setDescription(dto.description());
-        if (dto.thumbGradient() != null) proj.setThumbGradient(dto.thumbGradient());
-        if (dto.icon() != null)          proj.setIcon(dto.icon());
+        if (dto.thumbGradient() != null)    proj.setThumbGradient(dto.thumbGradient());
+        if (dto.icon() != null)             proj.setIcon(dto.icon());
+        // null significa "manter imagem atual"; string vazia significa "remover imagem"
+        if (dto.thumbImageBase64() != null) proj.setThumbImageBase64(
+                dto.thumbImageBase64().isBlank() ? null : dto.thumbImageBase64());
+        proj.setGithubUrl(dto.githubUrl());
         proj.setOrderIndex(dto.orderIndex());
         return toProjVM(projectRepository.save(proj));
+    }
+
+    /** Retorna os nomes de todas as habilidades do catálogo, em ordem alfabética. */
+    @Transactional(readOnly = true)
+    public List<String> getSkillsCatalog() {
+        return techSkillRepository.findAllByOrderByNameAsc()
+                .stream().map(TechSkill::getName).toList();
     }
 
     @Transactional
@@ -249,6 +263,8 @@ public class PortfolioService {
                 .descricao(proj.getDescription())
                 .corThumb(proj.getThumbGradient())
                 .icone(proj.getIcon())
+                .thumbImageBase64(proj.getThumbImageBase64())
+                .githubUrl(proj.getGithubUrl())
                 .orderIndex(proj.getOrderIndex())
                 .build();
     }
