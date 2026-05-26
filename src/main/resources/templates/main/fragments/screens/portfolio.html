@@ -4,28 +4,28 @@
 <div th:fragment="portfolio" class="port-screen" id="s-portfolio">
 
   <!-- ── Banner de capa ── -->
-  <div class="port-cover h-[130px] shrink-0 relative overflow-hidden group/banner"
-       th:style="${usuario.bannerBase64 != null} ? 'background:transparent' : 'background:linear-gradient(135deg,#0f0521 0%,#2d1b6e 40%,#0f172a 70%,#1a0533 100%)'">
+  <!-- SEM overflow-hidden aqui: o avatar (translate-y-1/2) não pode ser cortado -->
+  <div class="port-cover h-[130px] shrink-0 relative group/banner"
+       th:style="${usuario.bannerBase64 == null} ? 'background:linear-gradient(135deg,#0f0521 0%,#2d1b6e 40%,#0f172a 70%,#1a0533 100%)' : ''">
 
-    <!-- Imagem do banner (se existir) -->
-    <img th:if="${usuario.bannerBase64 != null}"
-         th:src="${usuario.bannerBase64}"
-         alt="Banner"
-         class="w-full h-full object-cover absolute inset-0"/>
-
-    <!-- Overlay padrão (brilho) quando não há banner -->
-    <div th:if="${usuario.bannerBase64 == null}" class="port-cover absolute inset-0"></div>
+    <!-- Wrapper isolado para clipping da imagem sem afetar filhos posicionados -->
+    <div th:if="${usuario.bannerBase64 != null}"
+         class="absolute inset-0 overflow-hidden">
+      <img th:src="${usuario.bannerBase64}"
+           alt="Banner"
+           class="w-full h-full object-cover"/>
+    </div>
 
     <!-- Botão de editar banner (aparece no hover) -->
     <label for="banner-file-input"
-           class="absolute top-3 right-3 flex items-center gap-1.5 py-[6px] px-3 rounded-lg bg-[rgba(7,10,16,.7)] text-white text-[12px] font-medium cursor-pointer opacity-0 group-hover/banner:opacity-100 transition-opacity duration-200 z-10 select-none">
+           class="absolute top-3 right-3 flex items-center gap-1.5 py-[6px] px-3 rounded-lg bg-[rgba(7,10,16,.7)] text-white text-[12px] font-medium cursor-pointer opacity-0 group-hover/banner:opacity-100 transition-opacity duration-200 z-20 select-none">
       <i class="ti ti-photo text-[14px]"></i>Alterar capa
     </label>
     <input type="file" id="banner-file-input" accept="image/*" class="hidden" onchange="uploadBanner(this)"/>
 
     <!-- Avatar: posicionado no limite capa/body, clicável para upload -->
     <label for="avatar-file-input"
-           class="absolute bottom-0 left-6 translate-y-1/2 w-[84px] h-[84px] rounded-full border-4 border-bg cursor-pointer z-10 group overflow-hidden block"
+           class="absolute bottom-0 left-6 translate-y-1/2 w-[84px] h-[84px] rounded-full border-4 border-bg cursor-pointer z-30 group overflow-hidden block"
            style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
            title="Alterar foto de perfil">
       <img th:if="${usuario.avatarBase64 != null}"

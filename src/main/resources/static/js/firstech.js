@@ -760,41 +760,72 @@ async function _loadCities() {
   return _ibgeCities;
 }
 
+// [̀-ͯ] = bloco de diacríticos combinantes (NFD decomposition)
 function _normalize(s) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
+// Pré-carrega cidades ao iniciar a página para zero latência no primeiro uso
+_loadCities();
+
 /**
- * Autocomplete de localização genérico.
- * @param {HTMLInputElement} input  - o campo de texto
- * @param {string} dropdownId       - id do div dropdown (padrão: 'city-ac-dropdown')
+ * Autocomplete de localização genérico (estilo Google).
+ * @param {HTMLInputElement} input   - campo de texto
+ * @param {string}           dropdownId - id do div dropdown
  */
-async function locationAutocomplete(input, dropdownId = 'city-ac-dropdown') {
-  const dd    = document.getElementById(dropdownId);
+function locationAutocomplete(input, dropdownId = 'city-ac-dropdown') {
+  const dd = document.getElementById(dropdownId);
   if (!dd) return;
-  const query = input.value.trim();
   clearTimeout(_cityTimer);
 
-  if (query.length < 2) { dd.classList.add('hidden'); return; }
+  const query = input.value; // sem .trim() para não esconder sugestões com espaço final
+  if (!query) { dd.classList.add('hidden'); return; }
 
   _cityTimer = setTimeout(async () => {
-    const cities  = await _loadCities();
-    const q       = _normalize(query);
+    const cities = await _loadCities();
+    const q      = _normalize(query.trim());
+    if (!q) { dd.classList.add('hidden'); return; }
+
     const matches = cities
-      .filter(c => _normalize(c).includes(q))
+      .filter(c => _normalize(c).startsWith(q) || _normalize(c).includes(q))
+      .sort((a, b) => {
+        // Prioriza matches que começam com a query
+        const aN = _normalize(a), bN = _normalize(b);
+        return (aN.startsWith(q) ? 0 : 1) - (bN.startsWith(q) ? 0 : 1)
+            || a.localeCompare(b, 'pt-BR');
+      })
       .slice(0, 8);
 
     if (!matches.length) { dd.classList.add('hidden'); return; }
 
-    const inputId = input.id;
-    dd.innerHTML = matches.map(c => {
-      const safe = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      return `<button type="button"
-        class="w-full text-left px-3 py-[9px] text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0"
-        onclick="selectLocation('${inputId}','${dropdownId}','${safe}')">${c}</button>`;
-    }).join('');
+    dd.innerHTML = matches.map(c =>
+      `<button type="button"
+         class="w-full text-left px-3 py-[9px] text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0 flex items-center gap-2"
+         data-loc-input="${_escapeHtml(input.id)}"
+         data-loc-dropdown="${_escapeHtml(dropdownId)}"
+         data-loc-city="${_escapeHtml(c)}"
+         onclick="selectLocationFromBtn(this)">
+        <i class="ti ti-map-pin text-[12px] text-text3 shrink-0"></i>
+        <span>${_highlightMatch(_escapeHtml(c), _escapeHtml(query.trim()))}</span>
+      </button>`
+    ).join('');
     dd.classList.remove('hidden');
-  }, 280);
+  }, 150); // 150ms — rápido como Google
+}
+
+/** Seleciona localização a partir do botão do dropdown (sem problemas de escaping) */
+function selectLocationFromBtn(btn) {
+  selectLocation(btn.dataset.locInput, btn.dataset.locDropdown, btn.dataset.locCity);
+}
+
+/** Destaca a parte digitada com negrito */
+function _highlightMatch(text, query) {
+  if (!query) return text;
+  const idx = _normalize(text).indexOf(_normalize(query));
+  if (idx < 0) return text;
+  return text.slice(0, idx)
+    + '<strong class="text-text1">' + text.slice(idx, idx + query.length) + '</strong>'
+    + text.slice(idx + query.length);
 }
 
 /** Atalho para o campo do portfólio (retrocompatibilidade) */
@@ -813,7 +844,8 @@ function selectCity(city) { selectLocation('port-city', 'city-ac-dropdown', city
 document.addEventListener('click', e => {
   ['city-ac-dropdown', 'job-loc-dropdown'].forEach(id => {
     const dd = document.getElementById(id);
-    if (dd && !e.target.closest('#' + id) && e.target.id !== dd.previousElementSibling?.id) {
+    if (dd && !e.target.closest('#' + id) && !e.target.closest('[data-loc-dropdown="' + id + '"]')
+        && !['port-city','job-localidade'].includes(e.target.id)) {
       dd.classList.add('hidden');
     }
   });
@@ -1536,20 +1568,19 @@ async function companyAutocomplete(input) {
 
       if (!companies.length) { dd?.classList.add('hidden'); return; }
 
-      dd.innerHTML = companies.slice(0, 7).map(c => {
-        const safe = JSON.stringify({name: c.name, logo: c.logo || '', domain: c.domain || ''});
-        return `<button type="button"
+      dd.innerHTML = companies.slice(0, 7).map(c => `<button type="button"
           class="w-full text-left px-3 py-[8px] flex items-center gap-3 text-[13px] text-text2 transition-colors duration-100 hover:bg-bg3 hover:text-text1 border-b border-border2 last:border-b-0"
-          onclick='selectCompany(${safe.replace(/'/g, "&apos;")})'
+          data-co-name="${_escapeHtml(c.name || '')}"
+          data-co-logo="${_escapeHtml(c.logo || '')}"
+          onclick="selectCompanyFromBtn(this)"
         >
           ${c.logo
             ? `<img src="${_escapeHtml(c.logo)}" alt="" class="w-5 h-5 rounded object-contain shrink-0"/>`
-            : `<div class="w-5 h-5 rounded bg-bg4 flex items-center justify-center text-[10px] font-bold text-text3 shrink-0">${(c.name||'?').charAt(0).toUpperCase()}</div>`
+            : `<div class="w-5 h-5 rounded bg-bg4 flex items-center justify-center text-[10px] font-bold text-text3 shrink-0">${_escapeHtml((c.name||'?').charAt(0).toUpperCase())}</div>`
           }
-          <span class="flex-1 truncate">${_escapeHtml(c.name)}</span>
+          <span class="flex-1 truncate">${_escapeHtml(c.name || '')}</span>
           <span class="text-[11px] text-text3 shrink-0">${_escapeHtml(c.domain || '')}</span>
-        </button>`;
-      }).join('');
+        </button>`).join('');
       dd.classList.remove('hidden');
     } catch (_) {
       dd?.classList.add('hidden');
@@ -1557,8 +1588,14 @@ async function companyAutocomplete(input) {
   }, 300);
 }
 
-/** Seleciona uma empresa do dropdown */
-function selectCompany({ name, logo, domain }) {
+/** Seleciona uma empresa a partir do botão do dropdown (sem problemas de escaping) */
+function selectCompanyFromBtn(btn) {
+  _setCompanyFields(btn.dataset.coName, btn.dataset.coLogo);
+  document.getElementById('job-company-dropdown')?.classList.add('hidden');
+}
+
+/** @deprecated use selectCompanyFromBtn */
+function selectCompany({ name, logo }) {
   _setCompanyFields(name, logo);
   document.getElementById('job-company-dropdown')?.classList.add('hidden');
 }
