@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,15 +52,39 @@ public class AuthService {
             throw new EmailAlreadyExistsException("E-mail já está em uso.");
         }
 
+        Role role = "RECRUTADOR".equalsIgnoreCase(request.roleType())
+                ? Role.RECRUTADOR
+                : Role.CANDIDATO;
+
         User user = User.builder()
                 .name(request.name())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .roles(Set.of(Role.CANDIDATO))
+                .roles(new HashSet<>(Set.of(role)))
+                // Perfil comum
+                .phone(request.phone())
+                .linkedin(request.linkedin())
+                .github(request.github())
+                // Perfil talento
+                .careerMoment(request.careerMoment())
+                .workModel(request.workModel())
+                .city(request.city())
+                .tagline(request.tagline())
+                .technologies(toList(request.technologies()))
+                // Perfil recrutador
+                .company(request.company())
+                .companySize(request.companySize())
+                .website(request.website())
+                .cultureTags(toList(request.cultureTags()))
+                .goals(toList(request.goals()))
                 .build();
 
         userRepository.save(user);
         return buildAuthResponse(user);
+    }
+
+    private static <T> List<T> toList(List<T> source) {
+        return source != null ? new ArrayList<>(source) : new ArrayList<>();
     }
 
     @Transactional

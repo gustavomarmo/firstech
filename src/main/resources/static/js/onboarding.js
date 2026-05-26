@@ -10,10 +10,8 @@
  *   Talent   → screen-role → t1 → t2 → t3 → t4 → POST /api/auth/register
  *   Recruiter → screen-role → r1 → r2 → r3 → r4 → POST /api/auth/register
  *
- * O backend atual espera apenas { name, email, password }.
- * Os dados extra (habilidades, empresa, etc.) são armazenados no
- * localStorage sob a chave "firstech_onboarding" para que um
- * endpoint futuro (/api/profile/complete) possa consumi-los.
+ * Todos os dados coletados são enviados em um único POST para
+ * /api/auth/register e persistidos diretamente no banco de dados.
  * ─────────────────────────────────────────────────────────────
  */
 
@@ -353,10 +351,6 @@ const Onboarding = (() => {
     }
   }
 
-  /** Salva dados de onboarding extras no localStorage para uso futuro */
-  function saveExtraProfile(extra) {
-    localStorage.setItem('firstech_onboarding', JSON.stringify(extra));
-  }
 
   // ══════════════════════════════════════════════════════════
   // TALENT STEPS
@@ -430,15 +424,22 @@ const Onboarding = (() => {
     setLoading(btnId, true);
 
     try {
-      // ── Chamada ao endpoint existente /api/auth/register ──
       const data = await apiPost('/register', {
-        name:     profile.name,
-        email:    profile.email,
-        password: profile.password,
+        name:         profile.name,
+        email:        profile.email,
+        password:     profile.password,
+        roleType:     'CANDIDATO',
+        phone:        profile.phone,
+        linkedin:     profile.linkedin,
+        github:       profile.github,
+        careerMoment: profile.careerMoment,
+        workModel:    profile.workModel,
+        city:         profile.city,
+        tagline:      profile.tagline,
+        technologies: profile.technologies,
       });
 
       saveTokens(data);
-      saveExtraProfile(profile);   // dados extras p/ endpoint futuro
 
       toast('success', 'Cadastro realizado!', 'Bem-vindo ao Firstech! 🚀', 'celebration');
       go('screen-success');
@@ -520,15 +521,20 @@ const Onboarding = (() => {
     setLoading(btnId, true);
 
     try {
-      // ── Chamada ao endpoint existente /api/auth/register ──
       const data = await apiPost('/register', {
-        name:     profile.name,
-        email:    profile.email,
-        password: profile.password,
+        name:        profile.name,
+        email:       profile.email,
+        password:    profile.password,
+        roleType:    'RECRUTADOR',
+        phone:       profile.phone,
+        company:     profile.company,
+        companySize: profile.size,
+        website:     profile.website,
+        cultureTags: profile.cultureTags,
+        goals:       profile.goals,
       });
 
       saveTokens(data);
-      saveExtraProfile(profile);
 
       toast('success', 'Conta criada!', 'Seu perfil de recrutador está pronto! 🎉', 'celebration');
       go('screen-success');

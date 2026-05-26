@@ -38,6 +38,41 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDate createdAt;
 
+    // ── Perfil comum ──────────────────────────────────────────
+    private String phone;
+    private String linkedin;
+    private String github;
+
+    // ── Perfil talento ────────────────────────────────────────
+    private String careerMoment;   // "estagio" | "junior" | "studying"
+    private String workModel;      // "remote" | "hybrid" | "onsite"
+    private String city;
+    private String tagline;
+
+    @ElementCollection
+    @CollectionTable(name = "user_technologies", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "technology")
+    @Builder.Default
+    private List<String> technologies = new ArrayList<>();
+
+    // ── Perfil recrutador ─────────────────────────────────────
+    private String company;
+    private String companySize;
+    private String website;
+
+    @ElementCollection
+    @CollectionTable(name = "user_culture_tags", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "culture_tag")
+    @Builder.Default
+    private List<String> cultureTags = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "user_goals", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "goal")
+    @Builder.Default
+    private List<String> goals = new ArrayList<>();
+
+    // ── Papéis e relacionamentos ──────────────────────────────
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
@@ -64,10 +99,10 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired()  { return true; }
+    public boolean isAccountNonExpired()     { return true; }
 
     @Override
-    public boolean isAccountNonLocked()   { return true; }
+    public boolean isAccountNonLocked()      { return true; }
 
     @Override
     public boolean isCredentialsNonExpired() { return true; }
