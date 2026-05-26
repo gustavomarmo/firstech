@@ -8,30 +8,20 @@
 <body>
 <th:block th:fragment="main-content">
 
-  <!--
-    O layout já inclui:
-      - logo (/img/logo.png)
-      - glass card (.auth-card)
-      - bg-lines atmosféricos
-      - /css/auth.css  e  /js/auth.js
-
-    Este fragment injeta o conteúdo multi-step do onboarding.
-    O JS de controle fica em /js/onboarding.js (carregado abaixo do auth.js).
-  -->
-
   <!-- ── Toast container ──────────────────────────────────────── -->
   <div id="toastContainer" class="onb-toast-container"></div>
 
   <!-- ── Progress bar (hidden on role screen) ─────────────────── -->
-  <div class="onb-progress" id="onbProgress" style="display:none; margin-bottom:20px;">
-    <div class="onb-progress__top">
-      <span class="onb-progress__label" id="onbLabel">Credenciais</span>
-      <span class="onb-progress__counter" id="onbCounter">1 / 4</span>
+  <div id="onbProgress" class="mb-5" style="display:none">
+    <div class="flex justify-between items-center mb-1.5">
+      <span class="text-[11px] font-bold tracking-[.09em] uppercase text-on-surface-var" id="onbLabel">Credenciais</span>
+      <span class="text-[11px] font-bold text-primary" id="onbCounter">1 / 4</span>
     </div>
-    <div class="onb-progress__track">
-      <div class="onb-progress__fill" id="onbFill" style="width:25%"></div>
+    <div class="h-[3px] bg-outline-var rounded-full overflow-hidden">
+      <div class="h-full bg-gradient-to-r from-primary to-tertiary rounded-full transition-[width] duration-[450ms] ease-[cubic-bezier(.22,1,.36,1)]"
+           id="onbFill" style="width:25%"></div>
     </div>
-    <div class="onb-dots" id="onbDots"></div>
+    <div class="flex gap-[5px] justify-center mt-2" id="onbDots"></div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -39,37 +29,37 @@
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen active" id="screen-role">
 
-    <header class="auth-header">
-      <h1>Como você quer começar?</h1>
-      <p>Escolha seu papel. Você pode mudar depois.</p>
+    <header class="mb-5 text-center">
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Como você quer começar?</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Escolha seu papel. Você pode mudar depois.</p>
     </header>
 
-    <div class="onb-role-grid">
+    <div class="grid grid-cols-2 max-[480px]:grid-cols-1 gap-3 mt-1">
 
-      <button class="onb-role-card onb-role-card--talent"
+      <button class="group bg-[#1a1626] border-[1.5px] border-outline-var rounded-2xl p-[22px_18px] cursor-pointer text-center transition-all duration-[220ms] flex flex-col items-center gap-2 relative overflow-hidden hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_8px_28px_rgba(138,96,194,.2)]"
               onclick="Onboarding.chooseRole('talent')" type="button">
-        <div class="onb-role-card__icon">
+        <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center text-[24px] transition-transform duration-[250ms] ease-[cubic-bezier(.34,1.56,.64,1)] bg-[linear-gradient(135deg,rgba(123,208,255,.15),rgba(138,96,194,.15))] text-tertiary group-hover:scale-[1.12] group-hover:-rotate-[4deg]">
           <span class="material-symbols-outlined">terminal</span>
         </div>
-        <div class="onb-role-card__title">Sou um Talento</div>
-        <div class="onb-role-card__desc">Quero mostrar projetos e buscar vagas</div>
-        <span class="material-symbols-outlined onb-role-card__arrow">arrow_forward</span>
+        <div class="text-[14px] font-bold text-on-surface-var">Sou um Talento</div>
+        <div class="text-[12px] text-on-surface-var">Quero mostrar projetos e buscar vagas</div>
+        <span class="material-symbols-outlined text-[16px] text-outline transition-all duration-200 group-hover:text-primary group-hover:translate-x-[3px]">arrow_forward</span>
       </button>
 
-      <button class="onb-role-card onb-role-card--recruiter"
+      <button class="group bg-[#1a1626] border-[1.5px] border-outline-var rounded-2xl p-[22px_18px] cursor-pointer text-center transition-all duration-[220ms] flex flex-col items-center gap-2 relative overflow-hidden hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_8px_28px_rgba(138,96,194,.2)]"
               onclick="Onboarding.chooseRole('recruiter')" type="button">
-        <div class="onb-role-card__icon">
+        <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center text-[24px] transition-transform duration-[250ms] ease-[cubic-bezier(.34,1.56,.64,1)] bg-[linear-gradient(135deg,rgba(138,96,194,.15),rgba(240,192,96,.1))] text-[#f0c060] group-hover:scale-[1.12] group-hover:-rotate-[4deg]">
           <span class="material-symbols-outlined">work</span>
         </div>
-        <div class="onb-role-card__title">Sou Recrutador</div>
-        <div class="onb-role-card__desc">Quero postar vagas e achar talentos</div>
-        <span class="material-symbols-outlined onb-role-card__arrow">arrow_forward</span>
+        <div class="text-[14px] font-bold text-on-surface-var">Sou Recrutador</div>
+        <div class="text-[12px] text-on-surface-var">Quero postar vagas e achar talentos</div>
+        <span class="material-symbols-outlined text-[16px] text-outline transition-all duration-200 group-hover:text-primary group-hover:translate-x-[3px]">arrow_forward</span>
       </button>
 
     </div>
 
-    <p style="text-align:center; margin-top:20px; color:var(--color-on-surface-variant); font-size:14px;">
-      Já tem conta? <a href="/login" class="link-subtle" style="font-weight:700">Entrar</a>
+    <p class="text-center mt-5 text-on-surface-var text-sm">
+      Já tem conta? <a href="/login" class="font-bold text-primary no-underline transition-colors duration-200 hover:text-primary-fixed">Entrar</a>
     </p>
   </div>
 
@@ -77,71 +67,78 @@
        TALENT · Step 1 · Credenciais
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-t1">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">person</span> Sobre Você
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">person</span> Sobre Você
       </div>
-      <h1>Crie sua conta</h1>
-      <p>Seus dados de acesso à plataforma.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Crie sua conta</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Seus dados de acesso à plataforma.</p>
     </header>
 
-    <div class="auth-form" id="formT1">
+    <div class="flex flex-col gap-3" id="formT1">
 
-      <div class="form-group">
-        <label class="form-label" for="t1-name">NOME COMPLETO</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">badge</span>
-          <input id="t1-name" type="text" class="form-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t1-name">NOME COMPLETO</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">badge</span>
+          <input id="t1-name" type="text"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="Bianca Oliveira" autocomplete="name"/>
         </div>
-        <span class="onb-err" id="err-t1-name">Nome é obrigatório</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t1-name">Nome é obrigatório</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="t1-email">E-MAIL</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">alternate_email</span>
-          <input id="t1-email" type="email" class="form-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t1-email">E-MAIL</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">alternate_email</span>
+          <input id="t1-email" type="email"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="bianca@cefsa.edu.br" autocomplete="email"/>
         </div>
-        <span class="onb-err" id="err-t1-email">E-mail inválido</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t1-email">E-mail inválido</span>
       </div>
 
-      <div class="onb-row">
-        <div class="form-group">
-          <label class="form-label" for="t1-pass">SENHA</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined icon">lock</span>
-            <input id="t1-pass" type="password" class="form-input has-right-icon"
+      <div class="grid grid-cols-2 max-[460px]:grid-cols-1 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t1-pass">SENHA</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">lock</span>
+            <input id="t1-pass" type="password"
+                   class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-12 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                    placeholder="••••••••" autocomplete="new-password"/>
-            <button type="button" class="icon-right"
+            <button type="button"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-outline text-[20px] bg-transparent border-none cursor-pointer p-0 flex items-center transition-colors duration-200 hover:text-primary"
                     onclick="Onboarding.togglePw('t1-pass',this)">
               <span class="material-symbols-outlined">visibility</span>
             </button>
           </div>
-          <span class="onb-err" id="err-t1-pass">Mínimo 8 caracteres</span>
+          <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t1-pass">Mínimo 8 caracteres</span>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="t1-pass2">CONFIRMAR SENHA</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined icon">lock_clock</span>
-            <input id="t1-pass2" type="password" class="form-input has-right-icon"
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t1-pass2">CONFIRMAR SENHA</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">lock_clock</span>
+            <input id="t1-pass2" type="password"
+                   class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-12 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                    placeholder="••••••••" autocomplete="new-password"/>
-            <button type="button" class="icon-right"
+            <button type="button"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-outline text-[20px] bg-transparent border-none cursor-pointer p-0 flex items-center transition-colors duration-200 hover:text-primary"
                     onclick="Onboarding.togglePw('t1-pass2',this)">
               <span class="material-symbols-outlined">visibility</span>
             </button>
           </div>
-          <span class="onb-err" id="err-t1-pass2">As senhas não coincidem</span>
+          <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t1-pass2">As senhas não coincidem</span>
         </div>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-role')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-role')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextT1()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -153,71 +150,75 @@
        TALENT · Step 2 · Contatos e Links
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-t2">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">link</span> Contatos &amp; Links
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">link</span> Contatos &amp; Links
       </div>
-      <h1>Como te encontrar?</h1>
-      <p>Adicione seus links profissionais.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Como te encontrar?</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Adicione seus links profissionais.</p>
     </header>
 
-    <div class="auth-form" id="formT2">
+    <div class="flex flex-col gap-3" id="formT2">
 
-      <div class="form-group">
-        <label class="form-label">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
           TELEFONE
-          <span class="onb-badge-pend">Verificação pendente</span>
+          <span class="text-[9px] font-semibold bg-[rgba(240,192,96,.12)] border border-[rgba(240,192,96,.25)] text-[#f0c060] py-px px-1.5 rounded-full uppercase ml-1">Verificação pendente</span>
         </label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">phone</span>
-          <input id="t2-phone" type="tel" class="form-input"
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">phone</span>
+          <input id="t2-phone" type="tel"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="+55 (11) 99999-9999" autocomplete="tel"/>
         </div>
-        <span class="onb-err" id="err-t2-phone">Telefone inválido</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t2-phone">Telefone inválido</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          LINKEDIN <span class="onb-badge-opt">Opcional</span>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
+          LINKEDIN <span class="text-[9px] font-semibold bg-outline-var py-px px-1.5 rounded-full uppercase tracking-[.06em] text-on-surface-var ml-1">Opcional</span>
         </label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">business_center</span>
-          <input id="t2-linkedin" type="url" class="form-input"
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">business_center</span>
+          <input id="t2-linkedin" type="url"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="linkedin.com/in/seu-perfil"/>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          GITHUB <span class="onb-badge-opt">Opcional</span>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
+          GITHUB <span class="text-[9px] font-semibold bg-outline-var py-px px-1.5 rounded-full uppercase tracking-[.06em] text-on-surface-var ml-1">Opcional</span>
         </label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">code</span>
-          <input id="t2-github" type="url" class="form-input"
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">code</span>
+          <input id="t2-github" type="url"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="github.com/seu-usuario"/>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          CURRÍCULO (PDF) <span class="onb-badge-opt">Opcional</span>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
+          CURRÍCULO (PDF) <span class="text-[9px] font-semibold bg-outline-var py-px px-1.5 rounded-full uppercase tracking-[.06em] text-on-surface-var ml-1">Opcional</span>
         </label>
-        <div class="onb-upload" id="uploadZone"
-             onclick="document.getElementById('t2-cv').click()">
-          <input type="file" id="t2-cv" accept=".pdf,.doc,.docx"
+        <div class="onb-upload border-[1.5px] border-dashed border-outline-var rounded-xl p-[18px_16px] text-center cursor-pointer transition-all duration-200 hover:border-primary hover:bg-[rgba(138,96,194,.06)]"
+             id="uploadZone" onclick="document.getElementById('t2-cv').click()">
+          <input type="file" id="t2-cv" accept=".pdf,.doc,.docx" class="hidden"
                  onchange="Onboarding.handleFile(this)"/>
-          <span class="material-symbols-outlined onb-upload__icon">upload_file</span>
-          <span class="onb-upload__text">Clique para selecionar</span>
-          <span class="onb-upload__sub">PDF, DOC ou DOCX · máx. 5 MB</span>
+          <span class="material-symbols-outlined onb-upload__icon text-[26px] text-on-surface-var">upload_file</span>
+          <span class="onb-upload__text block text-[13px] text-on-surface-var mt-1">Clique para selecionar</span>
+          <span class="onb-upload__sub block text-[11px] text-outline mt-0.5">PDF, DOC ou DOCX · máx. 5 MB</span>
         </div>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-t1')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-t1')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextT2()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -229,81 +230,86 @@
        TALENT · Step 3 · Perfil Profissional
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-t3">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">psychology</span> Perfil Profissional
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">psychology</span> Perfil Profissional
       </div>
-      <h1>Conte seu momento</h1>
-      <p>Nos ajude a mostrar você para as vagas certas.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Conte seu momento</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Nos ajude a mostrar você para as vagas certas.</p>
     </header>
 
-    <div class="auth-form" id="formT3">
+    <div class="flex flex-col gap-3" id="formT3">
 
-      <div class="form-group">
-        <label class="form-label" for="t3-career">MOMENTO DE CARREIRA</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">trending_up</span>
-          <select id="t3-career" class="form-input" style="padding-left:44px">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t3-career">MOMENTO DE CARREIRA</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">trending_up</span>
+          <select id="t3-career"
+                  class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-9 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]">
             <option value="">Selecione uma opção…</option>
             <option value="estagio">Buscando Estágio</option>
             <option value="junior">Buscando Vaga Júnior</option>
             <option value="studying">Apenas Estudando</option>
           </select>
         </div>
-        <span class="onb-err" id="err-t3-career">Selecione seu momento</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t3-career">Selecione seu momento</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">MODELO DE TRABALHO</label>
-        <div class="onb-radio-group" id="workModelGroup">
-          <label class="onb-radio" onclick="Onboarding.pickWork(this,'remote')">
-            <input type="radio" name="workModel" value="remote"/>
-            <span class="onb-radio__dot"></span>Remoto
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">MODELO DE TRABALHO</label>
+        <div class="flex gap-2 flex-wrap" id="workModelGroup">
+          <label class="onb-radio flex items-center gap-1.5 py-2 px-[14px] bg-[#1a1626] border-[1.5px] border-outline-var rounded-full cursor-pointer text-[13px] font-medium text-on-surface-var select-none transition-all duration-[180ms]"
+                 onclick="Onboarding.pickWork(this,'remote')">
+            <input type="radio" name="workModel" value="remote" class="hidden"/>
+            <span class="w-2 h-2 rounded-full border-[1.5px] border-current onb-radio__dot"></span>Remoto
           </label>
-          <label class="onb-radio" onclick="Onboarding.pickWork(this,'hybrid')">
-            <input type="radio" name="workModel" value="hybrid"/>
-            <span class="onb-radio__dot"></span>Híbrido
+          <label class="onb-radio flex items-center gap-1.5 py-2 px-[14px] bg-[#1a1626] border-[1.5px] border-outline-var rounded-full cursor-pointer text-[13px] font-medium text-on-surface-var select-none transition-all duration-[180ms]"
+                 onclick="Onboarding.pickWork(this,'hybrid')">
+            <input type="radio" name="workModel" value="hybrid" class="hidden"/>
+            <span class="w-2 h-2 rounded-full border-[1.5px] border-current onb-radio__dot"></span>Híbrido
           </label>
-          <label class="onb-radio" onclick="Onboarding.pickWork(this,'onsite')">
-            <input type="radio" name="workModel" value="onsite"/>
-            <span class="onb-radio__dot"></span>Presencial
+          <label class="onb-radio flex items-center gap-1.5 py-2 px-[14px] bg-[#1a1626] border-[1.5px] border-outline-var rounded-full cursor-pointer text-[13px] font-medium text-on-surface-var select-none transition-all duration-[180ms]"
+                 onclick="Onboarding.pickWork(this,'onsite')">
+            <input type="radio" name="workModel" value="onsite" class="hidden"/>
+            <span class="w-2 h-2 rounded-full border-[1.5px] border-current onb-radio__dot"></span>Presencial
           </label>
         </div>
-        <span class="onb-err" id="err-t3-work">Selecione o modelo de trabalho</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t3-work">Selecione o modelo de trabalho</span>
       </div>
 
-      <div class="form-group" id="cityField" style="display:none">
-        <label class="form-label" for="t3-city">CIDADE / ESTADO</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">location_on</span>
-          <input id="t3-city" type="text" class="form-input"
+      <div class="flex flex-col gap-1.5" id="cityField" style="display:none">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t3-city">CIDADE / ESTADO</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">location_on</span>
+          <input id="t3-city" type="text"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="São Paulo, SP"/>
         </div>
-        <span class="onb-err" id="err-t3-city">Informe sua cidade</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t3-city">Informe sua cidade</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="t3-tagline">TAGLINE PROFISSIONAL</label>
-        <div style="position:relative">
-          <input id="t3-tagline" type="text" class="form-input"
-                 style="padding-left:16px"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="t3-tagline">TAGLINE PROFISSIONAL</label>
+        <div class="relative">
+          <input id="t3-tagline" type="text"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] px-4 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="Apaixonado por Back-end e Java" maxlength="60"
                  oninput="Onboarding.charCount(this,'charTagline',60)"/>
           <span id="charTagline"
-                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
-                       font-size:11px;color:var(--color-on-surface-variant);pointer-events:none">
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-on-surface-var pointer-events-none">
             0/60
           </span>
         </div>
-        <span class="onb-err" id="err-t3-tagline">Tagline é obrigatória</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-t3-tagline">Tagline é obrigatória</span>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-t2')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-t2')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextT3()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -315,45 +321,46 @@
        TALENT · Step 4 · Habilidades
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-t4">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">bolt</span> Habilidades
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">bolt</span> Habilidades
       </div>
-      <h1>Suas tecnologias</h1>
-      <p>Adicione pelo menos <strong>3 tecnologias</strong> que você domina ou está aprendendo.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Suas tecnologias</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Adicione pelo menos <strong>3 tecnologias</strong> que você domina ou está aprendendo.</p>
     </header>
 
-    <div class="auth-form" id="formT4">
+    <div class="flex flex-col gap-3" id="formT4">
 
-      <div class="form-group">
-        <label class="form-label">TECNOLOGIAS</label>
-        <div class="onb-tags-wrap" id="tagsWrap"
-             onclick="document.getElementById('tagInput').focus()">
-          <input id="tagInput" class="onb-tag-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">TECNOLOGIAS</label>
+        <div class="min-h-[50px] bg-surface-low border border-outline-var rounded-xl py-[7px] px-[10px] flex flex-wrap gap-1.5 cursor-text transition-[border-color,box-shadow] duration-[250ms] focus-within:border-primary focus-within:shadow-[0_0_0_1px_#8a60c2]"
+             id="tagsWrap" onclick="document.getElementById('tagInput').focus()">
+          <input id="tagInput" class="onb-tag-input border-none bg-transparent shadow-none outline-none py-1 px-1 flex-1 min-w-[110px] text-white text-sm"
                  placeholder="Java, React, Python…"
                  onkeydown="Onboarding.handleTagKey(event)"
                  oninput="Onboarding.filterSuggestions(this.value)"/>
         </div>
-        <span style="font-size:11px;color:var(--color-on-surface-variant)">
+        <span class="text-[11px] text-on-surface-var">
           Pressione Enter ou vírgula para adicionar
         </span>
-        <span class="onb-err" id="tagWarn">
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="tagWarn">
           Adicione pelo menos 3 tecnologias para continuar
         </span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">SUGESTÕES</label>
-        <div class="onb-suggestions" id="suggestions"></div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">SUGESTÕES</label>
+        <div class="flex flex-wrap gap-1.5" id="suggestions"></div>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-t3')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-t3')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1" id="btnFinishTalent"
-              onclick="Onboarding.finishTalent()" type="button" disabled>
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              id="btnFinishTalent" onclick="Onboarding.finishTalent()" type="button" disabled>
         <span>Finalizar</span>
         <span class="material-symbols-outlined btn-icon">check_circle</span>
       </button>
@@ -364,71 +371,78 @@
        RECRUITER · Step 1 · Credenciais
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-r1">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">person</span> Sua Conta
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">person</span> Sua Conta
       </div>
-      <h1>Crie sua conta</h1>
-      <p>Dados de acesso para recrutadores.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Crie sua conta</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Dados de acesso para recrutadores.</p>
     </header>
 
-    <div class="auth-form" id="formR1">
+    <div class="flex flex-col gap-3" id="formR1">
 
-      <div class="form-group">
-        <label class="form-label" for="r1-name">NOME COMPLETO</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">badge</span>
-          <input id="r1-name" type="text" class="form-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r1-name">NOME COMPLETO</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">badge</span>
+          <input id="r1-name" type="text"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="Gustavo Marmo" autocomplete="name"/>
         </div>
-        <span class="onb-err" id="err-r1-name">Nome é obrigatório</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r1-name">Nome é obrigatório</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="r1-email">E-MAIL CORPORATIVO</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">alternate_email</span>
-          <input id="r1-email" type="email" class="form-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r1-email">E-MAIL CORPORATIVO</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">alternate_email</span>
+          <input id="r1-email" type="email"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="gustavo@empresa.com.br" autocomplete="email"/>
         </div>
-        <span class="onb-err" id="err-r1-email">E-mail inválido</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r1-email">E-mail inválido</span>
       </div>
 
-      <div class="onb-row">
-        <div class="form-group">
-          <label class="form-label" for="r1-pass">SENHA</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined icon">lock</span>
-            <input id="r1-pass" type="password" class="form-input has-right-icon"
+      <div class="grid grid-cols-2 max-[460px]:grid-cols-1 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r1-pass">SENHA</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">lock</span>
+            <input id="r1-pass" type="password"
+                   class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-12 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                    placeholder="••••••••" autocomplete="new-password"/>
-            <button type="button" class="icon-right"
+            <button type="button"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-outline text-[20px] bg-transparent border-none cursor-pointer p-0 flex items-center transition-colors duration-200 hover:text-primary"
                     onclick="Onboarding.togglePw('r1-pass',this)">
               <span class="material-symbols-outlined">visibility</span>
             </button>
           </div>
-          <span class="onb-err" id="err-r1-pass">Mínimo 8 caracteres</span>
+          <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r1-pass">Mínimo 8 caracteres</span>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="r1-pass2">CONFIRMAR SENHA</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-outlined icon">lock_clock</span>
-            <input id="r1-pass2" type="password" class="form-input has-right-icon"
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r1-pass2">CONFIRMAR SENHA</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">lock_clock</span>
+            <input id="r1-pass2" type="password"
+                   class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-12 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                    placeholder="••••••••" autocomplete="new-password"/>
-            <button type="button" class="icon-right"
+            <button type="button"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-outline text-[20px] bg-transparent border-none cursor-pointer p-0 flex items-center transition-colors duration-200 hover:text-primary"
                     onclick="Onboarding.togglePw('r1-pass2',this)">
               <span class="material-symbols-outlined">visibility</span>
             </button>
           </div>
-          <span class="onb-err" id="err-r1-pass2">As senhas não coincidem</span>
+          <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r1-pass2">As senhas não coincidem</span>
         </div>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-role')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-role')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextR1()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -440,31 +454,33 @@
        RECRUITER · Step 2 · Dados da Empresa
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-r2">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">apartment</span> Sua Empresa
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">apartment</span> Sua Empresa
       </div>
-      <h1>Dados da empresa</h1>
-      <p>Informações que aparecerão no seu perfil de recrutador.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Dados da empresa</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Informações que aparecerão no seu perfil de recrutador.</p>
     </header>
 
-    <div class="auth-form" id="formR2">
+    <div class="flex flex-col gap-3" id="formR2">
 
-      <div class="form-group">
-        <label class="form-label" for="r2-company">NOME DA EMPRESA</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">business</span>
-          <input id="r2-company" type="text" class="form-input"
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r2-company">NOME DA EMPRESA</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">business</span>
+          <input id="r2-company" type="text"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="Empresa Tech Ltda."/>
         </div>
-        <span class="onb-err" id="err-r2-company">Nome da empresa obrigatório</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r2-company">Nome da empresa obrigatório</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="r2-size">PORTE DA EMPRESA</label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">group</span>
-          <select id="r2-size" class="form-input" style="padding-left:44px">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="r2-size">PORTE DA EMPRESA</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">group</span>
+          <select id="r2-size"
+                  class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-9 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]">
             <option value="">Selecione o porte…</option>
             <option value="1-10">1 – 10 funcionários</option>
             <option value="11-50">11 – 50 funcionários</option>
@@ -472,39 +488,42 @@
             <option value="200+">Mais de 200 funcionários</option>
           </select>
         </div>
-        <span class="onb-err" id="err-r2-size">Selecione o porte</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r2-size">Selecione o porte</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
           TELEFONE COMERCIAL
-          <span class="onb-badge-pend">Verificação pendente</span>
+          <span class="text-[9px] font-semibold bg-[rgba(240,192,96,.12)] border border-[rgba(240,192,96,.25)] text-[#f0c060] py-px px-1.5 rounded-full uppercase ml-1">Verificação pendente</span>
         </label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">phone</span>
-          <input id="r2-phone" type="tel" class="form-input"
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">phone</span>
+          <input id="r2-phone" type="tel"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="+55 (11) 3333-3333" autocomplete="tel"/>
         </div>
-        <span class="onb-err" id="err-r2-phone">Telefone inválido</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r2-phone">Telefone inválido</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          SITE / PÁGINA DE CARREIRAS <span class="onb-badge-opt">Opcional</span>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">
+          SITE / PÁGINA DE CARREIRAS <span class="text-[9px] font-semibold bg-outline-var py-px px-1.5 rounded-full uppercase tracking-[.06em] text-on-surface-var ml-1">Opcional</span>
         </label>
-        <div class="input-wrapper">
-          <span class="material-symbols-outlined icon">public</span>
-          <input id="r2-site" type="url" class="form-input"
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none">public</span>
+          <input id="r2-site" type="url"
+                 class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2]"
                  placeholder="empresa.com.br/vagas"/>
         </div>
       </div>
 
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-r1')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-r1')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextR2()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -516,30 +535,31 @@
        RECRUITER · Step 3 · Cultura
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-r3">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">emoji_people</span> Cultura
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">emoji_people</span> Cultura
       </div>
-      <h1>DNA da sua empresa</h1>
-      <p>Selecione até 3 tags que representam melhor sua cultura.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">DNA da sua empresa</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Selecione até 3 tags que representam melhor sua cultura.</p>
     </header>
 
-    <div class="auth-form" id="formR3">
-      <div class="form-group">
-        <label class="form-label">TAGS DE CULTURA</label>
-        <div class="onb-culture-grid" id="cultureGrid"></div>
-        <span class="onb-err" id="cultureLimitWarn"
+    <div class="flex flex-col gap-3" id="formR3">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1">TAGS DE CULTURA</label>
+        <div class="flex flex-wrap gap-2" id="cultureGrid"></div>
+        <span class="onb-err text-[11px] mt-[3px]" id="cultureLimitWarn"
               style="display:none;color:var(--color-error)">
           Máximo de 3 tags selecionadas
         </span>
-        <span class="onb-err" id="err-r3-culture">Selecione ao menos 1 tag</span>
+        <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r3-culture">Selecione ao menos 1 tag</span>
       </div>
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-r2')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-r2')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1"
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
               onclick="Onboarding.nextR3()" type="button">
         <span>Avançar</span>
         <span class="material-symbols-outlined btn-icon">arrow_forward</span>
@@ -551,24 +571,25 @@
        RECRUITER · Step 4 · Objetivos
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-r4">
-    <header class="auth-header" style="text-align:left; margin-bottom:18px;">
-      <div class="onb-badge">
-        <span class="material-symbols-outlined">flag</span> Objetivos
+    <header class="mb-[18px] text-left">
+      <div class="inline-flex items-center gap-[5px] bg-[rgba(138,96,194,.12)] border border-[rgba(138,96,194,.22)] rounded-full py-[3px] px-[11px] text-[11px] font-bold tracking-[.08em] uppercase text-primary mb-[10px]">
+        <span class="material-symbols-outlined text-[13px]">flag</span> Objetivos
       </div>
-      <h1>O que você busca?</h1>
-      <p>Selecione quantos objetivos quiser.</p>
+      <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">O que você busca?</h1>
+      <p class="text-on-surface-var mt-1.5 text-sm">Selecione quantos objetivos quiser.</p>
     </header>
 
-    <div class="auth-form" id="formR4">
-      <div class="onb-goal-list" id="goalCards"></div>
-      <span class="onb-err" id="err-r4-goals">Selecione ao menos um objetivo</span>
+    <div class="flex flex-col gap-3" id="formR4">
+      <div class="flex flex-col gap-[10px]" id="goalCards"></div>
+      <span class="onb-err hidden text-[11px] text-error mt-[3px]" id="err-r4-goals">Selecione ao menos um objetivo</span>
     </div>
-    <div class="onb-btn-row" style="margin-top:20px">
-      <button class="onb-btn-back" onclick="Onboarding.go('screen-r3')" type="button">
+    <div class="flex gap-[10px] mt-5">
+      <button class="flex items-center gap-1.5 py-[11px] px-4 bg-transparent border border-outline-var rounded-xl text-on-surface-var text-sm cursor-pointer transition-all duration-[180ms] shrink-0 hover:border-outline hover:text-white"
+              onclick="Onboarding.go('screen-r3')" type="button">
         <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
       </button>
-      <button class="btn-primary" style="flex:1" id="btnFinishRecruiter"
-              onclick="Onboarding.finishRecruiter()" type="button">
+      <button class="flex-1 bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]"
+              id="btnFinishRecruiter" onclick="Onboarding.finishRecruiter()" type="button">
         <span class="btn-label">Finalizar</span>
         <span class="material-symbols-outlined btn-icon">check_circle</span>
       </button>
@@ -579,32 +600,26 @@
        SUCCESS
   ═══════════════════════════════════════════════════════════════ -->
   <div class="onb-screen" id="screen-success">
-    <div style="text-align:center; padding:20px 0">
-      <div class="onb-success-icon">
+    <div class="text-center py-5">
+      <div class="w-[72px] h-[72px] rounded-full bg-[linear-gradient(135deg,rgba(109,227,168,.15),rgba(123,208,255,.1))] border-2 border-[rgba(109,227,168,.3)] flex items-center justify-center mx-auto mb-5 text-[36px] text-[#6de3a8] animate-success-pop">
         <span class="material-symbols-outlined">celebration</span>
       </div>
-      <h1 id="successTitle" style="font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px">
+      <h1 id="successTitle" class="text-[26px] font-extrabold tracking-[-0.02em] mb-2">
         Conta criada! 🎉
       </h1>
-      <p id="successSub"
-         style="color:var(--color-on-surface-variant);font-size:14px;line-height:1.6;margin-bottom:24px">
+      <p id="successSub" class="text-on-surface-var text-sm leading-[1.6] mb-6">
         Seu cadastro foi realizado com sucesso.<br/>
         Verifique seu e-mail para ativar a conta.
       </p>
-      <a href="/login" class="btn-primary" style="display:inline-flex;width:auto;padding:12px 28px">
+      <a href="/login"
+         class="inline-flex w-auto bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 px-7 cursor-pointer items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98]">
         <span class="material-symbols-outlined btn-icon">login</span>
         <span>Ir para o Login</span>
       </a>
     </div>
   </div>
 
-  <!--
-    Carrega onboarding.js APÓS auth.js (já injetado pelo layout).
-    O módulo não conflita com auth.js pois expõe apenas o namespace `Onboarding`.
-  -->
   <script th:src="@{/js/onboarding.js}"></script>
-  <!-- Estilos exclusivos do onboarding (complementam auth.css) -->
-  <link th:href="@{/css/onboarding.css}" rel="stylesheet"/>
 
 </th:block>
 </body>

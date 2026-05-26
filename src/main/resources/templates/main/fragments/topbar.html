@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="topbar" class="topbar">
-  <div class="logo">
-    <span class="dim">&lt;</span><span class="accent">first</span><span class="dim">&gt;</span><span>tech</span>
+<div th:fragment="topbar" class="flex items-center justify-between px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0 z-20">
+  <div class="font-display text-[19px] font-bold flex items-center gap-px select-none">
+    <span class="text-text3 font-light">&lt;</span><span class="text-purple2">first</span><span class="text-text3 font-light">&gt;</span><span>tech</span>
   </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" onclick="go('home')" id="nb-home">
-      <i class="ti ti-home"></i>Home
+  <nav class="flex gap-1">
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1 active" onclick="go('home')" id="nb-home">
+      <i class="ti ti-home text-[17px]"></i>Home
     </button>
-    <button class="nav-btn" onclick="go('jobs')" id="nb-jobs">
-      <i class="ti ti-briefcase"></i>Jobs
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('jobs')" id="nb-jobs">
+      <i class="ti ti-briefcase text-[17px]"></i>Jobs
     </button>
-    <button class="nav-btn" onclick="go('search')" id="nb-search">
-      <i class="ti ti-search"></i>Search
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('search')" id="nb-search">
+      <i class="ti ti-search text-[17px]"></i>Search
     </button>
-    <button class="nav-btn" onclick="go('portfolio')" id="nb-portfolio">
-      <i class="ti ti-user-circle"></i>Portfolio
+    <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1" onclick="go('portfolio')" id="nb-portfolio">
+      <i class="ti ti-user-circle text-[17px]"></i>Portfolio
     </button>
   </nav>
 
-  <div class="topbar-right">
-    <div class="notif-btn">
-      <i class="ti ti-bell" style="font-size:18px"></i>
-      <div class="notif-dot"></div>
+  <div class="flex items-center gap-[10px]">
+    <div class="w-9 h-9 rounded-[9px] border border-border2 bg-bg3 text-text2 flex items-center justify-center cursor-pointer relative">
+      <i class="ti ti-bell text-[18px]"></i>
+      <div class="w-2 h-2 rounded-full bg-purple border-2 border-bg2 absolute top-1.5 right-1.5"></div>
     </div>
-    <div class="avatar-top" th:text="${usuario.iniciais}">GM</div>
+    <div class="w-9 h-9 rounded-full cursor-pointer bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] flex items-center justify-center text-[13px] font-bold text-white border-2 border-border"
+         th:text="${usuario.iniciais}">GM</div>
   </div>
 </div>
 </body>

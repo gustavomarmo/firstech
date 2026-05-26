@@ -2,78 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="search" class="screen" id="s-search">
-  <div class="two-col">
+  <div class="grid grid-cols-[248px_1fr] w-full h-full overflow-hidden">
 
     <!-- Coluna esquerda: perfil mini -->
-    <div class="col">
+    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 last:border-r-0">
       <div th:replace="~{main/fragments/profile-mini :: card(false)}"></div>
     </div>
 
     <!-- Coluna principal: área de busca -->
-    <div class="col col-feed">
-      <div class="search-bar-wrap">
-        <i class="ti ti-search si-icon"></i>
-        <input class="search-input" type="text"
+    <div class="col p-[18px_16px] overflow-y-auto bg-bg last:border-r-0">
+      <div class="relative mb-[14px]">
+        <i class="ti ti-search absolute left-[14px] top-1/2 -translate-y-1/2 text-text3 text-[17px]"></i>
+        <input class="w-full py-[11px] px-4 pl-11 bg-bg2 border border-border rounded-[10px] text-text1 font-[inherit] text-sm outline-none transition-[border-color] duration-200 focus:border-purple2 placeholder:text-text3"
+               type="text"
                th:value="${termoBusca}"
                placeholder="Buscar usuários, vagas, publicações...">
       </div>
 
-      <div class="filter-tabs">
-        <button class="ftab active" onclick="stab(this)">Tudo</button>
-        <button class="ftab" onclick="stab(this)">Pessoas</button>
-        <button class="ftab" onclick="stab(this)">Vagas</button>
-        <button class="ftab" onclick="stab(this)">Publicações</button>
+      <div class="flex gap-1.5 mb-[14px]">
+        <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border active" onclick="stab(this)">Tudo</button>
+        <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="stab(this)">Pessoas</button>
+        <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="stab(this)">Vagas</button>
+        <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="stab(this)">Publicações</button>
       </div>
 
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px"
+      <div class="text-xs text-text3 mb-3"
            th:text="${totalResultados} + ' resultados para &quot;' + ${termoBusca} + '&quot;'">
         42 resultados para "Java Developer"
       </div>
 
       <!-- Resultados (Thymeleaf) -->
-      <div th:each="r : ${resultados}" class="result-card">
-        <div class="res-av"
+      <div th:each="r : ${resultados}"
+           class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
              th:style="'background:' + ${r.corAvatar} + (${r.tipo == 'vaga'} ? ';border-radius:8px' : '')"
              th:text="${#strings.abbreviate(r.nome, 2)}">XX</div>
-        <div style="flex:1">
-          <div class="res-name" th:text="${r.nome}">Nome</div>
-          <div class="res-sub" th:text="${r.subtitulo}">Subtítulo</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-text1" th:text="${r.nome}">Nome</div>
+          <div class="text-xs text-text2 mt-px" th:text="${r.subtitulo}">Subtítulo</div>
         </div>
-        <span class="badge"
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap"
               th:classappend="${r.tipo == 'pessoa'} ? 'badge-pessoa' : (${r.tipo == 'vaga'} ? 'badge-vaga' : 'badge-post')"
               th:text="${r.tipoLabel}">Tipo</span>
       </div>
 
       <!-- Placeholders estáticos -->
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">AM</div>
-        <div style="flex:1"><div class="res-name">Alexandre Mello</div><div class="res-sub">Java Developer Pleno · 3 anos exp. · São Paulo</div></div>
-        <span class="badge" style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)">Pessoa</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">AM</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Alexandre Mello</div><div class="text-xs text-text2 mt-px">Java Developer Pleno · 3 anos exp. · São Paulo</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-purplebg text-purple2 border border-border">Pessoa</span>
       </div>
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#1a56db,#3a86ff);border-radius:8px">N</div>
-        <div style="flex:1"><div class="res-name">Java Developer Júnior — Nubank</div><div class="res-sub">Remoto · R$ 4.000–6.000 · 2 dias atrás</div></div>
-        <span class="badge" style="background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)">Vaga</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] shrink-0 flex items-center justify-center text-sm font-bold text-white rounded-lg" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">N</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Java Developer Júnior — Nubank</div><div class="text-xs text-text2 mt-px">Remoto · R$ 4.000–6.000 · 2 dias atrás</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]">Vaga</span>
       </div>
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">TC</div>
-        <div style="flex:1"><div class="res-name">Thiago Carvalho</div><div class="res-sub">Java Backend Dev · Spring Boot · AWS Certified</div></div>
-        <span class="badge" style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)">Pessoa</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">TC</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Thiago Carvalho</div><div class="text-xs text-text2 mt-px">Java Backend Dev · Spring Boot · AWS Certified</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-purplebg text-purple2 border border-border">Pessoa</span>
       </div>
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">P</div>
-        <div style="flex:1"><div class="res-name">Dominando Java 21 — Virtual Threads</div><div class="res-sub">por Pedro Lemos · 234 curtidas · 3 dias atrás</div></div>
-        <span class="badge" style="background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.22)">Post</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">P</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Dominando Java 21 — Virtual Threads</div><div class="text-xs text-text2 mt-px">por Pedro Lemos · 234 curtidas · 3 dias atrás</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-[rgba(251,191,36,.1)] text-amber border border-[rgba(251,191,36,.22)]">Post</span>
       </div>
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#ff6b00,#ff9500);border-radius:8px">i</div>
-        <div style="flex:1"><div class="res-name">Java Backend Developer Sênior — iFood</div><div class="res-sub">Híbrido, SP · R$ 10.000–14.000 · Hoje</div></div>
-        <span class="badge" style="background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)">Vaga</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] shrink-0 flex items-center justify-center text-sm font-bold text-white rounded-lg" style="background:linear-gradient(135deg,#ff6b00,#ff9500)">i</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Java Backend Developer Sênior — iFood</div><div class="text-xs text-text2 mt-px">Híbrido, SP · R$ 10.000–14.000 · Hoje</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]">Vaga</span>
       </div>
-      <div class="result-card">
-        <div class="res-av" style="background:linear-gradient(135deg,#6d28d9,#a78bfa)">BI</div>
-        <div style="flex:1"><div class="res-name">Bianca Iglesias</div><div class="res-sub">Java Developer Jr · CEFSA · Disponível</div></div>
-        <span class="badge" style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)">Pessoa</span>
+      <div class="bg-bg2 border border-border2 rounded-xl py-[13px] px-[14px] mb-[9px] flex items-center gap-3 cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="w-[42px] h-[42px] rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#a78bfa)">BI</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-text1">Bianca Iglesias</div><div class="text-xs text-text2 mt-px">Java Developer Jr · CEFSA · Disponível</div></div>
+        <span class="text-[10px] font-semibold py-[3px] px-[9px] rounded-[20px] whitespace-nowrap bg-purplebg text-purple2 border border-border">Pessoa</span>
       </div>
     </div>
 

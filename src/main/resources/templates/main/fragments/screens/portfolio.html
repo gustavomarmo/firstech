@@ -2,150 +2,181 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="portfolio" class="port-screen" id="s-portfolio">
-  <div class="port-cover"></div>
-  <div class="port-body">
+  <div class="port-cover h-[130px] shrink-0 bg-[linear-gradient(135deg,#0f0521_0%,#2d1b6e_40%,#0f172a_70%,#1a0533_100%)] relative"></div>
+  <div class="port-body overflow-y-auto flex-1 px-6 pb-7">
 
-    <div class="port-header">
-      <div class="port-av" th:text="${usuario.inicial}">G</div>
-      <div class="port-actions">
-        <button class="btn-p"><i class="ti ti-send" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Mensagem</button>
-        <button class="btn-s"><i class="ti ti-user-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Conectar</button>
-        <button class="btn-s"><i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i></button>
+    <div class="flex items-end justify-between mb-[14px]">
+      <div class="w-[84px] h-[84px] rounded-full bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-4 border-bg -mt-[42px] flex items-center justify-center text-[30px] font-bold text-white font-display"
+           th:text="${usuario.inicial}">G</div>
+      <div class="flex gap-2 pb-1">
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">
+          <i class="ti ti-send" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Mensagem
+        </button>
+        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1">
+          <i class="ti ti-user-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Conectar
+        </button>
+        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1">
+          <i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i>
+        </button>
       </div>
     </div>
 
-    <div class="port-name" th:text="${usuario.nomeCompleto}">Gustavo Sgrignoli Marmo</div>
-    <div class="port-hl" th:text="${usuario.headline}">Back-end Developer · 1x Azure Certified · Java · Spring · AWS</div>
-    <div class="port-loc"><i class="ti ti-map-pin" style="font-size:13px"></i><span th:text="${usuario.localizacao}">São Paulo, SP · Brasil</span></div>
+    <div class="font-display text-2xl font-bold text-text1 mb-[3px]" th:text="${usuario.nomeCompleto}">Gustavo Sgrignoli Marmo</div>
+    <div class="text-sm text-text2 mb-1" th:text="${usuario.headline}">Back-end Developer · 1x Azure Certified · Java · Spring · AWS</div>
+    <div class="text-[13px] text-text3 flex items-center gap-1">
+      <i class="ti ti-map-pin text-[13px]"></i><span th:text="${usuario.localizacao}">São Paulo, SP · Brasil</span>
+    </div>
 
-    <div class="port-stats">
-      <div class="ps">
-        <div class="ps-num" th:text="${usuario.conexoes}">512</div>
-        <div class="ps-label">conexões</div>
+    <div class="flex gap-6 my-[13px]">
+      <div class="cursor-pointer">
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.conexoes}">512</div>
+        <div class="text-xs text-text3">conexões</div>
       </div>
-      <div class="ps">
-        <div class="ps-num" th:text="${usuario.visualizacoes}">90</div>
-        <div class="ps-label">visualizações</div>
+      <div class="cursor-pointer">
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.visualizacoes}">90</div>
+        <div class="text-xs text-text3">visualizações</div>
       </div>
-      <div class="ps">
-        <div class="ps-num" th:text="${usuario.impressoes}">11</div>
-        <div class="ps-label">impressões</div>
+      <div class="cursor-pointer">
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.impressoes}">11</div>
+        <div class="text-xs text-text3">impressões</div>
       </div>
     </div>
 
     <!-- Sobre -->
-    <div class="sec-card">
-      <div class="sc-title">Sobre <button class="edit-btn"><i class="ti ti-pencil"></i></button></div>
-      <div class="about-txt" th:text="${usuario.sobre}">O aprendizado é o que me move. Desenvolvedor back-end com foco em Java e ecossistema Spring, certificado em Azure e apaixonado por boas práticas de arquitetura. Atualmente na TIVIT, buscando novos desafios para crescer tecnicamente.</div>
+    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Sobre
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-pencil"></i></button>
+      </div>
+      <div class="text-sm text-text2 leading-[1.75]" th:text="${usuario.sobre}">O aprendizado é o que me move. Desenvolvedor back-end com foco em Java e ecossistema Spring, certificado em Azure e apaixonado por boas práticas de arquitetura. Atualmente na TIVIT, buscando novos desafios para crescer tecnicamente.</div>
     </div>
 
     <!-- Experiência -->
-    <div class="sec-card">
-      <div class="sc-title">Experiência <button class="edit-btn"><i class="ti ti-plus"></i></button></div>
+    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Experiência
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+      </div>
 
       <div th:each="exp, iterStat : ${usuario.experiencias}">
-        <div class="exp-item">
-          <div class="exp-logo" th:style="'background:' + ${exp.empresa.corLogo}"
+        <div class="flex gap-[13px] mb-4 last:mb-0">
+          <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white"
+               th:style="'background:' + ${exp.empresa.corLogo}"
                th:text="${#strings.abbreviate(exp.empresa.nome, 1)}">E</div>
           <div>
-            <div class="exp-role" th:text="${exp.cargo}">Cargo</div>
-            <div class="exp-co" th:text="${exp.empresa.nome}">Empresa</div>
-            <div class="exp-period" th:text="${exp.periodo}">Período</div>
-            <div class="exp-desc" th:text="${exp.descricao}">Descrição.</div>
+            <div class="text-sm font-semibold text-text1" th:text="${exp.cargo}">Cargo</div>
+            <div class="text-[13px] text-purple2 font-medium" th:text="${exp.empresa.nome}">Empresa</div>
+            <div class="text-xs text-text3 mt-0.5" th:text="${exp.periodo}">Período</div>
+            <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]" th:text="${exp.descricao}">Descrição.</div>
           </div>
         </div>
-        <div class="divider" th:if="${!iterStat.last}"></div>
+        <div class="h-px bg-border2 my-[10px]" th:if="${!iterStat.last}"></div>
       </div>
 
       <!-- Placeholders estáticos -->
-      <div class="exp-item">
-        <div class="exp-logo" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
+      <div class="flex gap-[13px] mb-4">
+        <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
         <div>
-          <div class="exp-role">Desenvolvedor Júnior</div>
-          <div class="exp-co">TIVIT</div>
-          <div class="exp-period">Jan 2024 – Presente · 1 ano 5 meses · São Paulo, SP</div>
-          <div class="exp-desc">Desenvolvimento de APIs RESTful com Java e Spring Boot, integração com serviços Azure e manutenção de sistemas legados.</div>
+          <div class="text-sm font-semibold text-text1">Desenvolvedor Júnior</div>
+          <div class="text-[13px] text-purple2 font-medium">TIVIT</div>
+          <div class="text-xs text-text3 mt-0.5">Jan 2024 – Presente · 1 ano 5 meses · São Paulo, SP</div>
+          <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]">Desenvolvimento de APIs RESTful com Java e Spring Boot, integração com serviços Azure e manutenção de sistemas legados.</div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="exp-item">
-        <div class="exp-logo" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">C</div>
+      <div class="h-px bg-border2 my-[10px]"></div>
+      <div class="flex gap-[13px]">
+        <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">C</div>
         <div>
-          <div class="exp-role">Estagiário de Desenvolvimento</div>
-          <div class="exp-co">CEFSA / Centro Universitário</div>
-          <div class="exp-period">Mar 2023 – Dez 2023 · 10 meses · São Paulo, SP</div>
-          <div class="exp-desc">Projetos acadêmicos e extensão universitária com foco em backend Java.</div>
+          <div class="text-sm font-semibold text-text1">Estagiário de Desenvolvimento</div>
+          <div class="text-[13px] text-purple2 font-medium">CEFSA / Centro Universitário</div>
+          <div class="text-xs text-text3 mt-0.5">Mar 2023 – Dez 2023 · 10 meses · São Paulo, SP</div>
+          <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]">Projetos acadêmicos e extensão universitária com foco em backend Java.</div>
         </div>
       </div>
     </div>
 
     <!-- Habilidades -->
-    <div class="sec-card">
-      <div class="sc-title">Habilidades <button class="edit-btn"><i class="ti ti-pencil"></i></button></div>
-      <div class="skills-wrap">
+    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Habilidades
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-pencil"></i></button>
+      </div>
+      <div class="flex flex-wrap gap-[7px]">
         <div th:each="skill : ${usuario.habilidades}"
-             class="skill"
-             th:classappend="${skill.destaque} ? ' hi'"
+             class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2"
+             th:classappend="${skill.destaque} ? ' bg-purplebg text-purple2 border-border !bg-purplebg !text-purple2 !border-border'"
              th:text="${skill.nome}">Skill</div>
         <!-- Placeholders estáticos -->
-        <div class="skill hi">Java</div><div class="skill hi">Spring Boot</div>
-        <div class="skill hi">AWS</div><div class="skill hi">Azure</div>
-        <div class="skill">Hibernate</div><div class="skill">PostgreSQL</div>
-        <div class="skill">Docker</div><div class="skill">Git</div>
-        <div class="skill">REST APIs</div><div class="skill">Microsserviços</div>
-        <div class="skill">C#</div><div class="skill">React</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Java</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Spring Boot</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">AWS</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Azure</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Hibernate</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">PostgreSQL</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Docker</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Git</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">REST APIs</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Microsserviços</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">C#</div>
+        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">React</div>
       </div>
     </div>
 
     <!-- Certificações -->
-    <div class="sec-card">
-      <div class="sc-title">Certificações <button class="edit-btn"><i class="ti ti-plus"></i></button></div>
-      <div th:each="cert : ${usuario.certificacoes}" class="cert-item">
-        <div class="cert-icon" th:text="${cert.emoji}">📜</div>
+    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Certificações
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+      </div>
+      <div th:each="cert : ${usuario.certificacoes}" class="flex items-center gap-[10px] py-2 border-b border-border2 last:border-b-0">
+        <div class="w-9 h-9 rounded-lg bg-bg3 flex items-center justify-center text-[18px] shrink-0" th:text="${cert.emoji}">📜</div>
         <div>
-          <div class="cert-name" th:text="${cert.nome}">Certificação</div>
-          <div class="cert-iss" th:text="${cert.emissor} + ' · Emitido em ' + ${cert.dataEmissao}">Emissor · Data</div>
+          <div class="text-[13px] font-semibold text-text1" th:text="${cert.nome}">Certificação</div>
+          <div class="text-[11px] text-text3" th:text="${cert.emissor} + ' · Emitido em ' + ${cert.dataEmissao}">Emissor · Data</div>
         </div>
       </div>
       <!-- Placeholder estático -->
-      <div class="cert-item">
-        <div class="cert-icon">☁️</div>
+      <div class="flex items-center gap-[10px] py-2 border-b border-border2 last:border-b-0">
+        <div class="w-9 h-9 rounded-lg bg-bg3 flex items-center justify-center text-[18px] shrink-0">☁️</div>
         <div>
-          <div class="cert-name">Microsoft Azure Fundamentals (AZ-900)</div>
-          <div class="cert-iss">Microsoft · Emitido em Ago 2023</div>
+          <div class="text-[13px] font-semibold text-text1">Microsoft Azure Fundamentals (AZ-900)</div>
+          <div class="text-[11px] text-text3">Microsoft · Emitido em Ago 2023</div>
         </div>
       </div>
     </div>
 
     <!-- Projetos -->
-    <div class="sec-card">
-      <div class="sc-title">Projetos <button class="edit-btn"><i class="ti ti-plus"></i></button></div>
-      <div class="proj-grid">
-        <div th:each="proj : ${usuario.projetos}" class="proj-card">
-          <div class="proj-thumb" th:style="'background:' + ${proj.corThumb}">
+    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Projetos
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-[10px]">
+        <div th:each="proj : ${usuario.projetos}" class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center" th:style="'background:' + ${proj.corThumb}">
             <i th:class="'ti ' + ${proj.icone}" style="font-size:30px;color:var(--purple2)"></i>
           </div>
-          <div class="proj-body">
-            <div class="proj-name" th:text="${proj.nome}">Projeto</div>
-            <div class="proj-desc" th:text="${proj.descricao}">Descrição.</div>
+          <div class="p-[10px_12px]">
+            <div class="text-[13px] font-semibold text-text1 mb-[3px]" th:text="${proj.nome}">Projeto</div>
+            <div class="text-[11px] text-text3 leading-[1.55]" th:text="${proj.descricao}">Descrição.</div>
           </div>
         </div>
         <!-- Placeholders estáticos -->
-        <div class="proj-card">
-          <div class="proj-thumb" style="background:linear-gradient(135deg,#0f0521,#2d1b6e)"><i class="ti ti-code" style="font-size:30px;color:var(--purple2)"></i></div>
-          <div class="proj-body"><div class="proj-name">firsttech</div><div class="proj-desc">Plataforma de recrutamento tech. Spring Boot + React</div></div>
+        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#0f0521,#2d1b6e)"><i class="ti ti-code text-purple2" style="font-size:30px"></i></div>
+          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">firsttech</div><div class="text-[11px] text-text3 leading-[1.55]">Plataforma de recrutamento tech. Spring Boot + React</div></div>
         </div>
-        <div class="proj-card">
-          <div class="proj-thumb" style="background:linear-gradient(135deg,#0a2540,#1a56db)"><i class="ti ti-database" style="font-size:30px;color:#60a5fa"></i></div>
-          <div class="proj-body"><div class="proj-name">Cache API</div><div class="proj-desc">Redis + Spring: otimização de queries pesadas</div></div>
+        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#0a2540,#1a56db)"><i class="ti ti-database" style="font-size:30px;color:#60a5fa"></i></div>
+          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Cache API</div><div class="text-[11px] text-text3 leading-[1.55]">Redis + Spring: otimização de queries pesadas</div></div>
         </div>
-        <div class="proj-card">
-          <div class="proj-thumb" style="background:linear-gradient(135deg,#052e16,#166534)"><i class="ti ti-server" style="font-size:30px;color:#4ade80"></i></div>
-          <div class="proj-body"><div class="proj-name">Microservice Shop</div><div class="proj-desc">E-commerce em microsserviços com Kafka</div></div>
+        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#052e16,#166534)"><i class="ti ti-server" style="font-size:30px;color:#4ade80"></i></div>
+          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Microservice Shop</div><div class="text-[11px] text-text3 leading-[1.55]">E-commerce em microsserviços com Kafka</div></div>
         </div>
-        <div class="proj-card">
-          <div class="proj-thumb" style="background:linear-gradient(135deg,#2d1515,#7f1d1d)"><i class="ti ti-cloud" style="font-size:30px;color:#f87171"></i></div>
-          <div class="proj-body"><div class="proj-name">Deploy Azure</div><div class="proj-desc">Pipeline CI/CD com Azure DevOps e Docker</div></div>
+        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#2d1515,#7f1d1d)"><i class="ti ti-cloud" style="font-size:30px;color:#f87171"></i></div>
+          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Deploy Azure</div><div class="text-[11px] text-text3 leading-[1.55]">Pipeline CI/CD com Azure DevOps e Docker</div></div>
         </div>
       </div>
     </div>

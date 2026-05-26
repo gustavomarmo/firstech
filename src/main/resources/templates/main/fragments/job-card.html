@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="card(vaga)" class="job-card">
-  <div class="jc-head">
-    <div class="jc-logo"
+<div th:fragment="card(vaga)" class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
+  <div class="flex items-center gap-[13px] mb-[10px]">
+    <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white"
          th:style="'background:' + ${vaga.empresa.corLogo}"
          th:text="${vaga.empresa != null and vaga.empresa.nome != null ? vaga.empresa.nome.substring(0, 1).toUpperCase() : 'E'}">E</div>
     <div>
-      <div class="jc-title" th:text="${vaga.titulo}">Título da vaga</div>
-      <div class="jc-company"
+      <div class="font-display text-[15px] font-semibold text-text1" th:text="${vaga.titulo}">Título da vaga</div>
+      <div class="text-xs text-text2"
            th:text="${vaga.empresa.nome} + ' · ' + ${vaga.localidade} + ' · ' + ${vaga.modalidade}">
         Empresa · Local · Modalidade
       </div>
     </div>
   </div>
-  <div class="jc-desc" th:text="${vaga.descricao}">Descrição da vaga.</div>
-  <div class="tags" style="margin-bottom:10px">
-    <div th:each="tech : ${vaga.tecnologias}" class="tag" th:text="${tech}">Tech</div>
+  <div class="text-[13px] text-text3 leading-[1.65] mb-[10px]" th:text="${vaga.descricao}">Descrição da vaga.</div>
+  <div class="flex gap-1 flex-wrap mb-[10px]">
+    <div th:each="tech : ${vaga.tecnologias}"
+         class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border"
+         th:text="${tech}">Tech</div>
   </div>
-  <div class="jc-footer">
-    <div class="match" th:text="'● ' + ${vaga.matchPorcentagem} + '% match'">● 90% match</div>
-    <button class="apply-btn">Candidatar</button>
+  <div class="flex items-center justify-between">
+    <div class="text-[11px] font-semibold py-[3px] px-[10px] rounded-[20px] bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]"
+         th:text="'● ' + ${vaga.matchPorcentagem} + '% match'">● 90% match</div>
+    <button class="text-[13px] py-[7px] px-[20px] rounded-lg bg-purple text-white border-none font-[inherit] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">Candidatar</button>
   </div>
 </div>
 </body>

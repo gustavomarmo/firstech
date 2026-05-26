@@ -2,36 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="jobs" class="screen" id="s-jobs">
-  <div class="three-col">
+  <div class="grid grid-cols-[248px_1fr_252px] w-full h-full overflow-hidden">
 
     <!-- Coluna esquerda: perfil mini + filtros -->
-    <div class="col">
+    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 last:border-r-0">
       <div th:replace="~{main/fragments/profile-mini :: card(true)}"></div>
 
-      <div class="sec-title" style="margin-top:6px">Filtros</div>
-      <div class="filter-box">
-        <div class="fl-label">Modalidade</div>
-        <div class="ftab-row">
-          <button class="ftab active" onclick="ftoggle(this)">Remoto</button>
-          <button class="ftab" onclick="ftoggle(this)">Híbrido</button>
-          <button class="ftab" onclick="ftoggle(this)">Presencial</button>
+      <div class="text-[11px] font-semibold text-text3 uppercase tracking-[.08em] mb-[10px] mt-1.5">Filtros</div>
+      <div class="bg-bg3 rounded-[10px] border border-border2 p-3 mb-2">
+        <div class="text-[11px] text-text3 mb-[7px]">Modalidade</div>
+        <div class="flex flex-wrap gap-[5px]">
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border active" onclick="ftoggle(this)">Remoto</button>
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Híbrido</button>
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Presencial</button>
         </div>
       </div>
-      <div class="filter-box">
-        <div class="fl-label">Nível</div>
-        <div class="ftab-row">
-          <button class="ftab active" onclick="ftoggle(this)">Júnior</button>
-          <button class="ftab" onclick="ftoggle(this)">Pleno</button>
-          <button class="ftab" onclick="ftoggle(this)">Estágio</button>
+      <div class="bg-bg3 rounded-[10px] border border-border2 p-3 mb-2">
+        <div class="text-[11px] text-text3 mb-[7px]">Nível</div>
+        <div class="flex flex-wrap gap-[5px]">
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border active" onclick="ftoggle(this)">Júnior</button>
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Pleno</button>
+          <button class="ftab py-[5px] px-[14px] rounded-[20px] border border-border2 bg-transparent text-text2 font-[inherit] text-xs font-medium cursor-pointer transition-all duration-200 hover:border-border" onclick="ftoggle(this)">Estágio</button>
         </div>
       </div>
     </div>
 
     <!-- Coluna central: feed de vagas -->
-    <div class="col col-feed">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-size:14px;font-weight:600;color:var(--text1)">Vagas recomendadas</div>
-        <div style="font-size:12px;color:var(--text3)" th:text="${totalVagas} + ' vagas'">142 vagas</div>
+    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 bg-bg last:border-r-0">
+      <div class="flex items-center justify-between mb-[14px]">
+        <div class="text-sm font-semibold text-text1">Vagas recomendadas</div>
+        <div class="text-xs text-text3" th:text="${totalVagas} + ' vagas'">142 vagas</div>
       </div>
 
       <!-- Loop de vagas (Thymeleaf) -->
@@ -40,82 +40,100 @@
       </th:block>
 
       <!-- Placeholders estáticos -->
-      <div class="job-card">
-        <div class="jc-head">
-          <div class="jc-logo" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">N</div>
-          <div><div class="jc-title">Java Developer Júnior</div><div class="jc-company">Nubank · São Paulo · Remoto</div></div>
+      <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="flex items-center gap-[13px] mb-[10px]">
+          <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">N</div>
+          <div><div class="font-display text-[15px] font-semibold text-text1">Java Developer Júnior</div><div class="text-xs text-text2">Nubank · São Paulo · Remoto</div></div>
         </div>
-        <div class="jc-desc">Buscamos desenvolvedor Java para integrar time de plataformas. Microsserviços, Spring Boot e Kafka em ambiente de alta disponibilidade.</div>
-        <div class="tags" style="margin-bottom:10px">
-          <div class="tag">Java</div><div class="tag">Spring Boot</div><div class="tag">Kafka</div><div class="tag">AWS</div>
+        <div class="text-[13px] text-text3 leading-[1.65] mb-[10px]">Buscamos desenvolvedor Java para integrar time de plataformas. Microsserviços, Spring Boot e Kafka em ambiente de alta disponibilidade.</div>
+        <div class="flex gap-1 flex-wrap mb-[10px]">
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Java</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Spring Boot</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Kafka</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">AWS</div>
         </div>
-        <div class="jc-footer"><div class="match">● 95% match</div><button class="apply-btn">Candidatar</button></div>
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] font-semibold py-[3px] px-[10px] rounded-[20px] bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]">● 95% match</div>
+          <button class="text-[13px] py-[7px] px-[20px] rounded-lg bg-purple text-white border-none font-[inherit] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">Candidatar</button>
+        </div>
       </div>
 
-      <div class="job-card">
-        <div class="jc-head">
-          <div class="jc-logo" style="background:linear-gradient(135deg,#ff6b00,#ff9500)">i</div>
-          <div><div class="jc-title">Back-end Developer</div><div class="jc-company">iFood · São Paulo · Híbrido</div></div>
+      <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="flex items-center gap-[13px] mb-[10px]">
+          <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white" style="background:linear-gradient(135deg,#ff6b00,#ff9500)">i</div>
+          <div><div class="font-display text-[15px] font-semibold text-text1">Back-end Developer</div><div class="text-xs text-text2">iFood · São Paulo · Híbrido</div></div>
         </div>
-        <div class="jc-desc">Time de logística busca dev com experiência em AWS, arquitetura de eventos e boas práticas de código limpo.</div>
-        <div class="tags" style="margin-bottom:10px">
-          <div class="tag">AWS</div><div class="tag">Kotlin</div><div class="tag">DynamoDB</div><div class="tag a">Novo hoje</div>
+        <div class="text-[13px] text-text3 leading-[1.65] mb-[10px]">Time de logística busca dev com experiência em AWS, arquitetura de eventos e boas práticas de código limpo.</div>
+        <div class="flex gap-1 flex-wrap mb-[10px]">
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">AWS</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Kotlin</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">DynamoDB</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-[rgba(251,191,36,.09)] text-amber border border-[rgba(251,191,36,.22)]">Novo hoje</div>
         </div>
-        <div class="jc-footer"><div class="match">● 88% match</div><button class="apply-btn">Candidatar</button></div>
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] font-semibold py-[3px] px-[10px] rounded-[20px] bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]">● 88% match</div>
+          <button class="text-[13px] py-[7px] px-[20px] rounded-lg bg-purple text-white border-none font-[inherit] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">Candidatar</button>
+        </div>
       </div>
 
-      <div class="job-card">
-        <div class="jc-head">
-          <div class="jc-logo" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
-          <div><div class="jc-title">Desenvolvedor Júnior</div><div class="jc-company">TIVIT · São Paulo · Presencial</div></div>
+      <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[13px] cursor-pointer transition-all duration-200 hover:border-border">
+        <div class="flex items-center gap-[13px] mb-[10px]">
+          <div class="w-[46px] h-[46px] rounded-[11px] shrink-0 flex items-center justify-center text-[18px] font-[800] text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
+          <div><div class="font-display text-[15px] font-semibold text-text1">Desenvolvedor Júnior</div><div class="text-xs text-text2">TIVIT · São Paulo · Presencial</div></div>
         </div>
-        <div class="jc-desc">Soluções Java com integração a serviços Azure e APIs RESTful. Ambiente corporativo com crescimento estruturado.</div>
-        <div class="tags" style="margin-bottom:10px">
-          <div class="tag">Java</div><div class="tag">Azure</div><div class="tag">REST</div>
+        <div class="text-[13px] text-text3 leading-[1.65] mb-[10px]">Soluções Java com integração a serviços Azure e APIs RESTful. Ambiente corporativo com crescimento estruturado.</div>
+        <div class="flex gap-1 flex-wrap mb-[10px]">
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Java</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">Azure</div>
+          <div class="text-[10px] py-[2px] px-2 rounded-[20px] bg-purplebg text-purple2 border border-border">REST</div>
         </div>
-        <div class="jc-footer"><div class="match">● 82% match</div><button class="apply-btn">Candidatar</button></div>
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] font-semibold py-[3px] px-[10px] rounded-[20px] bg-[rgba(52,211,153,.1)] text-green border border-[rgba(52,211,153,.25)]">● 82% match</div>
+          <button class="text-[13px] py-[7px] px-[20px] rounded-lg bg-purple text-white border-none font-[inherit] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">Candidatar</button>
+        </div>
       </div>
     </div>
 
     <!-- Coluna direita: recrutadores -->
-    <div class="col">
-      <div class="sec-title">Recrutadores para contatar</div>
-      <div class="card" style="padding:14px">
-        <div th:each="rec : ${recrutadores}" class="rec-item">
-          <div class="rec-av" th:style="'background:' + ${rec.corAvatar}"
+    <div class="col p-[18px_16px] overflow-y-auto last:border-r-0">
+      <div class="text-[11px] font-semibold text-text3 uppercase tracking-[.08em] mb-[10px]">Recrutadores para contatar</div>
+      <div class="bg-bg2 border border-border2 rounded-[14px] overflow-hidden mb-[14px] p-[14px]">
+        <div th:each="rec : ${recrutadores}" class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white"
+               th:style="'background:' + ${rec.corAvatar}"
                th:text="${#strings.abbreviate(rec.nome, 2)}">JP</div>
-          <div style="flex:1;min-width:0">
-            <div class="rec-name" th:text="${rec.nome}">Nome</div>
-            <div class="rec-role" th:text="${rec.cargo} + ' · ' + ${rec.empresa}">Cargo · Empresa</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-semibold text-text1" th:text="${rec.nome}">Nome</div>
+            <div class="text-[11px] text-text3" th:text="${rec.cargo} + ' · ' + ${rec.empresa}">Cargo · Empresa</div>
           </div>
-          <button class="conn-btn">Conectar</button>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
 
         <!-- Placeholders estáticos -->
-        <div class="rec-item">
-          <div class="rec-av" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">JP</div>
-          <div style="flex:1;min-width:0"><div class="rec-name">João Paulo Silva</div><div class="rec-role">Tech Recruiter · Nubank</div></div>
-          <button class="conn-btn">Conectar</button>
+        <div class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">JP</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-semibold text-text1">João Paulo Silva</div><div class="text-[11px] text-text3">Tech Recruiter · Nubank</div></div>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
-        <div class="rec-item">
-          <div class="rec-av" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">CS</div>
-          <div style="flex:1;min-width:0"><div class="rec-name">Carla Santos</div><div class="rec-role">Head of Talent · iFood</div></div>
-          <button class="conn-btn">Conectar</button>
+        <div class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white" style="background:linear-gradient(135deg,#0f6e56,#1d9e75)">CS</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-semibold text-text1">Carla Santos</div><div class="text-[11px] text-text3">Head of Talent · iFood</div></div>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
-        <div class="rec-item">
-          <div class="rec-av" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">FM</div>
-          <div style="flex:1;min-width:0"><div class="rec-name">Felipe Marques</div><div class="rec-role">Recrutador Sênior · TIVIT</div></div>
-          <button class="conn-btn">Conectar</button>
+        <div class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white" style="background:linear-gradient(135deg,#854f0b,#ef9f27)">FM</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-semibold text-text1">Felipe Marques</div><div class="text-[11px] text-text3">Recrutador Sênior · TIVIT</div></div>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
-        <div class="rec-item">
-          <div class="rec-av" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">LF</div>
-          <div style="flex:1;min-width:0"><div class="rec-name">Leticia Ferreira</div><div class="rec-role">Talent Acquisition · CI&amp;T</div></div>
-          <button class="conn-btn">Conectar</button>
+        <div class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white" style="background:linear-gradient(135deg,#1a56db,#3a86ff)">LF</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-semibold text-text1">Leticia Ferreira</div><div class="text-[11px] text-text3">Talent Acquisition · CI&amp;T</div></div>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
-        <div class="rec-item">
-          <div class="rec-av" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">RB</div>
-          <div style="flex:1;min-width:0"><div class="rec-name">Ricardo Brito</div><div class="rec-role">Tech Recruiter · Globo</div></div>
-          <button class="conn-btn">Conectar</button>
+        <div class="flex items-center gap-[9px] py-[9px] border-b border-border2 last:border-b-0">
+          <div class="w-[35px] h-[35px] rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">RB</div>
+          <div class="flex-1 min-w-0"><div class="text-xs font-semibold text-text1">Ricardo Brito</div><div class="text-[11px] text-text3">Tech Recruiter · Globo</div></div>
+          <button class="text-[11px] py-1 px-[11px] rounded-[20px] bg-purplebg text-purple2 border border-border cursor-pointer font-[inherit] font-medium whitespace-nowrap shrink-0 transition-all duration-200 hover:bg-purple hover:text-white">Conectar</button>
         </div>
       </div>
     </div>

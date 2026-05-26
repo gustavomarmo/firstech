@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +8,52 @@
   <!-- Ícones -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 
-  <!-- Estilos -->
-  <link rel="stylesheet" th:href="@{/css/firstech.css}">
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"/>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script th:src="@{/js/tailwindConfig.js}"></script>
+
+  <style>
+    /* ── CSS Variables (usadas em estilos inline e JS) ── */
+    :root {
+      --bg:#0d1117;--bg2:#151b24;--bg3:#1c2535;--bg4:#222d3f;
+      --purple:#8b5cf6;--purple2:#a78bfa;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.12);--border:rgba(139,92,246,0.22);
+      --border2:rgba(255,255,255,0.07);
+      --text1:#f0f4ff;--text2:#94a3b8;--text3:#64748b;
+      --green:#34d399;--red:#f87171;--amber:#fbbf24;
+      --font:'DM Sans',sans-serif;--display:'Space Grotesk',sans-serif;
+    }
+    /* ── Visibilidade das telas (controlada pelo JS) ── */
+    .screen{display:none;flex:1;overflow:hidden;}
+    .screen.active{display:flex;}
+    .port-screen{display:none;flex-direction:column;overflow:hidden;}
+    .port-screen.active{display:flex;}
+    /* ── Overlay ── */
+    .overlay{opacity:0;pointer-events:none;}
+    .overlay.open{opacity:1;pointer-events:all;}
+    /* ── Estados ativos (alternados pelo JS) ── */
+    .nav-btn.active{background:rgba(139,92,246,.12);color:#a78bfa;border-color:rgba(139,92,246,.22);}
+    .ftab.active{background:rgba(139,92,246,.12);color:#a78bfa;border-color:rgba(139,92,246,.22);}
+    /* ── Pseudo-elementos ── */
+    .profile-cover::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 65% 40%,rgba(139,92,246,.35) 0%,transparent 65%);}
+    .port-cover::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 60%,rgba(139,92,246,.42) 0%,transparent 55%),radial-gradient(circle at 80% 30%,rgba(109,40,217,.22) 0%,transparent 45%);}
+    /* ── Animação do modal ── */
+    @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(12px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    /* ── Scrollbars personalizadas ── */
+    .col::-webkit-scrollbar,.port-body::-webkit-scrollbar{width:4px;}
+    .col::-webkit-scrollbar-track{background:transparent;}
+    .col::-webkit-scrollbar-thumb,.port-body::-webkit-scrollbar-thumb{background:#222d3f;border-radius:4px;}
+    /* ── Herança de fonte ── */
+    input,button,select,textarea{font-family:inherit;}
+  </style>
 </head>
-<body>
-<div class="app">
+<body class="h-full bg-bg text-text1 font-sans">
+<div class="flex flex-col h-screen overflow-hidden">
 
   <div th:replace="~{main/fragments/topbar :: topbar}"></div>
 

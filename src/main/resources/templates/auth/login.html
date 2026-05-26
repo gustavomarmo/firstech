@@ -10,40 +10,43 @@
 <body>
 <th:block th:fragment="main-content">
 
-    <header class="auth-header">
-        <h1>Your first step</h1>
-        <p>Where the tech head-hunters find you.</p>
+    <header class="mb-5 text-center">
+        <h1 class="text-[26px] font-bold tracking-[-0.02em] leading-tight">Your first step</h1>
+        <p class="text-on-surface-var mt-1.5 text-sm">Where the tech head-hunters find you.</p>
     </header>
 
-    <form id="loginForm" class="auth-form" novalidate>
+    <form id="loginForm" class="flex flex-col gap-3" novalidate>
 
-        <div class="form-group">
-            <label class="form-label" for="email">E-MAIL</label>
-            <div class="input-wrapper">
-                <span class="material-symbols-outlined icon" aria-hidden="true">alternate_email</span>
-                <input id="email" name="email" type="email" class="form-input"
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="email">E-MAIL</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none" aria-hidden="true">alternate_email</span>
+                <input id="email" name="email" type="email"
+                       class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-4 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2] disabled:opacity-50 disabled:cursor-not-allowed"
                        placeholder="candidato@cefsa.edu.br" required autocomplete="email"/>
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="password">PASSWORD</label>
-            <div class="input-wrapper">
-                <span class="material-symbols-outlined icon" aria-hidden="true">lock</span>
-                <input id="password" name="password" type="password" class="form-input has-right-icon"
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold tracking-[0.05em] text-on-surface-var ml-1" for="password">PASSWORD</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none select-none" aria-hidden="true">lock</span>
+                <input id="password" name="password" type="password"
+                       class="w-full bg-surface-low border border-outline-var rounded-lg py-[11px] pr-12 pl-11 text-white text-base transition-[border-color,box-shadow] duration-300 outline-none placeholder:text-[rgba(144,143,160,.5)] focus:border-primary focus:shadow-[0_0_0_1px_#8a60c2] disabled:opacity-50 disabled:cursor-not-allowed"
                        placeholder="••••••••••••" required autocomplete="current-password"/>
-                <button type="button" class="icon-right"
+                <button type="button"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-outline text-[20px] bg-transparent border-none cursor-pointer p-0 flex items-center transition-colors duration-200 hover:text-primary"
                         data-toggle-password="password" aria-label="Show/hide password">
                     <span class="material-symbols-outlined">visibility</span>
                 </button>
             </div>
-            <div class="forgot-row">
-                <a href="/forgot-password" class="link-subtle">Forgot your password?</a>
+            <div class="flex justify-end mt-1">
+                <a href="/forgot-password" class="text-xs font-medium text-primary no-underline transition-colors duration-200 hover:text-primary-fixed">Forgot your password?</a>
             </div>
         </div>
 
-        <!-- Submit -->
-        <button type="submit" class="btn-primary"
+        <button type="submit"
+                class="w-full bg-primary text-white text-sm font-semibold tracking-[0.05em] border-none rounded-lg py-3 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(138,96,194,.2)] transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[.98] disabled:opacity-60 disabled:cursor-not-allowed"
                 data-label="Entrar" data-icon="login">
             <span class="btn-label">Enter</span>
             <span class="material-symbols-outlined btn-icon" aria-hidden="true">login</span>

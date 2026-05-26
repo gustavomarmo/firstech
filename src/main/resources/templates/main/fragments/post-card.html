@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="card(post)" class="post">
-  <div class="post-head">
-    <div class="post-av"
+<div th:fragment="card(post)" class="bg-bg2 border border-border2 rounded-[14px] p-4 mb-[13px] transition-[border-color] duration-200 hover:border-border">
+  <div class="flex items-center gap-[10px] mb-3">
+    <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
          th:style="'background:' + ${post.autor.corAvatar}"
          th:text="${#strings.abbreviate(post.autor.nome, 1)}">A</div>
-    <div style="flex:1">
-      <div class="post-author" th:text="${post.autor.nome}">Autor</div>
-      <div class="post-meta"
+    <div class="flex-1">
+      <div class="text-sm font-semibold text-text1" th:text="${post.autor.nome}">Autor</div>
+      <div class="text-[11px] text-text3 mt-px"
            th:text="${post.autor.cargo} + ' · ' + ${post.tempoRelativo}">Cargo · tempo</div>
     </div>
-    <i class="ti ti-dots" style="color:var(--text3);cursor:pointer"></i>
+    <i class="ti ti-dots text-text3 cursor-pointer"></i>
   </div>
-  <div class="post-text" th:text="${post.conteudo}">Conteúdo do post.</div>
-  <div class="post-actions">
-    <button class="act-btn"><i class="ti ti-heart"></i><span th:text="${post.curtidas}">0</span></button>
-    <button class="act-btn"><i class="ti ti-message-circle"></i><span th:text="${post.comentarios}">0</span></button>
-    <button class="act-btn"><i class="ti ti-share"></i>Compartilhar</button>
+  <div class="text-sm text-text2 leading-[1.7] mb-3" th:text="${post.conteudo}">Conteúdo do post.</div>
+  <div class="flex gap-1">
+    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+      <i class="ti ti-heart text-base"></i><span th:text="${post.curtidas}">0</span>
+    </button>
+    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+      <i class="ti ti-message-circle text-base"></i><span th:text="${post.comentarios}">0</span>
+    </button>
+    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+      <i class="ti ti-share text-base"></i>Compartilhar
+    </button>
   </div>
 </div>
 </body>
