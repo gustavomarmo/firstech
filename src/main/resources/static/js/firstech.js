@@ -589,5 +589,269 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeModal();
     closeJobModal();
+    ['port-profile-overlay','port-exp-overlay','port-skill-overlay','port-cert-overlay','port-proj-overlay']
+      .forEach(id => closePortModal(id));
   }
 });
+
+/* ═══════════════════════════════════════════════════════════
+   PORTFÓLIO — modais e CRUD
+   ═══════════════════════════════════════════════════════════ */
+
+/** Helper: abre/fecha qualquer overlay de portfólio. */
+function closePortModal(overlayId) {
+  document.getElementById(overlayId)?.classList.remove('open');
+}
+
+function _portToken() {
+  const t = localStorage.getItem('firstech_access_token');
+  if (!t) { alert('Sessão expirada. Faça login novamente.'); window.location.href = '/login'; }
+  return t;
+}
+
+function _highlightInvalid(el) {
+  el.focus();
+  el.style.borderColor = 'var(--red)';
+  setTimeout(() => { el.style.borderColor = ''; }, 2000);
+}
+
+/* ── Perfil / Sobre ──────────────────────────────────────── */
+
+function openPortfolioProfileModal() {
+  document.getElementById('port-profile-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('port-name')?.focus(), 80);
+}
+
+async function savePortProfile() {
+  const name     = document.getElementById('port-name').value.trim();
+  const headline = document.getElementById('port-headline').value.trim();
+  const city     = document.getElementById('port-city').value.trim();
+  const about    = document.getElementById('port-sobre').value.trim();
+
+  if (!name) { _highlightInvalid(document.getElementById('port-name')); return; }
+
+  const token = _portToken(); if (!token) return;
+
+  try {
+    const resp = await fetch('/api/portfolio/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ name, headline, city, about }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar perfil.');
+    closePortModal('port-profile-overlay');
+    showJobToast('Perfil atualizado!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Experiências ─────────────────────────────────────────── */
+
+function openExpModal(ds) {
+  const heading = document.getElementById('exp-modal-heading');
+  document.getElementById('exp-editing-id').value = ds?.id || '';
+  document.getElementById('exp-title').value       = ds?.title   || '';
+  document.getElementById('exp-company').value     = ds?.company || '';
+  document.getElementById('exp-period').value      = ds?.period  || '';
+  document.getElementById('exp-desc').value        = ds?.desc    || '';
+  heading.textContent = ds?.id ? 'Editar experiência' : 'Adicionar experiência';
+  document.getElementById('port-exp-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('exp-title').focus(), 80);
+}
+
+async function saveExperience() {
+  const editingId   = document.getElementById('exp-editing-id').value;
+  const title       = document.getElementById('exp-title').value.trim();
+  const companyName = document.getElementById('exp-company').value.trim();
+  const period      = document.getElementById('exp-period').value.trim();
+  const description = document.getElementById('exp-desc').value.trim();
+
+  if (!title)       { _highlightInvalid(document.getElementById('exp-title'));   return; }
+  if (!companyName) { _highlightInvalid(document.getElementById('exp-company')); return; }
+
+  const token = _portToken(); if (!token) return;
+  const isEdit = !!editingId;
+  const url    = isEdit ? `/api/portfolio/experiences/${editingId}` : '/api/portfolio/experiences';
+
+  try {
+    const resp = await fetch(url, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ title, companyName, period, description, orderIndex: 0 }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar experiência.');
+    closePortModal('port-exp-overlay');
+    showJobToast(isEdit ? 'Experiência atualizada!' : 'Experiência adicionada!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Habilidades ──────────────────────────────────────────── */
+
+function openSkillModal(ds) {
+  document.getElementById('skill-editing-id').value  = ds?.id   || '';
+  document.getElementById('skill-name').value         = ds?.name || '';
+  document.getElementById('skill-highlight').checked  = false;
+  document.getElementById('port-skill-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('skill-name').focus(), 80);
+}
+
+async function saveSkill() {
+  const editingId = document.getElementById('skill-editing-id').value;
+  const name      = document.getElementById('skill-name').value.trim();
+  const highlight = document.getElementById('skill-highlight').checked;
+
+  if (!name) { _highlightInvalid(document.getElementById('skill-name')); return; }
+
+  const token = _portToken(); if (!token) return;
+  const isEdit = !!editingId;
+  const url    = isEdit ? `/api/portfolio/skills/${editingId}` : '/api/portfolio/skills';
+
+  try {
+    const resp = await fetch(url, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ name, highlight, orderIndex: 0 }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar habilidade.');
+    closePortModal('port-skill-overlay');
+    showJobToast(isEdit ? 'Habilidade atualizada!' : 'Habilidade adicionada!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Certificações ────────────────────────────────────────── */
+
+function openCertModal(ds) {
+  const heading = document.getElementById('cert-modal-heading');
+  document.getElementById('cert-editing-id').value = ds?.id     || '';
+  document.getElementById('cert-emoji').value       = ds?.emoji  || '📜';
+  document.getElementById('cert-name').value        = ds?.name   || '';
+  document.getElementById('cert-issuer').value      = ds?.issuer || '';
+  document.getElementById('cert-date').value        = ds?.date   || '';
+  heading.textContent = ds?.id ? 'Editar certificação' : 'Adicionar certificação';
+  document.getElementById('port-cert-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('cert-name').focus(), 80);
+}
+
+async function saveCertification() {
+  const editingId = document.getElementById('cert-editing-id').value;
+  const emoji     = document.getElementById('cert-emoji').value.trim()  || '📜';
+  const name      = document.getElementById('cert-name').value.trim();
+  const issuer    = document.getElementById('cert-issuer').value.trim();
+  const issueDate = document.getElementById('cert-date').value.trim();
+
+  if (!name) { _highlightInvalid(document.getElementById('cert-name')); return; }
+
+  const token = _portToken(); if (!token) return;
+  const isEdit = !!editingId;
+  const url    = isEdit ? `/api/portfolio/certifications/${editingId}` : '/api/portfolio/certifications';
+
+  try {
+    const resp = await fetch(url, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ emoji, name, issuer, issueDate, orderIndex: 0 }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar certificação.');
+    closePortModal('port-cert-overlay');
+    showJobToast(isEdit ? 'Certificação atualizada!' : 'Certificação adicionada!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Projetos ─────────────────────────────────────────────── */
+
+const _DEFAULT_PROJ_GRADIENT = 'linear-gradient(135deg,#0f0521,#2d1b6e)';
+
+function openProjModal(ds) {
+  const heading = document.getElementById('proj-modal-heading');
+  document.getElementById('proj-editing-id').value = ds?.id       || '';
+  document.getElementById('proj-name').value        = ds?.name     || '';
+  document.getElementById('proj-desc').value        = ds?.desc     || '';
+  document.getElementById('proj-icon').value        = ds?.icon     || '';
+  document.getElementById('proj-gradient').value    = ds?.gradient || _DEFAULT_PROJ_GRADIENT;
+  heading.textContent = ds?.id ? 'Editar projeto' : 'Adicionar projeto';
+
+  // Marca o botão de tema correspondente (ou o primeiro se não houver match)
+  const activGrad = ds?.gradient || _DEFAULT_PROJ_GRADIENT;
+  document.querySelectorAll('#proj-theme-picker .proj-theme-btn').forEach(btn => {
+    const active = btn.dataset.gradient === activGrad;
+    btn.style.borderColor = active ? 'white' : 'transparent';
+  });
+
+  document.getElementById('port-proj-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('proj-name').focus(), 80);
+}
+
+function selectProjTheme(btn) {
+  document.querySelectorAll('#proj-theme-picker .proj-theme-btn').forEach(b => {
+    b.style.borderColor = 'transparent';
+  });
+  btn.style.borderColor = 'white';
+  document.getElementById('proj-gradient').value = btn.dataset.gradient;
+}
+
+async function saveProject() {
+  const editingId    = document.getElementById('proj-editing-id').value;
+  const name         = document.getElementById('proj-name').value.trim();
+  const description  = document.getElementById('proj-desc').value.trim();
+  const icon         = document.getElementById('proj-icon').value.trim() || 'ti-code';
+  const thumbGradient = document.getElementById('proj-gradient').value || _DEFAULT_PROJ_GRADIENT;
+
+  if (!name) { _highlightInvalid(document.getElementById('proj-name')); return; }
+
+  const token = _portToken(); if (!token) return;
+  const isEdit = !!editingId;
+  const url    = isEdit ? `/api/portfolio/projects/${editingId}` : '/api/portfolio/projects';
+
+  try {
+    const resp = await fetch(url, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ name, description, thumbGradient, icon, orderIndex: 0 }),
+    });
+    if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).message || 'Erro ao salvar projeto.');
+    closePortModal('port-proj-overlay');
+    showJobToast(isEdit ? 'Projeto atualizado!' : 'Projeto adicionado!');
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}
+
+/* ── Deletar qualquer item do portfólio ───────────────────── */
+
+const _PORT_DELETE_LABELS = {
+  experiences:    'experiência',
+  skills:         'habilidade',
+  certifications: 'certificação',
+  projects:       'projeto',
+};
+
+async function deletePortfolioItem(type, id) {
+  const label = _PORT_DELETE_LABELS[type] || 'item';
+  if (!confirm(`Excluir esta ${label}? Esta ação não pode ser desfeita.`)) return;
+
+  const token = _portToken(); if (!token) return;
+
+  try {
+    const resp = await fetch(`/api/portfolio/${type}/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!resp.ok) throw new Error(`Erro ao excluir ${label}.`);
+    showJobToast(`${label.charAt(0).toUpperCase() + label.slice(1)} excluída.`);
+    window.location.reload();
+  } catch (err) {
+    showJobToast('Erro: ' + err.message, true);
+  }
+}

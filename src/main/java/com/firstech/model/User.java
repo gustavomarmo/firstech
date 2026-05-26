@@ -49,6 +49,9 @@ public class User implements UserDetails {
     private String city;
     private String tagline;
 
+    @Column(length = 2000)
+    private String sobre;          // Seção "Sobre" do portfólio
+
     @ElementCollection
     @CollectionTable(name = "user_technologies", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "technology")

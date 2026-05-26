@@ -4,6 +4,7 @@ import com.firstech.dto.UsuarioViewModel;
 import com.firstech.model.Role;
 import com.firstech.model.User;
 import com.firstech.service.JobService;
+import com.firstech.service.PortfolioService;
 import com.firstech.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,8 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ViewController {
 
-    private final JobService  jobService;
-    private final PostService postService;
+    private final JobService       jobService;
+    private final PostService      postService;
+    private final PortfolioService portfolioService;
 
     @GetMapping({"/", "/login"})
     public String login() {
@@ -72,9 +74,14 @@ public class ViewController {
                     .nomeCompleto(user.getName())
                     .headline(user.getTagline() != null ? user.getTagline() : "")
                     .localizacao(user.getCity() != null ? user.getCity() : "")
+                    .sobre(user.getSobre() != null ? user.getSobre() : "")
                     .cargo(cargo)
                     .empresa(empresa)
                     .recrutador(isRecruiter)
+                    .experiencias(portfolioService.getExperiences(user))
+                    .habilidades(portfolioService.getSkills(user))
+                    .certificacoes(portfolioService.getCertifications(user))
+                    .projetos(portfolioService.getProjects(user))
                     .build();
         } else {
             usuario = UsuarioViewModel.builder().build();

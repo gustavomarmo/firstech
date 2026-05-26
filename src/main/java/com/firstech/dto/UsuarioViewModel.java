@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UsuarioViewModel {
 
-    @Builder.Default private Long   userId         = null;
+    @Builder.Default private Long   userId        = null;
     @Builder.Default private String nome          = "";
     @Builder.Default private String nomeCompleto  = "";
     @Builder.Default private String headline      = "";
@@ -23,10 +23,10 @@ public class UsuarioViewModel {
     @Builder.Default private int visualizacoes    = 0;
     @Builder.Default private int impressoes       = 0;
 
-    @Builder.Default private List<?> experiencias  = List.of();
-    @Builder.Default private List<?> habilidades   = List.of();
-    @Builder.Default private List<?> certificacoes = List.of();
-    @Builder.Default private List<?> projetos      = List.of();
+    @Builder.Default private List<ExperienciaViewModel>  experiencias  = List.of();
+    @Builder.Default private List<HabilidadeViewModel>   habilidades   = List.of();
+    @Builder.Default private List<CertificacaoViewModel> certificacoes = List.of();
+    @Builder.Default private List<ProjetoViewModel>      projetos      = List.of();
 
     public String getInicial() {
         if (nome == null || nome.isBlank()) return "?";

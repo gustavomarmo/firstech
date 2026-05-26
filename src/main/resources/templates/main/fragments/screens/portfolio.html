@@ -5,183 +5,379 @@
   <div class="port-cover h-[130px] shrink-0 bg-[linear-gradient(135deg,#0f0521_0%,#2d1b6e_40%,#0f172a_70%,#1a0533_100%)] relative"></div>
   <div class="port-body overflow-y-auto flex-1 px-6 pb-7">
 
+    <!-- Avatar + ações -->
     <div class="flex items-end justify-between mb-[14px]">
       <div class="w-[84px] h-[84px] rounded-full bg-[linear-gradient(135deg,#6d28d9,#8b5cf6)] border-4 border-bg -mt-[42px] flex items-center justify-center text-[30px] font-bold text-white font-display"
            th:text="${usuario.inicial}">G</div>
       <div class="flex gap-2 pb-1">
-        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2">
-          <i class="ti ti-send" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Mensagem
-        </button>
-        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1">
-          <i class="ti ti-user-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Conectar
-        </button>
-        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1">
+        <button class="py-2 px-[14px] rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"
+                onclick="openPortfolioProfileModal()"
+                title="Editar perfil">
           <i class="ti ti-pencil" style="font-size:14px;vertical-align:-2px"></i>
         </button>
       </div>
     </div>
 
-    <div class="font-display text-2xl font-bold text-text1 mb-[3px]" th:text="${usuario.nomeCompleto}">Gustavo Sgrignoli Marmo</div>
-    <div class="text-sm text-text2 mb-1" th:text="${usuario.headline}">Back-end Developer · 1x Azure Certified · Java · Spring · AWS</div>
+    <!-- Cabeçalho do perfil -->
+    <div class="font-display text-2xl font-bold text-text1 mb-[3px]" th:text="${usuario.nomeCompleto}">Nome</div>
+    <div class="text-sm text-text2 mb-1" th:text="${usuario.headline}">Headline</div>
     <div class="text-[13px] text-text3 flex items-center gap-1">
-      <i class="ti ti-map-pin text-[13px]"></i><span th:text="${usuario.localizacao}">São Paulo, SP · Brasil</span>
+      <i class="ti ti-map-pin text-[13px]"></i>
+      <span th:text="${!usuario.localizacao.isBlank()} ? ${usuario.localizacao} : 'Localização não informada'">Localização</span>
     </div>
 
     <div class="flex gap-6 my-[13px]">
       <div class="cursor-pointer">
-        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.conexoes}">512</div>
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.conexoes}">0</div>
         <div class="text-xs text-text3">conexões</div>
       </div>
       <div class="cursor-pointer">
-        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.visualizacoes}">90</div>
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.visualizacoes}">0</div>
         <div class="text-xs text-text3">visualizações</div>
       </div>
       <div class="cursor-pointer">
-        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.impressoes}">11</div>
+        <div class="text-base font-bold text-purple2 font-display" th:text="${usuario.impressoes}">0</div>
         <div class="text-xs text-text3">impressões</div>
       </div>
     </div>
 
-    <!-- Sobre -->
+    <!-- ── SOBRE ── -->
     <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Sobre
-        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-pencil"></i></button>
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
+                onclick="openPortfolioProfileModal()"><i class="ti ti-pencil"></i></button>
       </div>
-      <div class="text-sm text-text2 leading-[1.75]" th:text="${usuario.sobre}">O aprendizado é o que me move. Desenvolvedor back-end com foco em Java e ecossistema Spring, certificado em Azure e apaixonado por boas práticas de arquitetura. Atualmente na TIVIT, buscando novos desafios para crescer tecnicamente.</div>
+      <div th:if="${!usuario.sobre.isBlank()}"
+           class="text-sm text-text2 leading-[1.75]"
+           th:text="${usuario.sobre}">Sobre</div>
+      <div th:if="${usuario.sobre.isBlank()}"
+           class="text-sm text-text3 italic">Nenhuma descrição ainda. Clique em editar para adicionar.</div>
     </div>
 
-    <!-- Experiência -->
+    <!-- ── EXPERIÊNCIA ── -->
     <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Experiência
-        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
+                onclick="openExpModal(null)"><i class="ti ti-plus"></i></button>
       </div>
 
       <div th:each="exp, iterStat : ${usuario.experiencias}">
-        <div class="flex gap-[13px] mb-4 last:mb-0">
+        <div class="flex gap-[13px] mb-4 last:mb-0 group">
           <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white"
                th:style="'background:' + ${exp.empresa.corLogo}"
-               th:text="${#strings.abbreviate(exp.empresa.nome, 1)}">E</div>
-          <div>
-            <div class="text-sm font-semibold text-text1" th:text="${exp.cargo}">Cargo</div>
-            <div class="text-[13px] text-purple2 font-medium" th:text="${exp.empresa.nome}">Empresa</div>
-            <div class="text-xs text-text3 mt-0.5" th:text="${exp.periodo}">Período</div>
-            <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]" th:text="${exp.descricao}">Descrição.</div>
+               th:text="${exp.empresa.inicial}">E</div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="text-sm font-semibold text-text1" th:text="${exp.cargo}">Cargo</div>
+                <div class="text-[13px] text-purple2 font-medium" th:text="${exp.empresa.nome}">Empresa</div>
+                <div class="text-xs text-text3 mt-0.5" th:text="${exp.periodo}">Período</div>
+                <div th:if="${exp.descricao != null and !exp.descricao.isBlank()}"
+                     class="text-[13px] text-text2 mt-[5px] leading-[1.6]"
+                     th:text="${exp.descricao}">Descrição</div>
+              </div>
+              <!-- Ações -->
+              <div class="flex gap-1 shrink-0">
+                <button class="w-6 h-6 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[13px] opacity-0 group-hover:opacity-100 transition-all hover:text-purple2"
+                        th:data-id="${exp.id}"
+                        th:data-title="${exp.cargo}"
+                        th:data-company="${exp.empresa.nome}"
+                        th:data-period="${exp.periodo}"
+                        th:data-desc="${exp.descricao}"
+                        onclick="openExpModal(this.dataset)">
+                  <i class="ti ti-pencil"></i>
+                </button>
+                <button class="w-6 h-6 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[13px] opacity-0 group-hover:opacity-100 transition-all hover:text-red"
+                        th:onclick="'deletePortfolioItem(\'experiences\',' + ${exp.id} + ')'">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="h-px bg-border2 my-[10px]" th:if="${!iterStat.last}"></div>
+        <div class="h-px bg-border2 my-[10px]" th:unless="${iterStat.last}"></div>
       </div>
 
-      <!-- Placeholders estáticos -->
-      <div class="flex gap-[13px] mb-4">
-        <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">T</div>
-        <div>
-          <div class="text-sm font-semibold text-text1">Desenvolvedor Júnior</div>
-          <div class="text-[13px] text-purple2 font-medium">TIVIT</div>
-          <div class="text-xs text-text3 mt-0.5">Jan 2024 – Presente · 1 ano 5 meses · São Paulo, SP</div>
-          <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]">Desenvolvimento de APIs RESTful com Java e Spring Boot, integração com serviços Azure e manutenção de sistemas legados.</div>
-        </div>
-      </div>
-      <div class="h-px bg-border2 my-[10px]"></div>
-      <div class="flex gap-[13px]">
-        <div class="w-10 h-10 rounded-[9px] shrink-0 flex items-center justify-center text-[15px] font-bold text-white" style="background:linear-gradient(135deg,#0e7490,#06b6d4)">C</div>
-        <div>
-          <div class="text-sm font-semibold text-text1">Estagiário de Desenvolvimento</div>
-          <div class="text-[13px] text-purple2 font-medium">CEFSA / Centro Universitário</div>
-          <div class="text-xs text-text3 mt-0.5">Mar 2023 – Dez 2023 · 10 meses · São Paulo, SP</div>
-          <div class="text-[13px] text-text2 mt-[5px] leading-[1.6]">Projetos acadêmicos e extensão universitária com foco em backend Java.</div>
-        </div>
+      <div th:if="${#lists.isEmpty(usuario.experiencias)}"
+           class="text-sm text-text3 italic text-center py-3">
+        Nenhuma experiência adicionada ainda.
       </div>
     </div>
 
-    <!-- Habilidades -->
+    <!-- ── HABILIDADES ── -->
     <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Habilidades
-        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-pencil"></i></button>
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
+                onclick="openSkillModal(null)"><i class="ti ti-plus"></i></button>
       </div>
       <div class="flex flex-wrap gap-[7px]">
         <div th:each="skill : ${usuario.habilidades}"
-             class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2"
-             th:classappend="${skill.destaque} ? ' bg-purplebg text-purple2 border-border !bg-purplebg !text-purple2 !border-border'"
-             th:text="${skill.nome}">Skill</div>
-        <!-- Placeholders estáticos -->
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Java</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Spring Boot</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">AWS</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-purplebg text-purple2 border border-border">Azure</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Hibernate</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">PostgreSQL</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Docker</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Git</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">REST APIs</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">Microsserviços</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">C#</div>
-        <div class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2">React</div>
+             class="group relative py-[5px] px-[13px] rounded-lg text-xs font-medium bg-bg3 text-text2 border border-border2 cursor-default transition-all duration-200"
+             th:classappend="${skill.destaque} ? ' !bg-purplebg !text-purple2 !border-border'">
+          <span th:text="${skill.nome}">Skill</span>
+          <button class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-bg4 border border-border2 text-text3 items-center justify-center cursor-pointer text-[10px] hidden group-hover:flex hover:text-red hover:border-red"
+                  th:onclick="'deletePortfolioItem(\'skills\',' + ${skill.id} + ')'">×</button>
+        </div>
+        <button class="py-[5px] px-[13px] rounded-lg text-xs font-medium bg-transparent text-text3 border border-dashed border-border2 cursor-pointer transition-all duration-200 hover:border-purple2 hover:text-purple2"
+                onclick="openSkillModal(null)">+ adicionar</button>
       </div>
+      <div th:if="${#lists.isEmpty(usuario.habilidades)}"
+           class="text-sm text-text3 italic mt-1">Nenhuma habilidade adicionada ainda.</div>
     </div>
 
-    <!-- Certificações -->
+    <!-- ── CERTIFICAÇÕES ── -->
     <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Certificações
-        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
+                onclick="openCertModal(null)"><i class="ti ti-plus"></i></button>
       </div>
-      <div th:each="cert : ${usuario.certificacoes}" class="flex items-center gap-[10px] py-2 border-b border-border2 last:border-b-0">
-        <div class="w-9 h-9 rounded-lg bg-bg3 flex items-center justify-center text-[18px] shrink-0" th:text="${cert.emoji}">📜</div>
-        <div>
+
+      <div th:each="cert : ${usuario.certificacoes}"
+           class="flex items-center gap-[10px] py-2 border-b border-border2 last:border-b-0 group">
+        <div class="w-9 h-9 rounded-lg bg-bg3 flex items-center justify-center text-[18px] shrink-0"
+             th:text="${cert.emoji}">📜</div>
+        <div class="flex-1">
           <div class="text-[13px] font-semibold text-text1" th:text="${cert.nome}">Certificação</div>
-          <div class="text-[11px] text-text3" th:text="${cert.emissor} + ' · Emitido em ' + ${cert.dataEmissao}">Emissor · Data</div>
+          <div class="text-[11px] text-text3"
+               th:text="${cert.emissor} + (${cert.dataEmissao != null and !cert.dataEmissao.isBlank()} ? ' · Emitido em ' + ${cert.dataEmissao} : '')">Emissor</div>
+        </div>
+        <div class="flex gap-1 shrink-0">
+          <button class="w-6 h-6 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[13px] opacity-0 group-hover:opacity-100 transition-all hover:text-purple2"
+                  th:data-id="${cert.id}"
+                  th:data-emoji="${cert.emoji}"
+                  th:data-name="${cert.nome}"
+                  th:data-issuer="${cert.emissor}"
+                  th:data-date="${cert.dataEmissao}"
+                  onclick="openCertModal(this.dataset)">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="w-6 h-6 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[13px] opacity-0 group-hover:opacity-100 transition-all hover:text-red"
+                  th:onclick="'deletePortfolioItem(\'certifications\',' + ${cert.id} + ')'">
+            <i class="ti ti-trash"></i>
+          </button>
         </div>
       </div>
-      <!-- Placeholder estático -->
-      <div class="flex items-center gap-[10px] py-2 border-b border-border2 last:border-b-0">
-        <div class="w-9 h-9 rounded-lg bg-bg3 flex items-center justify-center text-[18px] shrink-0">☁️</div>
-        <div>
-          <div class="text-[13px] font-semibold text-text1">Microsoft Azure Fundamentals (AZ-900)</div>
-          <div class="text-[11px] text-text3">Microsoft · Emitido em Ago 2023</div>
-        </div>
+
+      <div th:if="${#lists.isEmpty(usuario.certificacoes)}"
+           class="text-sm text-text3 italic text-center py-3">
+        Nenhuma certificação adicionada ainda.
       </div>
     </div>
 
-    <!-- Projetos -->
+    <!-- ── PROJETOS ── -->
     <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Projetos
-        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px]"><i class="ti ti-plus"></i></button>
+        <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
+                onclick="openProjModal(null)"><i class="ti ti-plus"></i></button>
       </div>
-      <div class="grid grid-cols-2 gap-[10px]">
-        <div th:each="proj : ${usuario.projetos}" class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center" th:style="'background:' + ${proj.corThumb}">
+
+      <div th:if="${!#lists.isEmpty(usuario.projetos)}" class="grid grid-cols-2 gap-[10px]">
+        <div th:each="proj : ${usuario.projetos}"
+             class="group relative bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
+          <div class="h-[84px] flex items-center justify-center"
+               th:style="'background:' + ${proj.corThumb}">
             <i th:class="'ti ' + ${proj.icone}" style="font-size:30px;color:var(--purple2)"></i>
           </div>
           <div class="p-[10px_12px]">
             <div class="text-[13px] font-semibold text-text1 mb-[3px]" th:text="${proj.nome}">Projeto</div>
             <div class="text-[11px] text-text3 leading-[1.55]" th:text="${proj.descricao}">Descrição.</div>
           </div>
+          <!-- Ações (hover) -->
+          <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+            <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-purple2"
+                    th:data-id="${proj.id}"
+                    th:data-name="${proj.nome}"
+                    th:data-desc="${proj.descricao}"
+                    th:data-gradient="${proj.corThumb}"
+                    th:data-icon="${proj.icone}"
+                    onclick="openProjModal(this.dataset)">
+              <i class="ti ti-pencil"></i>
+            </button>
+            <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-red"
+                    th:onclick="'deletePortfolioItem(\'projects\',' + ${proj.id} + ')'">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
         </div>
-        <!-- Placeholders estáticos -->
-        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#0f0521,#2d1b6e)"><i class="ti ti-code text-purple2" style="font-size:30px"></i></div>
-          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">firsttech</div><div class="text-[11px] text-text3 leading-[1.55]">Plataforma de recrutamento tech. Spring Boot + React</div></div>
-        </div>
-        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#0a2540,#1a56db)"><i class="ti ti-database" style="font-size:30px;color:#60a5fa"></i></div>
-          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Cache API</div><div class="text-[11px] text-text3 leading-[1.55]">Redis + Spring: otimização de queries pesadas</div></div>
-        </div>
-        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#052e16,#166534)"><i class="ti ti-server" style="font-size:30px;color:#4ade80"></i></div>
-          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Microservice Shop</div><div class="text-[11px] text-text3 leading-[1.55]">E-commerce em microsserviços com Kafka</div></div>
-        </div>
-        <div class="bg-bg3 rounded-[11px] overflow-hidden border border-border2 cursor-pointer transition-all duration-200 hover:border-border">
-          <div class="h-[84px] flex items-center justify-center" style="background:linear-gradient(135deg,#2d1515,#7f1d1d)"><i class="ti ti-cloud" style="font-size:30px;color:#f87171"></i></div>
-          <div class="p-[10px_12px]"><div class="text-[13px] font-semibold text-text1 mb-[3px]">Deploy Azure</div><div class="text-[11px] text-text3 leading-[1.55]">Pipeline CI/CD com Azure DevOps e Docker</div></div>
-        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(usuario.projetos)}"
+           class="text-sm text-text3 italic text-center py-3">
+        Nenhum projeto adicionado ainda.
       </div>
     </div>
 
+  </div><!-- /port-body -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MODAIS DE EDIÇÃO DO PORTFÓLIO
+       ═══════════════════════════════════════════════════════════ -->
+
+  <!-- ── Modal: Editar Perfil / Sobre ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-profile-overlay" onclick="if(event.target===this)closePortModal('port-profile-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[520px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1">Editar perfil</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-profile-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
+        <input id="port-name" type="text" placeholder="Nome completo"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"
+               th:value="${usuario.nomeCompleto}"/>
+        <input id="port-headline" type="text" placeholder="Headline (ex: Back-end Dev · Java · Spring)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+               th:value="${usuario.headline}"/>
+        <input id="port-city" type="text" placeholder="Localização (ex: São Paulo, SP)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+               th:value="${usuario.localizacao}"/>
+        <textarea id="port-sobre" rows="5" placeholder="Conte um pouco sobre você..."
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"
+                  th:text="${usuario.sobre}"></textarea>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-profile-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="savePortProfile()">Salvar</button>
+      </div>
+    </div>
   </div>
-</div>
+
+  <!-- ── Modal: Adicionar / Editar Experiência ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-exp-overlay" onclick="if(event.target===this)closePortModal('port-exp-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[520px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1" id="exp-modal-heading">Adicionar experiência</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-exp-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
+        <input type="hidden" id="exp-editing-id"/>
+        <input id="exp-title" type="text" placeholder="Cargo / título*"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+        <input id="exp-company" type="text" placeholder="Empresa*"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+        <input id="exp-period" type="text" placeholder="Período (ex: Jan 2024 – Presente · São Paulo, SP)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+        <textarea id="exp-desc" rows="4" placeholder="Descrição das atividades (opcional)"
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-exp-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="saveExperience()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Adicionar / Editar Habilidade ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-skill-overlay" onclick="if(event.target===this)closePortModal('port-skill-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[400px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1">Adicionar habilidade</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-skill-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5 flex flex-col gap-3">
+        <input type="hidden" id="skill-editing-id"/>
+        <input id="skill-name" type="text" placeholder="Nome da habilidade*"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-text2">
+          <input id="skill-highlight" type="checkbox" class="w-4 h-4 rounded accent-purple"/>
+          Destacar esta habilidade (badge roxo)
+        </label>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-skill-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="saveSkill()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Adicionar / Editar Certificação ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-cert-overlay" onclick="if(event.target===this)closePortModal('port-cert-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[460px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1" id="cert-modal-heading">Adicionar certificação</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-cert-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5 flex flex-col gap-3">
+        <input type="hidden" id="cert-editing-id"/>
+        <div class="grid grid-cols-[56px_1fr] gap-3">
+          <input id="cert-emoji" type="text" placeholder="📜"
+                 class="bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[22px] text-center focus:border-border"/>
+          <input id="cert-name" type="text" placeholder="Nome da certificação*"
+                 class="bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+        </div>
+        <input id="cert-issuer" type="text" placeholder="Organização emissora (ex: Microsoft)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+        <input id="cert-date" type="text" placeholder="Data de emissão (ex: Ago 2023)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-cert-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="saveCertification()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Adicionar / Editar Projeto ── -->
+  <div class="overlay fixed inset-0 z-[200] bg-[rgba(7,10,16,.85)] backdrop-blur-[5px] flex items-center justify-center"
+       id="port-proj-overlay" onclick="if(event.target===this)closePortModal('port-proj-overlay')">
+    <div class="bg-bg2 border border-border rounded-[18px] w-[520px] max-w-[95vw] shadow-[0_24px_60px_rgba(0,0,0,.6)] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border2">
+        <div class="text-sm font-semibold text-text1" id="proj-modal-heading">Adicionar projeto</div>
+        <button class="w-[30px] h-[30px] rounded-lg border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[18px] hover:bg-bg4 hover:text-text1"
+                onclick="closePortModal('port-proj-overlay')"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
+        <input type="hidden" id="proj-editing-id"/>
+        <input id="proj-name" type="text" placeholder="Nome do projeto*"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+        <textarea id="proj-desc" rows="3" placeholder="Breve descrição do projeto"
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
+        <!-- Ícone Tabler -->
+        <input id="proj-icon" type="text" placeholder="Ícone Tabler (ex: ti-code, ti-database, ti-cloud)"
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+        <!-- Tema / cor do thumbnail -->
+        <div>
+          <div class="text-[11px] text-text3 mb-[6px]">Tema do thumbnail</div>
+          <div class="flex gap-2 flex-wrap" id="proj-theme-picker">
+            <button th:each="theme : ${ {'linear-gradient(135deg,#0f0521,#2d1b6e)','linear-gradient(135deg,#0a2540,#1a56db)','linear-gradient(135deg,#052e16,#166534)','linear-gradient(135deg,#2d1515,#7f1d1d)','linear-gradient(135deg,#0e2942,#0e7490)','linear-gradient(135deg,#2d1b00,#854f0b)'} }"
+                    type="button"
+                    class="proj-theme-btn w-8 h-8 rounded-lg border-2 border-transparent cursor-pointer transition-all hover:border-white"
+                    th:style="'background:' + ${theme}"
+                    th:data-gradient="${theme}"
+                    onclick="selectProjTheme(this)"></button>
+          </div>
+        </div>
+        <input type="hidden" id="proj-gradient" value="linear-gradient(135deg,#0f0521,#2d1b6e)"/>
+      </div>
+      <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
+        <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
+                onclick="closePortModal('port-proj-overlay')">Cancelar</button>
+        <button class="py-2 px-5 rounded-lg bg-purple text-white border-none font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-purple2"
+                onclick="saveProject()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /port-screen -->
 </body>
 </html>
