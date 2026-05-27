@@ -55,9 +55,6 @@
       </button>
     </div>
 
-    <!-- Ícone de opções para outros usuários -->
-    <i th:unless="${usuario.userId != null and post.autor.id == usuario.userId}"
-       class="ti ti-dots text-text3 cursor-pointer"></i>
   </div>
 
   <!-- Título (opcional) -->
@@ -107,7 +104,8 @@
       <span th:id="'comment-count-' + ${post.id}" th:text="${post.commentCount}">0</span>
     </button>
     <!-- Compartilhar -->
-    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2">
+    <button class="flex items-center gap-[5px] py-[6px] px-[10px] rounded-[7px] border-none bg-transparent text-text3 font-[inherit] text-xs cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-purple2"
+            onclick="showJobToast('Feature em breve!')">
       <i class="ti ti-share text-base"></i>Compartilhar
     </button>
   </div>

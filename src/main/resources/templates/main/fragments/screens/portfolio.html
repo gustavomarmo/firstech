@@ -140,8 +140,9 @@
            class="text-sm text-text3 italic text-center py-3">Nenhuma experiência adicionada ainda.</div>
     </div>
 
-    <!-- ── HABILIDADES ── -->
-    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+    <!-- ── HABILIDADES (apenas candidatos) ── -->
+    <div th:unless="${usuario.recrutador}"
+         class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Habilidades
         <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
@@ -162,8 +163,9 @@
            class="text-sm text-text3 italic mt-1">Nenhuma habilidade adicionada ainda.</div>
     </div>
 
-    <!-- ── CERTIFICAÇÕES ── -->
-    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+    <!-- ── CERTIFICAÇÕES (apenas candidatos) ── -->
+    <div th:unless="${usuario.recrutador}"
+         class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Certificações
         <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
