@@ -31,6 +31,8 @@
     /* ── Visibilidade das telas (controlada pelo JS) ── */
     .screen{display:none;flex:1;overflow:hidden;}
     .screen.active{display:flex;}
+    /* #s-messages é o próprio flex container (sem wrapper extra) */
+    #s-messages.active{display:flex;align-items:stretch;}
     .port-screen{display:none;flex-direction:column;overflow:hidden;}
     .port-screen.active{display:flex;}
     /* ── Overlay ── */

@@ -2146,29 +2146,32 @@ function _renderConnectionsForMsg(conns) {
   if (!container) return;
 
   if (!conns.length) {
-    container.innerHTML = '<div class="px-4 py-4 text-[12px] text-text3 text-center">Você ainda não tem conexões.<br>Conecte-se com pessoas nos posts!</div>';
+    container.innerHTML = '<div class="px-4 py-4 text-[12px] text-text3 text-center">Você ainda não tem conexões.<br>Conecte-se com pessoas via busca acima!</div>';
     return;
   }
 
   container.innerHTML = '';
   conns.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'w-full flex items-center gap-3 px-4 py-[9px] hover:bg-bg3 transition-colors border-b border-border2 last:border-b-0 text-left';
-    btn.onclick = () => {
-      switchMsgTab('convs');
-      openConversation(c.id, c.nome);
-    };
+    const item = document.createElement('div');
+    item.className = 'flex items-center gap-3 px-4 py-[9px] hover:bg-bg3 transition-colors border-b border-border2 last:border-b-0 cursor-pointer group';
+    item.onclick = () => openUserProfile(c.id);
+
     const avatarHtml = c.avatarBase64
       ? `<img src="${c.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
       : `<span class="text-[11px] font-bold text-white">${_escapeHtml(c.inicial)}</span>`;
-    btn.innerHTML = `
+
+    item.innerHTML = `
       <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style="background:${c.corAvatar}">${avatarHtml}</div>
       <div class="flex-1 min-w-0">
-        <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(c.nome)}</div>
+        <div class="text-[13px] font-semibold text-text1 truncate group-hover:text-purple2 transition-colors">${_escapeHtml(c.nome)}</div>
         <div class="text-[11px] text-text3 truncate">${_escapeHtml(c.headline || '')}</div>
       </div>
-      <i class="ti ti-message-circle text-text3 text-[14px] shrink-0"></i>`;
-    container.appendChild(btn);
+      <button class="shrink-0 w-7 h-7 rounded-lg border border-border2 bg-transparent text-text3 flex items-center justify-center cursor-pointer hover:bg-bg4 hover:text-purple2 transition-colors opacity-0 group-hover:opacity-100"
+              title="Enviar mensagem"
+              onclick="event.stopPropagation();switchMsgTab('convs');openConversation(${c.id},'${_escapeHtml(c.nome).replace(/'/g,"\\'")}')">
+        <i class="ti ti-message-circle text-[13px]"></i>
+      </button>`;
+    container.appendChild(item);
   });
 }
 
@@ -2218,32 +2221,33 @@ function _renderPeopleSearchForMsg(people) {
   people.forEach(p => {
     const isConn = _connData.some(c => c.id == p.id);
     const item = document.createElement('div');
-    item.className = 'flex items-center gap-3 px-4 py-[9px] border-b border-border2 last:border-b-0';
+    item.className = 'flex items-center gap-3 px-4 py-[9px] border-b border-border2 last:border-b-0 hover:bg-bg3 transition-colors cursor-pointer group';
+    item.onclick = () => openUserProfile(p.id);
 
     const avatarHtml = p.avatarBase64
       ? `<img src="${p.avatarBase64}" class="w-full h-full object-cover" alt=""/>`
       : `<span class="text-[11px] font-bold text-white">${_escapeHtml(p.inicial || '?')}</span>`;
 
-    const actionBtn = isConn
-      ? `<button class="text-[10px] py-[4px] px-[10px] rounded-[20px] font-semibold font-[inherit] cursor-pointer border-none shrink-0 whitespace-nowrap"
-                style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)"
-                onclick="switchMsgTab('convs');openConversation(${p.id},'${_escapeHtml(p.nome).replace(/'/g,"\\'")}')">
-           Mensagem
-         </button>`
-      : `<button class="text-[10px] py-[4px] px-[10px] rounded-[20px] font-semibold font-[inherit] cursor-pointer border-none shrink-0 whitespace-nowrap"
-                style="background:var(--purple);color:#fff"
-                onclick="openUserProfile(${p.id})">
-           Ver perfil
-         </button>`;
+    // Badge de conexão ou botão de mensagem rápida
+    const connBadge = isConn
+      ? `<div class="flex items-center gap-1 shrink-0">
+           <span class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full text-green" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25)">Conectado</span>
+           <button class="w-7 h-7 rounded-lg border border-border2 bg-transparent text-text3 flex items-center justify-center cursor-pointer hover:bg-bg4 hover:text-purple2 transition-colors opacity-0 group-hover:opacity-100"
+                   title="Enviar mensagem"
+                   onclick="event.stopPropagation();switchMsgTab('convs');openConversation(${p.id},'${_escapeHtml(p.nome).replace(/'/g,"\\'")}')">
+             <i class="ti ti-message-circle text-[13px]"></i>
+           </button>
+         </div>`
+      : `<i class="ti ti-chevron-right text-[13px] text-text3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"></i>`;
 
     item.innerHTML = `
-      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80"
-           style="background:${p.corAvatar}" onclick="openUserProfile(${p.id})">${avatarHtml}</div>
-      <div class="flex-1 min-w-0 cursor-pointer" onclick="openUserProfile(${p.id})">
-        <div class="text-[13px] font-semibold text-text1 truncate">${_escapeHtml(p.nome)}</div>
+      <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
+           style="background:${p.corAvatar}">${avatarHtml}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[13px] font-semibold text-text1 truncate group-hover:text-purple2 transition-colors">${_escapeHtml(p.nome)}</div>
         <div class="text-[11px] text-text3 truncate">${_escapeHtml(p.subtitulo || '')}</div>
       </div>
-      ${actionBtn}`;
+      ${connBadge}`;
     container.appendChild(item);
   });
 }
