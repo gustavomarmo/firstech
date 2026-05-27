@@ -50,6 +50,18 @@ public class AdminController {
         return "admin/users";
     }
 
+    @GetMapping("/posts")
+    public String posts(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        addAdminInfo(userDetails, model);
+        return "admin/posts";
+    }
+
+    @GetMapping("/jobs")
+    public String jobs(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        addAdminInfo(userDetails, model);
+        return "admin/jobs";
+    }
+
     // ── Helper compartilhado ──────────────────────────────────────────────────
 
     private void addAdminInfo(UserDetails userDetails, Model model) {

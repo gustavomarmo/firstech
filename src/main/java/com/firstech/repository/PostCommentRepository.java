@@ -21,4 +21,9 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     @Modifying
     @Query("DELETE FROM PostComment pc WHERE pc.post IN (SELECT p FROM Post p WHERE p.author = :user)")
     void deleteByPostAuthor(@Param("user") User user);
+
+    /** Deleta todos os comentários de um post específico (antes de excluí-lo). */
+    @Modifying
+    @Query("DELETE FROM PostComment pc WHERE pc.post.id = :postId")
+    void deleteByPostId(@Param("postId") Long postId);
 }

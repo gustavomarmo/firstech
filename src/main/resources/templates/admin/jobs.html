@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vagas — Admin Firstech</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script th:src="@{/js/theme.js}"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script th:src="@{/js/tailwindConfig.js}"></script>
+
+  <style>
+    :root, [data-theme="dark"] {
+      --bg:#0d1117;--bg2:#151b24;--bg3:#1c2535;--bg4:#222d3f;
+      --purple:#8b5cf6;--purple2:#a78bfa;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.12);--border:rgba(139,92,246,0.22);
+      --border2:rgba(255,255,255,0.07);
+      --text1:#f0f4ff;--text2:#94a3b8;--text3:#64748b;
+      --green:#34d399;--red:#f87171;--amber:#fbbf24;
+    }
+    [data-theme="light"] {
+      --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--bg4:#eef2f7;
+      --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.09);--border:rgba(109,40,217,0.28);
+      --border2:rgba(15,23,42,0.09);
+      --text1:#0f172a;--text2:#334155;--text3:#64748b;
+      --green:#059669;--red:#dc2626;--amber:#d97706;
+    }
+
+    body { font-family:'DM Sans',sans-serif; }
+    .font-display { font-family:'Space Grotesk',sans-serif; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--bg4);border-radius:4px; }
+
+    .nav-btn { transition:background .15s,color .15s; }
+    .nav-btn.active { background:var(--purplebg); color:var(--purple2); }
+
+    @keyframes menuIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+    #user-menu:not(.hidden) { animation:menuIn .18s ease; }
+
+    .panel { background:var(--bg2);border:1px solid var(--border2);border-radius:14px; }
+
+    /* Table */
+    .jobs-table { width:100%;border-collapse:collapse; }
+    .jobs-table th {
+      padding:10px 16px;text-align:left;font-size:11px;font-weight:600;
+      color:var(--text3);text-transform:uppercase;letter-spacing:.06em;
+      border-bottom:1px solid var(--border2);background:var(--bg3);white-space:nowrap;
+    }
+    .jobs-table td {
+      padding:13px 16px;font-size:13px;color:var(--text2);
+      border-bottom:1px solid var(--border2);vertical-align:middle;
+    }
+    .jobs-table tr:last-child td { border-bottom:none; }
+    .jobs-table tbody tr { transition:background .12s; }
+    .jobs-table tbody tr:hover { background:var(--bg3); }
+
+    /* Badges */
+    .badge { display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.05em; }
+    .badge-ativa    { background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.3); }
+    .badge-enc      { background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.25); }
+    .badge-remoto   { background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25); }
+    .badge-hibrido  { background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.25); }
+    .badge-presencial { background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25); }
+    .badge-nivel    { background:var(--bg4);color:var(--text2);border:1px solid var(--border2); }
+    .tag-chip { display:inline-flex;font-size:10px;font-weight:500;padding:1px 7px;border-radius:999px;background:var(--bg4);color:var(--text3);margin:1px; }
+
+    /* Action buttons */
+    .action-btn {
+      display:inline-flex;align-items:center;justify-content:center;
+      width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;
+      transition:background .12s,color .12s;background:transparent;color:var(--text3);
+    }
+    .action-btn:hover        { background:var(--bg4);color:var(--text1); }
+    .action-btn.danger:hover { background:rgba(248,113,113,.12);color:var(--red); }
+    .action-btn.amber:hover  { background:rgba(251,191,36,.1);color:var(--amber); }
+
+    /* Inputs */
+    .search-input, .filter-select {
+      background:var(--bg3);border:1px solid var(--border2);border-radius:9px;
+      color:var(--text1);font-size:13px;padding:8px 12px;
+      transition:border-color .15s;outline:none;font-family:inherit;
+    }
+    .search-input:focus, .filter-select:focus { border-color:var(--border); }
+    .filter-select option { background:var(--bg3);color:var(--text1); }
+
+    /* Avatar initials */
+    .avatar-initials {
+      width:30px;height:30px;border-radius:50%;display:flex;
+      align-items:center;justify-content:center;font-size:11px;
+      font-weight:700;color:#fff;flex-shrink:0;
+    }
+
+    /* Modal */
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal-box { background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:420px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.8); }
+    @keyframes modalIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+    .modal-box { animation:modalIn .18s ease; }
+
+    /* Toast */
+    #admin-toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text1);box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:200;transition:opacity .25s,transform .25s; }
+    #admin-toast.hidden { opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px); }
+
+    .skeleton { background:var(--bg3);border-radius:6px;animation:shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
+    .empty-state { padding:60px 20px;text-align:center; }
+  </style>
+</head>
+
+<body class="bg-bg text-text1 min-h-screen">
+
+<!-- TOPBAR -->
+<header th:replace="~{admin/fragments/topbar :: adminTopbar('jobs')}">Topbar</header>
+
+<!-- CONTEÚDO -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+
+  <!-- Título -->
+  <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <h1 class="font-display text-[26px] font-bold text-text1 leading-tight mb-1">Vagas</h1>
+      <p class="text-sm text-text3">Todas as vagas publicadas na plataforma</p>
+    </div>
+    <div class="flex items-center gap-[7px] text-[12px] text-text3 bg-bg2 border border-border2 rounded-[9px] px-3 py-2">
+      <i class="ti ti-briefcase text-[14px]"></i>
+      <span id="total-count">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="flex flex-wrap items-center gap-3 mb-5">
+    <div class="relative flex-1 min-w-[200px]">
+      <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-text3 text-[14px]"></i>
+      <input id="search-input" type="text"
+             placeholder="Buscar por título, empresa, localização ou recrutador..."
+             class="search-input w-full pl-9" oninput="applyFilters()"/>
+    </div>
+    <select id="filter-modality" class="filter-select" onchange="applyFilters()">
+      <option value="">Todas as modalidades</option>
+      <option value="Remoto">Remoto</option>
+      <option value="Híbrido">Híbrido</option>
+      <option value="Presencial">Presencial</option>
+    </select>
+    <select id="filter-level" class="filter-select" onchange="applyFilters()">
+      <option value="">Todos os níveis</option>
+      <option value="Estágio">Estágio</option>
+      <option value="Júnior">Júnior</option>
+      <option value="Pleno">Pleno</option>
+      <option value="Sênior">Sênior</option>
+    </select>
+    <select id="filter-status" class="filter-select" onchange="applyFilters()">
+      <option value="">Qualquer status</option>
+      <option value="ATIVA">Ativas</option>
+      <option value="ENCERRADA">Encerradas</option>
+    </select>
+  </div>
+
+  <!-- Tabela -->
+  <div class="panel overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th style="width:44px">#</th>
+            <th>Vaga</th>
+            <th>Recrutador</th>
+            <th>Modalidade</th>
+            <th>Nível</th>
+            <th>Salário</th>
+            <th>Status</th>
+            <th>Publicada em</th>
+            <th style="text-align:center;width:90px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="jobs-tbody">
+          <!-- Skeleton -->
+          <tr th:each="i : ${#numbers.sequence(1,5)}">
+            <td><div class="skeleton h-3 w-5 rounded"></div></td>
+            <td>
+              <div class="space-y-1">
+                <div class="skeleton h-3 w-36 rounded"></div>
+                <div class="skeleton h-2 w-24 rounded"></div>
+              </div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="skeleton w-7 h-7 rounded-full"></div>
+                <div class="skeleton h-3 w-24 rounded"></div>
+              </div>
+            </td>
+            <td><div class="skeleton h-4 w-16 rounded-full"></div></td>
+            <td><div class="skeleton h-4 w-14 rounded-full"></div></td>
+            <td><div class="skeleton h-3 w-20 rounded"></div></td>
+            <td><div class="skeleton h-4 w-16 rounded-full"></div></td>
+            <td><div class="skeleton h-3 w-20 rounded"></div></td>
+            <td>
+              <div class="flex gap-1 justify-center">
+                <div class="skeleton w-7 h-7 rounded-lg"></div>
+                <div class="skeleton w-7 h-7 rounded-lg"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="empty-state" class="empty-state hidden">
+        <i class="ti ti-briefcase-off text-[40px] text-text3 mb-3 block"></i>
+        <p class="text-text3 text-sm">Nenhuma vaga encontrada com os filtros aplicados.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL — Confirmar exclusão -->
+<div id="delete-modal" class="modal-overlay hidden" onclick="closeDeleteModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
+         style="background:rgba(248,113,113,.12)">
+      <i class="ti ti-alert-triangle text-[22px]" style="color:var(--red)"></i>
+    </div>
+    <h2 class="font-display text-[18px] font-bold text-text1 mb-2">Excluir vaga</h2>
+    <p class="text-[13px] text-text2 mb-1">
+      Tem certeza que deseja excluir a vaga <strong id="delete-job-title" class="text-text1"></strong>?
+    </p>
+    <p class="text-[12px] text-text3 mb-6">
+      Posts vinculados à vaga serão desvinculados. Esta ação não pode ser desfeita.
+    </p>
+    <input type="hidden" id="delete-job-id"/>
+    <div class="flex gap-3">
+      <button onclick="confirmDelete()"
+              class="flex-1 py-[10px] rounded-[9px] font-semibold text-[13px] text-white border-none cursor-pointer"
+              style="background:var(--red)">
+        <i class="ti ti-trash mr-1"></i>Sim, excluir
+      </button>
+      <button onclick="closeDeleteModal()"
+              class="px-5 py-[10px] rounded-[9px] font-semibold text-[13px] text-text2 border border-border2 bg-transparent cursor-pointer hover:bg-bg3 transition-colors">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-toast" class="hidden"></div>
+
+<script>
+let allJobs      = [];
+let filteredJobs = [];
+
+document.addEventListener('DOMContentLoaded', loadJobs);
+
+async function loadJobs() {
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch('/api/admin/jobs', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Erro ao carregar vagas');
+    allJobs = await res.json();
+    applyFilters();
+  } catch (err) {
+    showToast('Erro ao carregar vagas: ' + err.message, 'error');
+    document.getElementById('jobs-tbody').innerHTML =
+      `<tr><td colspan="9" class="text-center py-10 text-text3 text-sm">
+         <i class="ti ti-wifi-off block text-3xl mb-2"></i>Não foi possível carregar os dados.
+       </td></tr>`;
+  }
+}
+
+function applyFilters() {
+  const q        = document.getElementById('search-input').value.trim().toLowerCase();
+  const modality = document.getElementById('filter-modality').value;
+  const level    = document.getElementById('filter-level').value;
+  const status   = document.getElementById('filter-status').value;
+
+  filteredJobs = allJobs.filter(j => {
+    const matchQ = !q ||
+      j.titulo.toLowerCase().includes(q)           ||
+      j.empresa.toLowerCase().includes(q)          ||
+      j.recrutadorNome.toLowerCase().includes(q)   ||
+      j.recrutadorEmail.toLowerCase().includes(q)  ||
+      j.localizacao.toLowerCase().includes(q)      ||
+      (j.tags && j.tags.some(t => t.toLowerCase().includes(q)));
+    const matchMod    = !modality || j.modalidade === modality;
+    const matchLevel  = !level    || j.nivel === level;
+    const matchStatus = !status   || j.status === status;
+    return matchQ && matchMod && matchLevel && matchStatus;
+  });
+
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('jobs-tbody');
+  const empty = document.getElementById('empty-state');
+  const badge = document.getElementById('total-count');
+
+  const ativas = allJobs.filter(j => j.status === 'ATIVA').length;
+  badge.textContent = `${allJobs.length} vaga${allJobs.length !== 1 ? 's' : ''} · ${ativas} ativa${ativas !== 1 ? 's' : ''}`;
+
+  if (filteredJobs.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filteredJobs.map((j, i) => {
+    const initial      = j.recrutadorNome ? j.recrutadorNome[0].toUpperCase() : '?';
+    const modBadge     = modalidadeBadge(j.modalidade);
+    const nivBadge     = `<span class="badge badge-nivel">${escHtml(j.nivel)}</span>`;
+    const statusBadge  = j.status === 'ATIVA'
+      ? `<span class="badge badge-ativa"><i class="ti ti-point-filled text-[8px]"></i>Ativa</span>`
+      : `<span class="badge badge-enc"><i class="ti ti-point-filled text-[8px]"></i>Encerrada</span>`;
+    const toggleTitle  = j.status === 'ATIVA' ? 'Encerrar vaga' : 'Reativar vaga';
+    const toggleIcon   = j.status === 'ATIVA' ? 'ti-circle-off' : 'ti-circle-check';
+
+    return `
+    <tr data-id="${j.id}">
+      <td class="text-text3 font-mono text-[11px]">${i + 1}</td>
+      <td style="min-width:200px">
+        <div class="text-[13px] font-medium text-text1 leading-tight">${escHtml(j.titulo)}</div>
+        <div class="text-[11px] text-text3 flex items-center gap-1 mt-[2px]">
+          <i class="ti ti-building text-[10px]"></i>${escHtml(j.empresa)}
+          ${j.localizacao && j.localizacao !== '—' ? `<span class="text-border2">·</span><i class="ti ti-map-pin text-[10px]"></i>${escHtml(j.localizacao)}` : ''}
+        </div>
+      </td>
+      <td>
+        <div class="flex items-center gap-2">
+          <div class="avatar-initials" style="${avatarGradient(j.recrutadorNome)}">${initial}</div>
+          <div>
+            <div class="text-[13px] font-medium text-text1 leading-tight">${escHtml(j.recrutadorNome)}</div>
+            <div class="text-[11px] text-text3">${escHtml(j.recrutadorEmail)}</div>
+          </div>
+        </div>
+      </td>
+      <td>${modBadge}</td>
+      <td>${nivBadge}</td>
+      <td class="text-text2 text-[12px] whitespace-nowrap">${j.salario !== '—' ? escHtml(j.salario) : '<span class="text-text3">—</span>'}</td>
+      <td>${statusBadge}</td>
+      <td class="text-text3 text-[12px] whitespace-nowrap">${j.criadoEm || '—'}</td>
+      <td>
+        <div class="flex gap-1 justify-center">
+          <button class="action-btn amber" title="${toggleTitle}"
+                  onclick="toggleStatus(${j.id})">
+            <i class="ti ${toggleIcon} text-[14px]"></i>
+          </button>
+          <button class="action-btn danger" title="Excluir vaga"
+                  onclick="openDeleteModal(${j.id}, '${escJs(j.titulo)}')">
+            <i class="ti ti-trash text-[14px]"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Toggle status ────────────────────────────── */
+async function toggleStatus(id) {
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch(`/api/admin/jobs/${id}/toggle-status`, {
+      method:  'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Erro ao alterar status');
+    const updated = await res.json();
+    const idx = allJobs.findIndex(j => j.id === updated.id);
+    if (idx >= 0) allJobs[idx] = updated;
+    applyFilters();
+    const label = updated.status === 'ATIVA' ? 'reativada' : 'encerrada';
+    showToast(`Vaga ${label} com sucesso!`);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+/* ── Exclusão ─────────────────────────────────── */
+function openDeleteModal(id, titulo) {
+  document.getElementById('delete-job-id').value = id;
+  document.getElementById('delete-job-title').textContent = titulo;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+function closeDeleteModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+async function confirmDelete() {
+  const id = document.getElementById('delete-job-id').value;
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch(`/api/admin/jobs/${id}`, {
+      method:  'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Erro ao excluir');
+    allJobs = allJobs.filter(j => String(j.id) !== String(id));
+    applyFilters();
+    document.getElementById('delete-modal').classList.add('hidden');
+    showToast('Vaga excluída com sucesso.');
+  } catch (err) {
+    showToast(err.message, 'error');
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+}
+
+/* ── Helpers visuais ──────────────────────────── */
+function modalidadeBadge(m) {
+  if (m === 'Remoto')     return `<span class="badge badge-remoto"><i class="ti ti-home text-[9px]"></i>Remoto</span>`;
+  if (m === 'Híbrido')    return `<span class="badge badge-hibrido"><i class="ti ti-route text-[9px]"></i>Híbrido</span>`;
+  if (m === 'Presencial') return `<span class="badge badge-presencial"><i class="ti ti-building text-[9px]"></i>Presencial</span>`;
+  return `<span class="badge badge-nivel">${escHtml(m)}</span>`;
+}
+
+function avatarGradient(name) {
+  const gs = ['background:linear-gradient(135deg,#6d28d9,#8b5cf6)','background:linear-gradient(135deg,#0e7490,#06b6d4)','background:linear-gradient(135deg,#065f46,#10b981)','background:linear-gradient(135deg,#92400e,#f59e0b)','background:linear-gradient(135deg,#9d174d,#ec4899)','background:linear-gradient(135deg,#1e3a8a,#3b82f6)'];
+  const code = (name || '').split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  return gs[code % gs.length];
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escJs(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+let toastTimer = null;
+function showToast(msg, type='ok') {
+  const el = document.getElementById('admin-toast');
+  el.textContent = msg;
+  el.style.borderColor = type==='error' ? 'rgba(248,113,113,.4)' : 'var(--border2)';
+  el.style.color        = type==='error' ? 'var(--red)'           : 'var(--text1)';
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+
+/* ── Menu de usuário / Logout (topbar) ──────── */
+function toggleUserMenu(e) { e.stopPropagation(); document.getElementById('user-menu')?.classList.toggle('hidden'); }
+function closeUserMenu()   { document.getElementById('user-menu')?.classList.add('hidden'); }
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('user-menu');
+  const btn  = document.getElementById('user-avatar-btn');
+  if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && e.target !== btn)
+    menu.classList.add('hidden');
+});
+async function doLogout() {
+  try { await fetch('/api/auth/logout',{method:'POST',headers:{'Authorization':'Bearer '+(localStorage.getItem('firstech_access_token')||'')}});} catch {}
+  localStorage.removeItem('firstech_access_token');
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

@@ -1,8 +1,6 @@
 package com.firstech.service;
 
-import com.firstech.dto.AdminDashboardDTO;
-import com.firstech.dto.AdminUserDTO;
-import com.firstech.dto.AdminUserUpdateDTO;
+import com.firstech.dto.*;
 import com.firstech.model.*;
 import com.firstech.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,8 @@ public class AdminService {
     private final CertificationRepository   certificationRepository;
     private final ProjectRepository         projectRepository;
 
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATE_FMT     = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     // ── Dashboard ─────────────────────────────────────────────────────────────
 
@@ -47,17 +46,14 @@ public class AdminService {
         long vagasAtivas       = jobs.stream()
                 .filter(j -> j.getStatus() == JobStatus.ATIVA).count();
 
-        // ── Vagas por modalidade (ordem decrescente) ──────────────────────────
         Map<String, Long> vagasPorModalidade = jobs.stream()
                 .filter(j -> j.getModality() != null && !j.getModality().isBlank())
                 .collect(Collectors.groupingBy(Job::getModality, Collectors.counting()))
                 .entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey, Map.Entry::getValue,
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (a, b) -> a, LinkedHashMap::new));
 
-        // ── Vagas por nível (ordem lógica de carreira) ────────────────────────
         List<String> nivelOrder = List.of("Estágio", "Júnior", "Pleno", "Sênior");
         Map<String, Long> rawNivel = jobs.stream()
                 .filter(j -> j.getLevel() != null && !j.getLevel().isBlank())
@@ -66,7 +62,6 @@ public class AdminService {
         nivelOrder.forEach(n -> { if (rawNivel.containsKey(n)) vagasPorNivel.put(n, rawNivel.get(n)); });
         rawNivel.forEach((k, v) -> vagasPorNivel.putIfAbsent(k, v));
 
-        // ── Top 5 postadores ──────────────────────────────────────────────────
         Map<Long, User> userById    = users.stream().collect(Collectors.toMap(User::getId, u -> u));
         Map<Long, Long> postsByUser = posts.stream()
                 .collect(Collectors.groupingBy(p -> p.getAuthor().getId(), Collectors.counting()));
@@ -84,9 +79,7 @@ public class AdminService {
         return new AdminDashboardDTO(
                 users.size(), totalCandidatos, totalRecrutadores,
                 jobs.size(), vagasAtivas, jobs.size() - vagasAtivas,
-                posts.size(),
-                vagasPorModalidade, vagasPorNivel,
-                topPosters
+                posts.size(), vagasPorModalidade, vagasPorNivel, topPosters
         );
     }
 
@@ -95,12 +88,10 @@ public class AdminService {
     public List<AdminUserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         List<Post> posts = postRepository.findAll();
-
         Map<Long, Long> postCountByUser = posts.stream()
                 .collect(Collectors.groupingBy(p -> p.getAuthor().getId(), Collectors.counting()));
-
         return users.stream()
-                .map(u -> toDTO(u, postCountByUser.getOrDefault(u.getId(), 0L)))
+                .map(u -> toUserDTO(u, postCountByUser.getOrDefault(u.getId(), 0L)))
                 .sorted(Comparator.comparing(AdminUserDTO::criadoEm).reversed())
                 .toList();
     }
@@ -109,18 +100,14 @@ public class AdminService {
     public AdminUserDTO updateUser(Long id, AdminUserUpdateDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado: " + id));
-
         if (dto.nome()  != null && !dto.nome().isBlank())  user.setName(dto.nome().trim());
         if (dto.email() != null && !dto.email().isBlank()) user.setEmail(dto.email().trim().toLowerCase());
-
-        if (dto.role() != null && !dto.role().isBlank()) {
-            Role novaRole = Role.valueOf(dto.role().toUpperCase());
-            user.setRoles(new HashSet<>(Set.of(novaRole)));
+        if (dto.role()  != null && !dto.role().isBlank()) {
+            user.setRoles(new HashSet<>(Set.of(Role.valueOf(dto.role().toUpperCase()))));
         }
-
         userRepository.save(user);
         long postCount = postRepository.findByAuthorOrderByCreatedAtDesc(user).size();
-        return toDTO(user, (long) postCount);
+        return toUserDTO(user, (long) postCount);
     }
 
     @Transactional
@@ -135,72 +122,117 @@ public class AdminService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado: " + id));
-
-        // 1. Comentários feitos pelo usuário em posts de outros
         postCommentRepository.deleteByAuthor(user);
-
-        // 2. Comentários de outros nos posts do usuário
         postCommentRepository.deleteByPostAuthor(user);
-
-        // 3. Para recrutadores: nulificar linkedJob nos posts e deletar vagas
         if (user.getRoles().contains(Role.RECRUTADOR)) {
             postRepository.nullifyLinkedJobsByRecruiter(user);
-            List<Job> recruiterJobs = jobRepository.findByRecruiterOrderByIdDesc(user);
-            jobRepository.deleteAll(recruiterJobs); // JPA cascades job_tags
+            jobRepository.deleteAll(jobRepository.findByRecruiterOrderByIdDesc(user));
         }
-
-        // 4. Posts do usuário (JPA cascades post_tags e post_likes)
-        List<Post> userPosts = postRepository.findByAuthorOrderByCreatedAtDesc(user);
-        postRepository.deleteAll(userPosts);
-
-        // 5. Conexões
+        postRepository.deleteAll(postRepository.findByAuthorOrderByCreatedAtDesc(user));
         connectionRepository.deleteByUser(user);
-
-        // 6. Mensagens
         messageRepository.deleteByUser(user);
-
-        // 7. Itens de portfólio
         experienceRepository.deleteByUser(user);
         skillRepository.deleteAllByUser(user);
         certificationRepository.deleteByUser(user);
         projectRepository.deleteByUser(user);
-
-        // 8. Usuário (cascades RefreshToken e PasswordResetToken)
         userRepository.delete(user);
+    }
+
+    // ── Gestão de posts ───────────────────────────────────────────────────────
+
+    public List<AdminPostDTO> getAllPosts() {
+        return postRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toPostDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void deletePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Post não encontrado: " + id));
+        postCommentRepository.deleteByPostId(id);
+        postRepository.delete(post); // JPA cascades post_tags e post_likes
+    }
+
+    // ── Gestão de vagas ───────────────────────────────────────────────────────
+
+    public List<AdminJobDTO> getAllJobs() {
+        return jobRepository.findAll().stream()
+                .sorted(Comparator.comparing(Job::getCreatedAt).reversed())
+                .map(this::toJobDTO)
+                .toList();
+    }
+
+    @Transactional
+    public AdminJobDTO toggleJobStatus(Long id) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Vaga não encontrada: " + id));
+        job.setStatus(job.getStatus() == JobStatus.ATIVA ? JobStatus.ENCERRADA : JobStatus.ATIVA);
+        jobRepository.save(job);
+        return toJobDTO(job);
+    }
+
+    @Transactional
+    public void deleteJob(Long id) {
+        jobRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Vaga não encontrada: " + id));
+        postRepository.nullifyLinkedJobById(id); // desvincula posts antes de deletar
+        jobRepository.deleteById(id);            // JPA cascades job_tags
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private AdminUserDTO toDTO(User u, long totalPosts) {
-        String role = u.getRoles().isEmpty()
-                ? "CANDIDATO"
-                : u.getRoles().iterator().next().name();
-
+    private AdminUserDTO toUserDTO(User u, long totalPosts) {
+        String role = u.getRoles().isEmpty() ? "CANDIDATO" : u.getRoles().iterator().next().name();
         boolean isRec   = u.getRoles().contains(Role.RECRUTADOR);
         boolean isAdmin = u.getRoles().contains(Role.ADMINISTRADOR);
-
-        String cargo;
-        if (isAdmin)    cargo = "Administrador";
-        else if (isRec) cargo = "Recrutador";
-        else            cargo = labelCareerMoment(u.getCareerMoment());
-
-        String empresa = isRec ? (u.getCompany() != null ? u.getCompany() : "") : "";
+        String cargo = isAdmin ? "Administrador" : isRec ? "Recrutador" : labelCareerMoment(u.getCareerMoment());
+        String empresa  = isRec ? (u.getCompany() != null ? u.getCompany() : "") : "";
         String criadoEm = u.getCreatedAt() != null ? u.getCreatedAt().format(DATE_FMT) : "—";
+        int conexoes    = connectionRepository.countAcceptedConnections(u);
+        return new AdminUserDTO(u.getId(), u.getName(), u.getEmail(), role, cargo, empresa,
+                u.getCity() != null ? u.getCity() : "", u.isEnabled(), criadoEm, totalPosts, conexoes);
+    }
 
-        int conexoes = connectionRepository.countAcceptedConnections(u);
+    private AdminPostDTO toPostDTO(Post p) {
+        User author    = p.getAuthor();
+        String role    = author.getRoles().isEmpty() ? "CANDIDATO" : author.getRoles().iterator().next().name();
+        String content = p.getContent();
+        String snippet = content != null && content.length() > 140
+                ? content.substring(0, 140) + "…" : content;
+        String criadoEm = p.getCreatedAt() != null ? p.getCreatedAt().format(DATETIME_FMT) : "—";
+        return new AdminPostDTO(
+                p.getId(),
+                author.getId(), author.getName(), author.getEmail(), role,
+                p.getTitle(),
+                snippet,
+                p.getTags() != null ? p.getTags() : List.of(),
+                p.getLikedByUserIds() != null ? p.getLikedByUserIds().size() : 0,
+                p.getCommentCount(),
+                criadoEm
+        );
+    }
 
-        return new AdminUserDTO(
-                u.getId(),
-                u.getName(),
-                u.getEmail(),
-                role,
-                cargo,
+    private AdminJobDTO toJobDTO(Job j) {
+        User rec      = j.getRecruiter();
+        String empresa = j.getJobCompany() != null && !j.getJobCompany().isBlank()
+                ? j.getJobCompany()
+                : (rec != null && rec.getCompany() != null ? rec.getCompany() : "—");
+        String criadoEm = j.getCreatedAt() != null ? j.getCreatedAt().format(DATE_FMT) : "—";
+        return new AdminJobDTO(
+                j.getId(),
+                j.getTitle(),
                 empresa,
-                u.getCity() != null ? u.getCity() : "",
-                u.isEnabled(),
-                criadoEm,
-                totalPosts,
-                conexoes
+                rec != null ? rec.getId()    : null,
+                rec != null ? rec.getName()  : "—",
+                rec != null ? rec.getEmail() : "—",
+                j.getModality()  != null ? j.getModality()  : "—",
+                j.getLevel()     != null ? j.getLevel()     : "—",
+                j.getSalary()    != null ? j.getSalary()    : "—",
+                j.getLocation()  != null ? j.getLocation()  : "—",
+                j.getStatus()    != null ? j.getStatus().name() : "ATIVA",
+                j.getTags()      != null ? j.getTags()      : List.of(),
+                criadoEm
         );
     }
 

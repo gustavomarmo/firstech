@@ -25,4 +25,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.linkedJob = null WHERE p.linkedJob IN (SELECT j FROM Job j WHERE j.recruiter = :user)")
     void nullifyLinkedJobsByRecruiter(@Param("user") User user);
+
+    /** Nulifica o linkedJob em posts que referenciam uma vaga específica (antes de excluí-la). */
+    @Modifying
+    @Query("UPDATE Post p SET p.linkedJob = null WHERE p.linkedJob.id = :jobId")
+    void nullifyLinkedJobById(@Param("jobId") Long jobId);
 }

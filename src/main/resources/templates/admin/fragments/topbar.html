@@ -6,6 +6,8 @@
   Topbar compartilhada do painel admin.
   Uso: <header th:replace="~{admin/fragments/topbar :: adminTopbar('dashboard')}"></header>
        <header th:replace="~{admin/fragments/topbar :: adminTopbar('users')}"></header>
+       <header th:replace="~{admin/fragments/topbar :: adminTopbar('posts')}"></header>
+       <header th:replace="~{admin/fragments/topbar :: adminTopbar('jobs')}"></header>
 -->
 <header th:fragment="adminTopbar(activeNav)"
         class="sticky top-0 z-30 flex items-center justify-between px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0">
@@ -22,13 +24,23 @@
   <nav class="flex gap-1">
     <a href="/admin/dashboard"
        th:classappend="${activeNav == 'dashboard'} ? ' active' : ''"
-       class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
-      <i class="ti ti-chart-bar text-[17px]"></i>Dashboard
+       class="nav-btn flex items-center gap-[7px] px-[14px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-chart-bar text-[16px]"></i>Dashboard
     </a>
     <a href="/admin/users"
        th:classappend="${activeNav == 'users'} ? ' active' : ''"
-       class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
-      <i class="ti ti-users text-[17px]"></i>Usuários
+       class="nav-btn flex items-center gap-[7px] px-[14px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-users text-[16px]"></i>Usuários
+    </a>
+    <a href="/admin/posts"
+       th:classappend="${activeNav == 'posts'} ? ' active' : ''"
+       class="nav-btn flex items-center gap-[7px] px-[14px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-file-text text-[16px]"></i>Posts
+    </a>
+    <a href="/admin/jobs"
+       th:classappend="${activeNav == 'jobs'} ? ' active' : ''"
+       class="nav-btn flex items-center gap-[7px] px-[14px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-briefcase text-[16px]"></i>Vagas
     </a>
   </nav>
 
