@@ -45,6 +45,7 @@ public class SecurityConfig {
             "/api/users/*/profile",
             // Páginas Thymeleaf públicas
             "/", "/login", "/register", "/forgot-password", "/reset-password", "/dashboard",
+            "/profile/**",
             // Assets estáticos
             "/css/**", "/js/**", "/img/**", "/favicon.ico",
             // Ferramentas de dev

@@ -1,26 +1,25 @@
 tailwind.config = {
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // ── Main app (firstech) ──────────────────────────
-        bg:       '#0d1117',
-        bg2:      '#151b24',
-        bg3:      '#1c2535',
-        bg4:      '#222d3f',
-        purple:   '#8b5cf6',
-        purple2:  '#a78bfa',
-        purple3:  '#6d28d9',
-        purplebg: 'rgba(139,92,246,0.12)',
-        border:   'rgba(139,92,246,0.22)',
-        border2:  'rgba(255,255,255,0.07)',
-        text1:    '#f0f4ff',
-        text2:    '#94a3b8',
-        text3:    '#64748b',
-        green:    '#34d399',
-        red:      '#f87171',
-        amber:    '#fbbf24',
-        // ── Auth ────────────────────────────────────────
+        /* ── App principal (firstech) — via CSS custom properties ── */
+        bg:       'var(--bg)',
+        bg2:      'var(--bg2)',
+        bg3:      'var(--bg3)',
+        bg4:      'var(--bg4)',
+        purple:   'var(--purple)',
+        purple2:  'var(--purple2)',
+        purple3:  'var(--purple3)',
+        purplebg: 'var(--purplebg)',
+        border:   'var(--border)',
+        border2:  'var(--border2)',
+        text1:    'var(--text1)',
+        text2:    'var(--text2)',
+        text3:    'var(--text3)',
+        green:    'var(--green)',
+        red:      'var(--red)',
+        amber:    'var(--amber)',
+        /* ── Auth (hardcoded — não mudam com o tema) ── */
         'surface-dim':    '#081425',
         'surface-low':    '#040e1f',
         'outline-var':    '#464554',

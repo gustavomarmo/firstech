@@ -77,9 +77,11 @@
                   onclick="go('portfolio'); closeUserMenu()">
             <i class="ti ti-user-circle text-[16px] text-text3"></i>Meu Perfil
           </button>
+          <!-- Alternar tema -->
           <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors duration-150 font-[inherit]"
-                  onclick="go('portfolio'); closeUserMenu()">
-            <i class="ti ti-settings text-[16px] text-text3"></i>Configurações
+                  onclick="toggleTheme(); closeUserMenu()">
+            <i id="theme-icon" class="ti ti-sun text-[16px] text-text3"></i>
+            <span id="theme-label">Tema claro</span>
           </button>
         </div>
         <div class="h-px bg-border2"></div>

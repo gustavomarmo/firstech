@@ -1739,31 +1739,9 @@ document.addEventListener('click', e => {
 
 let _activeProfileUserId = null;
 
-async function openUserProfile(userId) {
-  _activeProfileUserId = userId;
-  const overlay = document.getElementById('user-profile-overlay');
-  const loading = document.getElementById('upm-loading');
-  const content = document.getElementById('upm-content');
-
-  // Reset para loading
-  loading.classList.remove('hidden');
-  content.classList.add('hidden');
-  content.style.display = '';
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  try {
-    const token = localStorage.getItem('firstech_access_token');
-    const res = await fetch(`/api/users/${userId}/profile`, {
-      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-    });
-    if (!res.ok) throw new Error();
-    const p = await res.json();
-    _renderUserProfile(p);
-  } catch {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+/** Navega para a página pública de perfil do usuário. */
+function openUserProfile(userId) {
+  window.location.href = '/profile/' + userId;
 }
 
 function _renderUserProfile(p) {
@@ -2588,3 +2566,31 @@ async function _pollUnreadCount() {
 
 setInterval(_pollUnreadCount, 15000);
 _pollUnreadCount();
+
+/* ── URL params: ?tab=xxx  |  ?openChat=id&chatName=nome ── */
+(function () {
+  const p = new URLSearchParams(window.location.search);
+  const tab        = p.get('tab');
+  const openChatId = p.get('openChat');
+  const chatName   = p.get('chatName') || '';
+
+  if (tab) {
+    go(tab);
+    if (tab === 'messages') loadConversations();
+  }
+
+  if (openChatId) {
+    go('messages');
+    loadConversations();
+    // Aguarda o painel carregar antes de abrir a conversa
+    setTimeout(() => {
+      switchMsgTab('convs');
+      openConversation(parseInt(openChatId, 10), decodeURIComponent(chatName));
+    }, 600);
+  }
+
+  // Limpa os params da URL sem recarregar (deixa a URL limpa)
+  if (tab || openChatId) {
+    history.replaceState({}, '', window.location.pathname);
+  }
+})();
