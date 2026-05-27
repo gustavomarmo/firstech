@@ -3,6 +3,7 @@ import com.firstech.model.Connection;
 import com.firstech.model.ConnectionStatus;
 import com.firstech.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -26,4 +27,8 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
     /** Total de conexões aceitas em toda a plataforma. */
     @Query("SELECT COUNT(c) FROM Connection c WHERE c.status = 'ACCEPTED'")
     long countAllAccepted();
+
+    @Modifying
+    @Query("DELETE FROM Connection c WHERE c.fromUser = :user OR c.toUser = :user")
+    void deleteByUser(@Param("user") User user);
 }

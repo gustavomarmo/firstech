@@ -40,7 +40,19 @@ public class AdminController {
         model.addAttribute("topPosterNames",  topPosterNames);
         model.addAttribute("topPosterValues", topPosterValues);
 
-        // Dados do admin logado para a topbar
+        addAdminInfo(userDetails, model);
+        return "admin/dashboard";
+    }
+
+    @GetMapping("/users")
+    public String users(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        addAdminInfo(userDetails, model);
+        return "admin/users";
+    }
+
+    // ── Helper compartilhado ──────────────────────────────────────────────────
+
+    private void addAdminInfo(UserDetails userDetails, Model model) {
         if (userDetails instanceof User u) {
             model.addAttribute("adminNome",   u.getName());
             model.addAttribute("adminEmail",  u.getEmail());
@@ -50,7 +62,5 @@ public class AdminController {
             model.addAttribute("adminEmail",  "");
             model.addAttribute("adminAvatar", null);
         }
-
-        return "admin/dashboard";
     }
 }

@@ -36,4 +36,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         ORDER BY m.id DESC
         """)
     List<Message> findAllByUser(@Param("user") User user);
+
+    @Modifying
+    @Query("DELETE FROM Message m WHERE m.sender = :user OR m.recipient = :user")
+    void deleteByUser(@Param("user") User user);
 }

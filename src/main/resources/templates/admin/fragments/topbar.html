@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Topbar compartilhada do painel admin.
+  Uso: <header th:replace="~{admin/fragments/topbar :: adminTopbar('dashboard')}"></header>
+       <header th:replace="~{admin/fragments/topbar :: adminTopbar('users')}"></header>
+-->
+<header th:fragment="adminTopbar(activeNav)"
+        class="sticky top-0 z-30 flex items-center justify-between px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0">
+
+  <!-- Logo -->
+  <div class="font-display text-[19px] font-bold flex items-center gap-px select-none">
+    <span class="text-text3 font-light">&lt;</span>
+    <span class="text-purple2">first</span>
+    <span class="text-text3 font-light">&gt;</span>
+    <span class="text-text1">tech</span>
+  </div>
+
+  <!-- Navegação central -->
+  <nav class="flex gap-1">
+    <a href="/admin/dashboard"
+       th:classappend="${activeNav == 'dashboard'} ? ' active' : ''"
+       class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-chart-bar text-[17px]"></i>Dashboard
+    </a>
+    <a href="/admin/users"
+       th:classappend="${activeNav == 'users'} ? ' active' : ''"
+       class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent text-sm font-medium no-underline text-text2 hover:text-text1 hover:bg-bg3">
+      <i class="ti ti-users text-[17px]"></i>Usuários
+    </a>
+  </nav>
+
+  <!-- Ações à direita: avatar + dropdown -->
+  <div class="flex items-center gap-[10px]">
+    <div class="relative" id="user-avatar-container">
+      <button id="user-avatar-btn"
+              onclick="toggleUserMenu(event)"
+              class="w-9 h-9 rounded-full cursor-pointer border-2 border-border overflow-hidden flex items-center justify-center p-0 focus:outline-none"
+              style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
+              title="Menu do usuário">
+        <img th:if="${adminAvatar != null}" th:src="${adminAvatar}" alt="Avatar"
+             class="w-full h-full object-cover"/>
+        <span th:if="${adminAvatar == null}"
+              class="text-[13px] font-bold text-white leading-none"
+              th:text="${adminNome != null ? #strings.substring(adminNome,0,1).toUpperCase() : 'A'}">A</span>
+      </button>
+
+      <!-- Dropdown -->
+      <div id="user-menu"
+           class="hidden absolute right-0 top-full mt-2 w-[200px] bg-bg2 border border-border rounded-[13px] shadow-[0_12px_40px_rgba(0,0,0,.65)] overflow-hidden z-50">
+        <div class="px-4 py-3 border-b border-border2">
+          <div class="text-[13px] font-semibold text-text1 truncate" th:text="${adminNome}">Administrador</div>
+          <div class="flex items-center gap-[5px] mt-[2px]">
+            <span class="text-[10px] font-bold px-[6px] py-[1px] rounded-full"
+                  style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)">ADMIN</span>
+          </div>
+        </div>
+        <div class="py-1">
+          <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors font-[inherit] border-none bg-transparent cursor-pointer"
+                  onclick="toggleTheme(); closeUserMenu()">
+            <i id="theme-icon" class="ti ti-sun text-[16px] text-text3"></i>
+            <span id="theme-label">Tema claro</span>
+          </button>
+        </div>
+        <div class="h-px bg-border2"></div>
+        <div class="py-1">
+          <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-red hover:bg-bg3 transition-colors font-[inherit] border-none bg-transparent cursor-pointer"
+                  onclick="doLogout()">
+            <i class="ti ti-logout text-[16px]"></i>Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Usuários — Admin Firstech</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script th:src="@{/js/theme.js}"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script th:src="@{/js/tailwindConfig.js}"></script>
+
+  <style>
+    :root, [data-theme="dark"] {
+      --bg:#0d1117;--bg2:#151b24;--bg3:#1c2535;--bg4:#222d3f;
+      --purple:#8b5cf6;--purple2:#a78bfa;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.12);--border:rgba(139,92,246,0.22);
+      --border2:rgba(255,255,255,0.07);
+      --text1:#f0f4ff;--text2:#94a3b8;--text3:#64748b;
+      --green:#34d399;--red:#f87171;--amber:#fbbf24;
+    }
+    [data-theme="light"] {
+      --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--bg4:#eef2f7;
+      --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.09);--border:rgba(109,40,217,0.28);
+      --border2:rgba(15,23,42,0.09);
+      --text1:#0f172a;--text2:#334155;--text3:#64748b;
+      --green:#059669;--red:#dc2626;--amber:#d97706;
+    }
+
+    body { font-family:'DM Sans',sans-serif; }
+    .font-display { font-family:'Space Grotesk',sans-serif; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--bg4);border-radius:4px; }
+
+    .nav-btn { transition:background .15s,color .15s; }
+    .nav-btn.active { background:var(--purplebg); color:var(--purple2); }
+
+    @keyframes menuIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+    #user-menu:not(.hidden) { animation:menuIn .18s ease; }
+
+    .panel { background:var(--bg2);border:1px solid var(--border2);border-radius:14px; }
+    .panel-header { padding:16px 20px;border-bottom:1px solid var(--border2); }
+    .panel-body { padding:0; }
+
+    /* Table */
+    .users-table { width:100%;border-collapse:collapse; }
+    .users-table th {
+      padding:10px 16px;text-align:left;font-size:11px;font-weight:600;
+      color:var(--text3);text-transform:uppercase;letter-spacing:.06em;
+      border-bottom:1px solid var(--border2);background:var(--bg3);
+    }
+    .users-table td {
+      padding:12px 16px;font-size:13px;color:var(--text2);
+      border-bottom:1px solid var(--border2);vertical-align:middle;
+    }
+    .users-table tr:last-child td { border-bottom:none; }
+    .users-table tbody tr { transition:background .12s; }
+    .users-table tbody tr:hover { background:var(--bg3); }
+
+    /* Badges */
+    .badge {
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.05em;
+    }
+    .badge-candidato  { background:rgba(52,211,153,.12); color:var(--green); border:1px solid rgba(52,211,153,.3); }
+    .badge-recrutador { background:rgba(251,191,36,.12);  color:var(--amber); border:1px solid rgba(251,191,36,.3); }
+    .badge-admin      { background:var(--purplebg);       color:var(--purple2);border:1px solid var(--border); }
+    .badge-ativo      { background:rgba(52,211,153,.1);   color:var(--green); border:1px solid rgba(52,211,153,.25); }
+    .badge-inativo    { background:rgba(248,113,113,.1);  color:var(--red);   border:1px solid rgba(248,113,113,.25); }
+
+    /* Action buttons */
+    .action-btn {
+      display:inline-flex;align-items:center;justify-content:center;
+      width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;
+      transition:background .12s,color .12s;background:transparent;color:var(--text3);
+    }
+    .action-btn:hover { background:var(--bg4); color:var(--text1); }
+    .action-btn.danger:hover { background:rgba(248,113,113,.12); color:var(--red); }
+    .action-btn.success:hover { background:rgba(52,211,153,.12); color:var(--green); }
+
+    /* Search & filter inputs */
+    .search-input, .filter-select {
+      background:var(--bg3);border:1px solid var(--border2);border-radius:9px;
+      color:var(--text1);font-size:13px;padding:8px 12px;
+      transition:border-color .15s;outline:none;font-family:inherit;
+    }
+    .search-input:focus, .filter-select:focus { border-color:var(--border); }
+    .filter-select option { background:var(--bg3);color:var(--text1); }
+
+    /* Avatar iniciais */
+    .avatar-initials {
+      width:32px;height:32px;border-radius:50%;display:flex;
+      align-items:center;justify-content:center;font-size:12px;
+      font-weight:700;color:#fff;flex-shrink:0;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position:fixed;inset:0;background:rgba(0,0,0,.65);
+      display:flex;align-items:center;justify-content:center;z-index:100;
+      backdrop-filter:blur(4px);
+    }
+    .modal-overlay.hidden { display:none; }
+    .modal-box {
+      background:var(--bg2);border:1px solid var(--border2);border-radius:16px;
+      padding:28px;width:100%;max-width:440px;position:relative;
+      box-shadow:0 24px 60px rgba(0,0,0,.8);
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+    .modal-box { animation:modalIn .18s ease; }
+
+    .form-label { font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block; }
+    .form-input, .form-select {
+      width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;
+      color:var(--text1);font-size:13px;padding:9px 12px;outline:none;
+      transition:border-color .15s;font-family:inherit;box-sizing:border-box;
+    }
+    .form-input:focus, .form-select:focus { border-color:var(--border); }
+    .form-select option { background:var(--bg3);color:var(--text1); }
+
+    /* Toast */
+    #admin-toast {
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:var(--bg3);border:1px solid var(--border2);border-radius:10px;
+      padding:10px 20px;font-size:13px;color:var(--text1);
+      box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:200;
+      transition:opacity .25s,transform .25s;
+    }
+    #admin-toast.hidden { opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px); }
+
+    /* Skeleton rows */
+    .skeleton { background:var(--bg3);border-radius:6px;animation:shimmer 1.4s infinite; }
+    @keyframes shimmer {
+      0%,100%{opacity:.6} 50%{opacity:1}
+    }
+
+    /* Empty state */
+    .empty-state { padding:60px 20px;text-align:center; }
+  </style>
+</head>
+
+<body class="bg-bg text-text1 min-h-screen">
+
+<!-- TOPBAR -->
+<header th:replace="~{admin/fragments/topbar :: adminTopbar('users')}">Topbar</header>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+
+  <!-- Título -->
+  <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <h1 class="font-display text-[26px] font-bold text-text1 leading-tight mb-1">Usuários</h1>
+      <p class="text-sm text-text3">Gerenciamento de todos os usuários da plataforma</p>
+    </div>
+    <div id="total-badge"
+         class="flex items-center gap-[7px] text-[12px] text-text3 bg-bg2 border border-border2 rounded-[9px] px-3 py-2">
+      <i class="ti ti-users text-[14px]"></i>
+      <span id="total-count">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Filtros e busca -->
+  <div class="flex flex-wrap items-center gap-3 mb-5">
+    <div class="relative flex-1 min-w-[220px]">
+      <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-text3 text-[14px]"></i>
+      <input id="search-input" type="text" placeholder="Buscar por nome ou e-mail..."
+             class="search-input w-full pl-9" oninput="applyFilters()"/>
+    </div>
+    <select id="filter-role" class="filter-select" onchange="applyFilters()">
+      <option value="">Todos os perfis</option>
+      <option value="CANDIDATO">Candidatos</option>
+      <option value="RECRUTADOR">Recrutadores</option>
+      <option value="ADMINISTRADOR">Administradores</option>
+    </select>
+    <select id="filter-status" class="filter-select" onchange="applyFilters()">
+      <option value="">Qualquer status</option>
+      <option value="true">Ativos</option>
+      <option value="false">Inativos</option>
+    </select>
+  </div>
+
+  <!-- Tabela -->
+  <div class="panel overflow-hidden">
+    <div class="panel-body overflow-x-auto">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th style="width:44px">#</th>
+            <th>Usuário</th>
+            <th>Perfil</th>
+            <th>Status</th>
+            <th>Cidade</th>
+            <th style="text-align:center">Posts</th>
+            <th style="text-align:center">Conexões</th>
+            <th>Criado em</th>
+            <th style="text-align:center;width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <!-- Skeleton de carregamento -->
+          <tr th:each="i : ${#numbers.sequence(1,6)}">
+            <td><div class="skeleton h-3 w-5 rounded"></div></td>
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="skeleton w-8 h-8 rounded-full"></div>
+                <div class="space-y-1">
+                  <div class="skeleton h-3 w-28 rounded"></div>
+                  <div class="skeleton h-2 w-36 rounded"></div>
+                </div>
+              </div>
+            </td>
+            <td><div class="skeleton h-4 w-20 rounded-full"></div></td>
+            <td><div class="skeleton h-4 w-14 rounded-full"></div></td>
+            <td><div class="skeleton h-3 w-20 rounded"></div></td>
+            <td><div class="skeleton h-3 w-6 rounded mx-auto"></div></td>
+            <td><div class="skeleton h-3 w-6 rounded mx-auto"></div></td>
+            <td><div class="skeleton h-3 w-20 rounded"></div></td>
+            <td>
+              <div class="flex gap-1 justify-center">
+                <div class="skeleton w-7 h-7 rounded-lg"></div>
+                <div class="skeleton w-7 h-7 rounded-lg"></div>
+                <div class="skeleton w-7 h-7 rounded-lg"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty state (hidden initially) -->
+      <div id="empty-state" class="empty-state hidden">
+        <i class="ti ti-users-off text-[40px] text-text3 mb-3 block"></i>
+        <p class="text-text3 text-sm">Nenhum usuário encontrado com os filtros aplicados.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL — EDITAR USUÁRIO
+══════════════════════════════════════════════════ -->
+<div id="edit-modal" class="modal-overlay hidden" onclick="closeEditModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button onclick="closeEditModal()" class="absolute top-4 right-4 text-text3 hover:text-text1 transition-colors bg-transparent border-none cursor-pointer text-[18px]">
+      <i class="ti ti-x"></i>
+    </button>
+    <h2 class="font-display text-[18px] font-bold text-text1 mb-[2px]">Editar usuário</h2>
+    <p class="text-[13px] text-text3 mb-6">Altere as informações do usuário</p>
+
+    <form id="edit-form" onsubmit="submitEdit(event)">
+      <input type="hidden" id="edit-user-id"/>
+
+      <div class="mb-4">
+        <label class="form-label" for="edit-nome">Nome</label>
+        <input id="edit-nome" type="text" class="form-input" placeholder="Nome completo" required/>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="edit-email">E-mail</label>
+        <input id="edit-email" type="email" class="form-input" placeholder="email@exemplo.com" required/>
+      </div>
+
+      <div class="mb-6">
+        <label class="form-label" for="edit-role">Perfil</label>
+        <select id="edit-role" class="form-select">
+          <option value="CANDIDATO">Candidato</option>
+          <option value="RECRUTADOR">Recrutador</option>
+          <option value="ADMINISTRADOR">Administrador</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit"
+                class="flex-1 py-[10px] rounded-[9px] font-semibold text-[13px] text-white border-none cursor-pointer transition-opacity"
+                style="background:linear-gradient(135deg,var(--purple3),var(--purple))">
+          <i class="ti ti-check mr-1"></i>Salvar alterações
+        </button>
+        <button type="button" onclick="closeEditModal()"
+                class="px-5 py-[10px] rounded-[9px] font-semibold text-[13px] text-text2 border border-border2 bg-transparent cursor-pointer hover:bg-bg3 transition-colors">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL — CONFIRMAR EXCLUSÃO
+══════════════════════════════════════════════════ -->
+<div id="delete-modal" class="modal-overlay hidden" onclick="closeDeleteModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
+         style="background:rgba(248,113,113,.12)">
+      <i class="ti ti-alert-triangle text-[22px]" style="color:var(--red)"></i>
+    </div>
+    <h2 class="font-display text-[18px] font-bold text-text1 mb-2">Excluir usuário</h2>
+    <p class="text-[13px] text-text2 mb-1">
+      Tem certeza que deseja excluir <strong id="delete-user-name" class="text-text1"></strong>?
+    </p>
+    <p class="text-[12px] text-text3 mb-6">
+      Todos os dados serão removidos permanentemente: posts, comentários, conexões, mensagens e portfólio.
+      Esta ação não pode ser desfeita.
+    </p>
+    <input type="hidden" id="delete-user-id"/>
+    <div class="flex gap-3">
+      <button onclick="confirmDelete()"
+              class="flex-1 py-[10px] rounded-[9px] font-semibold text-[13px] text-white border-none cursor-pointer"
+              style="background:var(--red)">
+        <i class="ti ti-trash mr-1"></i>Sim, excluir
+      </button>
+      <button onclick="closeDeleteModal()"
+              class="px-5 py-[10px] rounded-[9px] font-semibold text-[13px] text-text2 border border-border2 bg-transparent cursor-pointer hover:bg-bg3 transition-colors">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="admin-toast" class="hidden"></div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+
+/* ──────────────────────────────────────────────────
+   Estado global
+────────────────────────────────────────────────── */
+let allUsers     = [];   // cache da lista completa
+let filteredUsers = [];  // após aplicar filtros
+
+/* ──────────────────────────────────────────────────
+   Inicialização
+────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', loadUsers);
+
+async function loadUsers() {
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch('/api/admin/users', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Erro ao carregar usuários');
+    allUsers = await res.json();
+    applyFilters();
+  } catch (err) {
+    showToast('Erro ao carregar usuários: ' + err.message, 'error');
+    document.getElementById('users-tbody').innerHTML =
+      `<tr><td colspan="9" class="text-center py-10 text-text3 text-sm">
+         <i class="ti ti-wifi-off block text-3xl mb-2"></i>Não foi possível carregar os dados.
+       </td></tr>`;
+  }
+}
+
+/* ──────────────────────────────────────────────────
+   Filtros
+────────────────────────────────────────────────── */
+function applyFilters() {
+  const q      = document.getElementById('search-input').value.trim().toLowerCase();
+  const role   = document.getElementById('filter-role').value;
+  const status = document.getElementById('filter-status').value;
+
+  filteredUsers = allUsers.filter(u => {
+    const matchQ = !q ||
+      u.nome.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q);
+    const matchRole   = !role   || u.role === role;
+    const matchStatus = !status || String(u.ativo) === status;
+    return matchQ && matchRole && matchStatus;
+  });
+
+  renderTable();
+}
+
+/* ──────────────────────────────────────────────────
+   Renderização da tabela
+────────────────────────────────────────────────── */
+function renderTable() {
+  const tbody      = document.getElementById('users-tbody');
+  const emptyState = document.getElementById('empty-state');
+  const totalBadge = document.getElementById('total-count');
+
+  totalBadge.textContent = `${allUsers.length} usuário${allUsers.length !== 1 ? 's' : ''}`;
+
+  if (filteredUsers.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+
+  tbody.innerHTML = filteredUsers.map((u, i) => {
+    const initial  = u.nome ? u.nome[0].toUpperCase() : '?';
+    const badgeCls = roleBadgeClass(u.role);
+    const roleLabel = roleLabelPt(u.role);
+    const statusBadge = u.ativo
+      ? `<span class="badge badge-ativo"><i class="ti ti-point-filled text-[8px]"></i>Ativo</span>`
+      : `<span class="badge badge-inativo"><i class="ti ti-point-filled text-[8px]"></i>Inativo</span>`;
+
+    return `
+    <tr data-id="${u.id}">
+      <td class="text-text3 font-mono text-[11px]">${i + 1}</td>
+      <td>
+        <div class="flex items-center gap-3">
+          <div class="avatar-initials" style="${avatarGradient(u.nome)}">${initial}</div>
+          <div>
+            <div class="text-[13px] font-medium text-text1 leading-tight">${escHtml(u.nome)}</div>
+            <div class="text-[11px] text-text3 leading-tight">${escHtml(u.email)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${badgeCls}">${roleLabel}</span></td>
+      <td>${statusBadge}</td>
+      <td class="text-text3">${u.cidade || '—'}</td>
+      <td class="text-center">${u.totalPosts}</td>
+      <td class="text-center">${u.totalConexoes}</td>
+      <td class="text-text3 text-[12px]">${u.criadoEm || '—'}</td>
+      <td>
+        <div class="flex gap-1 justify-center">
+          <button class="action-btn" title="Editar" onclick="openEditModal(${u.id})">
+            <i class="ti ti-pencil text-[14px]"></i>
+          </button>
+          <button class="action-btn ${u.ativo ? 'danger' : 'success'}"
+                  title="${u.ativo ? 'Desativar' : 'Ativar'}"
+                  onclick="toggleStatus(${u.id}, ${u.ativo})">
+            <i class="ti ${u.ativo ? 'ti-user-off' : 'ti-user-check'} text-[14px]"></i>
+          </button>
+          <button class="action-btn danger" title="Excluir" onclick="openDeleteModal(${u.id}, '${escJs(u.nome)}')">
+            <i class="ti ti-trash text-[14px]"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ──────────────────────────────────────────────────
+   Editar usuário
+────────────────────────────────────────────────── */
+function openEditModal(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  document.getElementById('edit-user-id').value = u.id;
+  document.getElementById('edit-nome').value     = u.nome;
+  document.getElementById('edit-email').value    = u.email;
+  document.getElementById('edit-role').value     = u.role;
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEditModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('edit-modal').classList.add('hidden');
+}
+
+async function submitEdit(e) {
+  e.preventDefault();
+  const id    = document.getElementById('edit-user-id').value;
+  const nome  = document.getElementById('edit-nome').value.trim();
+  const email = document.getElementById('edit-email').value.trim();
+  const role  = document.getElementById('edit-role').value;
+
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch(`/api/admin/users/${id}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({ nome, email, role })
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || 'Erro ao salvar');
+    }
+    const updated = await res.json();
+    // Atualiza o cache local
+    const idx = allUsers.findIndex(u => u.id === updated.id);
+    if (idx >= 0) allUsers[idx] = updated;
+    applyFilters();
+    document.getElementById('edit-modal').classList.add('hidden');
+    showToast('Usuário atualizado com sucesso!');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+/* ──────────────────────────────────────────────────
+   Ativar / Desativar
+────────────────────────────────────────────────── */
+async function toggleStatus(id, currentActive) {
+  const label = currentActive ? 'desativar' : 'ativar';
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch(`/api/admin/users/${id}/toggle-status`, {
+      method:  'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Erro ao ' + label);
+    const u = allUsers.find(x => x.id === id);
+    if (u) u.ativo = !u.ativo;
+    applyFilters();
+    showToast(`Usuário ${currentActive ? 'desativado' : 'ativado'} com sucesso!`);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+/* ──────────────────────────────────────────────────
+   Excluir usuário
+────────────────────────────────────────────────── */
+function openDeleteModal(id, nome) {
+  document.getElementById('delete-user-id').value  = id;
+  document.getElementById('delete-user-name').textContent = nome;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+function closeDeleteModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+
+async function confirmDelete() {
+  const id = document.getElementById('delete-user-id').value;
+  try {
+    const token = localStorage.getItem('firstech_access_token') || '';
+    const res   = await fetch(`/api/admin/users/${id}`, {
+      method:  'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || 'Erro ao excluir');
+    }
+    allUsers = allUsers.filter(u => String(u.id) !== String(id));
+    applyFilters();
+    document.getElementById('delete-modal').classList.add('hidden');
+    showToast('Usuário excluído permanentemente.');
+  } catch (err) {
+    showToast(err.message, 'error');
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+}
+
+/* ──────────────────────────────────────────────────
+   Helpers visuais
+────────────────────────────────────────────────── */
+function roleBadgeClass(role) {
+  if (role === 'RECRUTADOR')  return 'badge-recrutador';
+  if (role === 'ADMINISTRADOR') return 'badge-admin';
+  return 'badge-candidato';
+}
+
+function roleLabelPt(role) {
+  if (role === 'RECRUTADOR')   return 'Recrutador';
+  if (role === 'ADMINISTRADOR') return 'Admin';
+  return 'Candidato';
+}
+
+function avatarGradient(name) {
+  const gradients = [
+    'background:linear-gradient(135deg,#6d28d9,#8b5cf6)',
+    'background:linear-gradient(135deg,#0e7490,#06b6d4)',
+    'background:linear-gradient(135deg,#065f46,#10b981)',
+    'background:linear-gradient(135deg,#92400e,#f59e0b)',
+    'background:linear-gradient(135deg,#9d174d,#ec4899)',
+    'background:linear-gradient(135deg,#1e3a8a,#3b82f6)',
+  ];
+  const code = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return gradients[code % gradients.length];
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escJs(str) {
+  return String(str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
+let toastTimer = null;
+function showToast(msg, type = 'ok') {
+  const el = document.getElementById('admin-toast');
+  el.textContent = msg;
+  el.style.borderColor = type === 'error' ? 'rgba(248,113,113,.4)' : 'var(--border2)';
+  el.style.color        = type === 'error' ? 'var(--red)' : 'var(--text1)';
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+
+/* ──────────────────────────────────────────────────
+   Menu de usuário (topbar)
+────────────────────────────────────────────────── */
+function toggleUserMenu(e) {
+  e.stopPropagation();
+  document.getElementById('user-menu')?.classList.toggle('hidden');
+}
+function closeUserMenu() {
+  document.getElementById('user-menu')?.classList.add('hidden');
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('user-menu');
+  const btn  = document.getElementById('user-avatar-btn');
+  if (menu && !menu.classList.contains('hidden') &&
+      !menu.contains(e.target) && e.target !== btn) {
+    menu.classList.add('hidden');
+  }
+});
+
+/* ──────────────────────────────────────────────────
+   Logout
+────────────────────────────────────────────────── */
+async function doLogout() {
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('firstech_access_token') || '') }
+    });
+  } catch {}
+  localStorage.removeItem('firstech_access_token');
+  window.location.href = '/';
+}
+
+/* ──────────────────────────────────────────────────
+   Sincronizar ícone do tema
+────────────────────────────────────────────────── */
+(function syncThemeUI() {
+  const isDark  = document.documentElement.getAttribute('data-theme') !== 'light';
+  const icon    = document.getElementById('theme-icon');
+  const label   = document.getElementById('theme-label');
+  if (!icon) return;
+  if (isDark) { icon.className = 'ti ti-sun text-[16px] text-text3';   if(label) label.textContent = 'Tema claro'; }
+  else        { icon.className = 'ti ti-moon text-[16px] text-text3';  if(label) label.textContent = 'Tema escuro'; }
+})();
+</script>
+</body>
+</html>

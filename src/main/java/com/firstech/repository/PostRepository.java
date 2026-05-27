@@ -3,6 +3,7 @@ package com.firstech.repository;
 import com.firstech.model.Post;
 import com.firstech.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +20,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         ORDER BY p.createdAt DESC
         """)
     List<Post> searchByQuery(@Param("q") String q);
+
+    /** Nulifica o linkedJob em posts que referenciam vagas do recrutador (antes de deletar as vagas). */
+    @Modifying
+    @Query("UPDATE Post p SET p.linkedJob = null WHERE p.linkedJob IN (SELECT j FROM Job j WHERE j.recruiter = :user)")
+    void nullifyLinkedJobsByRecruiter(@Param("user") User user);
 }
