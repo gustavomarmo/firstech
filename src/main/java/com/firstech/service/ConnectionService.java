@@ -18,6 +18,7 @@ public class ConnectionService {
     private final ConnectionRepository connectionRepository;
     private final UserRepository       userRepository;
     private final PortfolioService     portfolioService;
+    private final JobRepository        jobRepository;
 
     private static final String[] AVATAR_GRADIENTS = {
         "linear-gradient(135deg,#6d28d9,#8b5cf6)",
@@ -42,6 +43,24 @@ public class ConnectionService {
         String inicial   = nome.isBlank() ? "?" : nome.substring(0, 1).toUpperCase();
         String corAvatar = AVATAR_GRADIENTS[Math.abs(nome.hashCode() % AVATAR_GRADIENTS.length)];
 
+        boolean isRecruiter = target.getRoles() != null && target.getRoles().contains(Role.RECRUTADOR);
+
+        List<VagaResumoDTO> vagasPublicadas = isRecruiter
+            ? jobRepository.findByRecruiterOrderByIdDesc(target).stream()
+                .map(j -> new VagaResumoDTO(
+                    j.getId(),
+                    j.getTitle(),
+                    j.getJobCompany() != null ? j.getJobCompany() : nome,
+                    companyLogo(j),
+                    j.getJobCompanyLogoUrl(),
+                    j.getModality(),
+                    j.getLevel(),
+                    j.getLocation(),
+                    j.getStatus() == JobStatus.ATIVA
+                ))
+                .toList()
+            : List.of();
+
         return new PublicProfileDTO(
             target.getId(),
             nome,
@@ -55,10 +74,12 @@ public class ConnectionService {
             totalConexoes,
             target.getTechnologies() != null ? target.getTechnologies() : List.of(),
             status,
+            isRecruiter,
             portfolioService.getExperiences(target),
             portfolioService.getSkills(target),
             portfolioService.getCertifications(target),
-            portfolioService.getProjects(target)
+            isRecruiter ? List.of() : portfolioService.getProjects(target),
+            vagasPublicadas
         );
     }
 
@@ -139,6 +160,24 @@ public class ConnectionService {
     }
 
     // ── helpers ──────────────────────────────────────────────────────────
+
+    private static final String[] JOB_GRADIENTS = {
+        "linear-gradient(135deg,#6d28d9,#8b5cf6)",
+        "linear-gradient(135deg,#1a56db,#3a86ff)",
+        "linear-gradient(135deg,#0f6e56,#1d9e75)",
+        "linear-gradient(135deg,#854f0b,#ef9f27)",
+        "linear-gradient(135deg,#0e7490,#06b6d4)",
+        "linear-gradient(135deg,#be185d,#f472b6)",
+        "linear-gradient(135deg,#9a3412,#fb923c)",
+    };
+
+    private static String companyLogo(Job j) {
+        if (j.getJobCompanyLogoUrl() != null && !j.getJobCompanyLogoUrl().isBlank()) {
+            return "url('" + j.getJobCompanyLogoUrl() + "') center/cover";
+        }
+        String key = j.getJobCompany() != null ? j.getJobCompany() : j.getTitle();
+        return JOB_GRADIENTS[Math.abs(key.hashCode() % JOB_GRADIENTS.length)];
+    }
 
     public String resolveConnectionStatus(User viewer, User target) {
         if (viewer == null || viewer.getId().equals(target.getId())) return "SELF";

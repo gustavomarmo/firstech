@@ -200,8 +200,9 @@
            class="text-sm text-text3 italic text-center py-3">Nenhuma certificação adicionada ainda.</div>
     </div>
 
-    <!-- ── PROJETOS ── -->
-    <div class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+    <!-- ── PROJETOS (apenas candidatos) ── -->
+    <div th:unless="${usuario.recrutador}"
+         class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
       <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
         Projetos
         <button class="w-7 h-7 rounded-[7px] border-none bg-bg3 text-text3 flex items-center justify-center cursor-pointer text-[15px] transition-all duration-200 hover:bg-bg4 hover:text-text1"
@@ -228,14 +229,12 @@
           <div class="p-[10px_12px]">
             <div class="flex items-center gap-1 mb-[3px]">
               <div class="text-[13px] font-semibold text-text1 flex-1 truncate" th:text="${proj.nome}">Projeto</div>
-              <!-- Badge GitHub -->
               <i th:if="${proj.githubUrl != null and !proj.githubUrl.isBlank()}"
                  class="ti ti-brand-github text-[13px] text-text3 shrink-0" title="Ver no GitHub"></i>
             </div>
             <div class="text-[11px] text-text3 leading-[1.55] line-clamp-2" th:text="${proj.descricao}">Descrição.</div>
           </div>
 
-          <!-- Ações (hover) — param propagation para evitar abrir GitHub ao editar -->
           <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
             <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-purple2"
                     th:data-id="${proj.id}"
@@ -256,6 +255,59 @@
 
       <div th:if="${#lists.isEmpty(usuario.projetos)}"
            class="text-sm text-text3 italic text-center py-3">Nenhum projeto adicionado ainda.</div>
+    </div>
+
+    <!-- ── VAGAS PUBLICADAS (apenas recrutadores) ── -->
+    <div th:if="${usuario.recrutador}"
+         class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Vagas publicadas
+        <button class="flex items-center gap-1 py-[5px] px-3 rounded-[8px] bg-purple border border-[rgba(139,92,246,.4)] text-white font-[inherit] text-[12px] font-semibold cursor-pointer transition-all hover:bg-purple2"
+                onclick="openJobModal()">
+          <i class="ti ti-plus text-[13px]"></i>Nova vaga
+        </button>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(minhasVagas)}" class="flex flex-col gap-[10px]">
+        <div th:each="vaga : ${minhasVagas}"
+             class="flex items-center gap-[13px] p-[12px_14px] bg-bg3 rounded-[11px] border border-border2 hover:border-border transition-colors cursor-pointer group"
+             onclick="openJobModal()">
+
+          <!-- Logo/gradiente da empresa -->
+          <div class="w-10 h-10 rounded-[9px] shrink-0 overflow-hidden flex items-center justify-center text-[16px] font-bold text-white"
+               th:style="'background:' + ${vaga.companyLogo}">
+            <img th:if="${vaga.companyLogoUrl != null and !vaga.companyLogoUrl.isBlank()}"
+                 th:src="${vaga.companyLogoUrl}" class="w-full h-full object-cover" alt=""/>
+            <span th:if="${vaga.companyLogoUrl == null or vaga.companyLogoUrl.isBlank()}"
+                  th:text="${#strings.substring(vaga.company, 0, 1).toUpperCase()}">E</span>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-text1 truncate group-hover:text-purple2 transition-colors"
+                 th:text="${vaga.title}">Título</div>
+            <div class="text-[11px] text-text3 truncate" th:text="${vaga.company}">Empresa</div>
+            <div class="flex items-center gap-[6px] mt-[5px] flex-wrap">
+              <span th:if="${vaga.modality != null and !vaga.modality.isBlank()}"
+                    class="text-[9px] font-semibold px-[7px] py-[2px] rounded-full bg-bg4 text-text3 border border-border2"
+                    th:text="${vaga.modality}">Remoto</span>
+              <span th:if="${vaga.level != null and !vaga.level.isBlank()}"
+                    class="text-[9px] font-semibold px-[7px] py-[2px] rounded-full bg-bg4 text-text3 border border-border2"
+                    th:text="${vaga.level}">Júnior</span>
+            </div>
+          </div>
+
+          <!-- Badge de status -->
+          <span class="shrink-0 text-[9px] font-bold px-[8px] py-[3px] rounded-full"
+                th:classappend="${vaga.status == 'ATIVA'} ? 'text-green' : 'text-text3 bg-bg4 border border-border2'"
+                th:style="${vaga.status == 'ATIVA'} ? 'background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25)' : ''"
+                th:text="${vaga.status == 'ATIVA'} ? 'Ativa' : 'Encerrada'">Ativa</span>
+        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(minhasVagas)}"
+           class="text-sm text-text3 italic text-center py-3">
+        Nenhuma vaga publicada ainda. Clique em <strong class="text-purple2">Nova vaga</strong> para começar.
+      </div>
     </div>
 
   </div><!-- /port-body -->

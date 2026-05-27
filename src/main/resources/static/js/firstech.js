@@ -1872,30 +1872,68 @@ function _renderUserProfile(p) {
     certSection.classList.add('hidden');
   }
 
-  // ── Projetos ─────────────────────────────────────────────────
+  // ── Projetos (candidatos) / Vagas (recrutadores) ────────────
   const projSection = document.getElementById('upm-proj-section');
   const projList    = document.getElementById('upm-proj-list');
-  if (p.projetos && p.projetos.length > 0) {
-    projList.innerHTML = p.projetos.map(proj => `
-      <div class="bg-bg4 rounded-[10px] overflow-hidden border border-border2 ${proj.githubUrl ? 'cursor-pointer hover:border-border' : ''} transition-colors"
-           ${proj.githubUrl ? `onclick="window.open('${_escapeHtml(proj.githubUrl)}','_blank')"` : ''}>
-        <div class="h-[72px] flex items-center justify-center"
-             style="background:${_escapeHtml(proj.corThumb || 'linear-gradient(135deg,#0f0521,#2d1b6e)')}">
-          ${proj.thumbImageBase64
-            ? `<img src="${proj.thumbImageBase64}" class="w-full h-full object-cover" alt=""/>`
-            : `<i class="ti ${_escapeHtml(proj.icone || 'ti-code')}" style="font-size:24px;color:var(--purple2)"></i>`}
-        </div>
-        <div class="p-[8px_10px]">
-          <div class="text-[12px] font-semibold text-text1 truncate flex items-center gap-1">
-            ${_escapeHtml(proj.nome || '')}
-            ${proj.githubUrl ? '<i class="ti ti-brand-github text-[11px] text-text3 shrink-0"></i>' : ''}
-          </div>
-          <div class="text-[10px] text-text3 leading-[1.4] mt-[2px] line-clamp-2">${_escapeHtml(proj.descricao || '')}</div>
-        </div>
-      </div>`).join('');
-    projSection.classList.remove('hidden');
-  } else {
+  const jobsSection = document.getElementById('upm-jobs-section');
+  const jobsList    = document.getElementById('upm-jobs-list');
+
+  if (p.recrutador) {
+    // Recrutadores: esconde projetos, mostra vagas publicadas
     projSection.classList.add('hidden');
+    if (p.vagasPublicadas && p.vagasPublicadas.length > 0) {
+      jobsList.innerHTML = p.vagasPublicadas.map(v => {
+        const logoHtml = v.companyLogoUrl
+          ? `<img src="${_escapeHtml(v.companyLogoUrl)}" class="w-full h-full object-cover" alt=""/>`
+          : `<span class="text-[14px] font-bold text-white">${_escapeHtml((v.empresa || '?')[0].toUpperCase())}</span>`;
+        const badges = [v.modalidade, v.nivel].filter(Boolean).map(b =>
+          `<span class="text-[9px] font-semibold px-[7px] py-[2px] rounded-full bg-bg4 text-text3 border border-border2">${_escapeHtml(b)}</span>`
+        ).join('');
+        const statusHtml = v.ativa
+          ? `<span class="text-[9px] font-bold px-[8px] py-[3px] rounded-full text-green" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25)">Ativa</span>`
+          : `<span class="text-[9px] font-bold px-[8px] py-[3px] rounded-full bg-bg4 text-text3 border border-border2">Encerrada</span>`;
+        return `
+          <div class="flex items-center gap-[12px] p-[10px_12px] bg-bg4 rounded-[10px] border border-border2">
+            <div class="w-9 h-9 rounded-[8px] shrink-0 overflow-hidden flex items-center justify-center"
+                 style="background:${_escapeHtml(v.companyLogo || 'linear-gradient(135deg,#6d28d9,#8b5cf6)')}">${logoHtml}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-text1 truncate">${_escapeHtml(v.titulo || '')}</div>
+              <div class="text-[11px] text-text3 truncate">${_escapeHtml(v.empresa || '')}</div>
+              ${badges ? `<div class="flex gap-[5px] mt-[4px] flex-wrap">${badges}</div>` : ''}
+            </div>
+            ${statusHtml}
+          </div>`;
+      }).join('');
+      jobsSection.classList.remove('hidden');
+    } else {
+      jobsList.innerHTML = '<div class="text-[12px] text-text3 italic text-center py-2">Nenhuma vaga publicada ainda.</div>';
+      jobsSection.classList.remove('hidden');
+    }
+  } else {
+    // Candidatos: mostra projetos, esconde vagas
+    jobsSection.classList.add('hidden');
+    if (p.projetos && p.projetos.length > 0) {
+      projList.innerHTML = p.projetos.map(proj => `
+        <div class="bg-bg4 rounded-[10px] overflow-hidden border border-border2 ${proj.githubUrl ? 'cursor-pointer hover:border-border' : ''} transition-colors"
+             ${proj.githubUrl ? `onclick="window.open('${_escapeHtml(proj.githubUrl)}','_blank')"` : ''}>
+          <div class="h-[72px] flex items-center justify-center"
+               style="background:${_escapeHtml(proj.corThumb || 'linear-gradient(135deg,#0f0521,#2d1b6e)')}">
+            ${proj.thumbImageBase64
+              ? `<img src="${proj.thumbImageBase64}" class="w-full h-full object-cover" alt=""/>`
+              : `<i class="ti ${_escapeHtml(proj.icone || 'ti-code')}" style="font-size:24px;color:var(--purple2)"></i>`}
+          </div>
+          <div class="p-[8px_10px]">
+            <div class="text-[12px] font-semibold text-text1 truncate flex items-center gap-1">
+              ${_escapeHtml(proj.nome || '')}
+              ${proj.githubUrl ? '<i class="ti ti-brand-github text-[11px] text-text3 shrink-0"></i>' : ''}
+            </div>
+            <div class="text-[10px] text-text3 leading-[1.4] mt-[2px] line-clamp-2">${_escapeHtml(proj.descricao || '')}</div>
+          </div>
+        </div>`).join('');
+      projSection.classList.remove('hidden');
+    } else {
+      projSection.classList.add('hidden');
+    }
   }
 
   // ── Mostrar conteúdo ─────────────────────────────────────────

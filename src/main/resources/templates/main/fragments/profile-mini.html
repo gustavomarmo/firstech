@@ -26,8 +26,6 @@
         <span th:unless="${usuario.avatarBase64 != null}"
               th:text="${usuario.inicial}">G</span>
       </div>
-      <div class="text-[10px] font-semibold py-[3px] px-[9px] bg-[rgba(52,211,153,.12)] text-green border border-[rgba(52,211,153,.28)] rounded-[20px]"
-           th:if="${showAvailBadge}">● Disponível</div>
     </div>
     <div class="font-display text-[15px] font-semibold text-text1 mb-0.5 truncate" th:text="${usuario.nomeCompleto}">Gustavo Marmo</div>
     <div class="text-xs text-text2 leading-[1.5] mb-[10px] line-clamp-2" th:text="${usuario.headline}">Back-end Dev · Java · Spring · AWS</div>
