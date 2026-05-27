@@ -65,6 +65,7 @@ public class ViewController {
 
         if (userDetails instanceof User user) {
             isRecruiter = user.getRoles().contains(Role.RECRUTADOR);
+            boolean isAdmin = user.getRoles().contains(Role.ADMINISTRADOR);
 
             String cargo   = isRecruiter ? "Recrutador" : (user.getCareerMoment() != null
                     ? labelCareerMoment(user.getCareerMoment()) : "Desenvolvedor");
@@ -84,6 +85,7 @@ public class ViewController {
                     .cargo(cargo)
                     .empresa(empresa)
                     .recrutador(isRecruiter)
+                    .administrador(isAdmin)
                     .experiencias(portfolioService.getExperiences(user))
                     .habilidades(portfolioService.getSkills(user))
                     .certificacoes(portfolioService.getCertifications(user))

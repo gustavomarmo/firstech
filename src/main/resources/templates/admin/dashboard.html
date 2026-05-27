@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Firstech</title>
+
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Tema (FOUC prevention) -->
+  <script th:src="@{/js/theme.js}"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script th:src="@{/js/tailwindConfig.js}"></script>
+
+  <style>
+    /* ── Tema escuro (padrão) ── */
+    :root, [data-theme="dark"] {
+      --bg:#0d1117;--bg2:#151b24;--bg3:#1c2535;--bg4:#222d3f;
+      --purple:#8b5cf6;--purple2:#a78bfa;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.12);--border:rgba(139,92,246,0.22);
+      --border2:rgba(255,255,255,0.07);
+      --text1:#f0f4ff;--text2:#94a3b8;--text3:#64748b;
+      --green:#34d399;--red:#f87171;--amber:#fbbf24;
+    }
+    /* ── Tema claro ── */
+    [data-theme="light"] {
+      --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--bg4:#eef2f7;
+      --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#6d28d9;
+      --purplebg:rgba(139,92,246,0.09);--border:rgba(109,40,217,0.28);
+      --border2:rgba(15,23,42,0.09);
+      --text1:#0f172a;--text2:#334155;--text3:#64748b;
+      --green:#059669;--red:#dc2626;--amber:#d97706;
+    }
+
+    body { font-family:'DM Sans',sans-serif; }
+    .font-display { font-family:'Space Grotesk',sans-serif; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--bg4);border-radius:4px; }
+
+    /* ── KPI card ── */
+    .kpi-card {
+      background:var(--bg2);
+      border:1px solid var(--border2);
+      border-radius:14px;
+      padding:18px 20px;
+      transition:border-color .2s, transform .15s;
+    }
+    .kpi-card:hover { border-color:var(--border); transform:translateY(-1px); }
+
+    /* ── Chart / table card ── */
+    .panel {
+      background:var(--bg2);
+      border:1px solid var(--border2);
+      border-radius:14px;
+    }
+    .panel-header {
+      padding:16px 20px;
+      border-bottom:1px solid var(--border2);
+    }
+    .panel-body { padding:20px; }
+
+    /* ── Tabela admin ── */
+    .adm-table { width:100%; border-collapse:collapse; }
+    .adm-table th {
+      text-align:left;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:var(--text3);
+      padding:9px 16px;
+      background:var(--bg3);
+    }
+    .adm-table td {
+      padding:10px 16px;
+      font-size:13px;
+      color:var(--text2);
+      border-top:1px solid var(--border2);
+    }
+    .adm-table tbody tr:hover td { background:var(--bg3); }
+
+    /* ── Badge ── */
+    .badge {
+      display:inline-flex;align-items:center;gap:4px;
+      padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;
+    }
+  </style>
+</head>
+
+<body class="bg-bg text-text1 min-h-screen">
+
+<!-- ════════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════ -->
+<header class="sticky top-0 z-30 flex items-center justify-between px-6 h-[58px] bg-bg2 border-b border-border2 shadow-sm">
+
+  <!-- Esquerda: logo + badge -->
+  <div class="flex items-center gap-3">
+    <a href="/admin/dashboard"
+       class="font-display text-[19px] font-bold flex items-center gap-px select-none no-underline">
+      <span class="text-text3 font-light">&lt;</span>
+      <span class="text-purple2">first</span>
+      <span class="text-text3 font-light">&gt;</span>
+      <span class="text-text1">tech</span>
+    </a>
+    <span class="badge" style="background:var(--purplebg);color:var(--purple2);border:1px solid var(--border)">
+      <i class="ti ti-shield-check text-[10px]"></i>ADMIN
+    </span>
+  </div>
+
+  <!-- Direita: tema + voltar + nome -->
+  <div class="flex items-center gap-3">
+    <button onclick="toggleTheme()"
+            class="w-8 h-8 rounded-[8px] flex items-center justify-center border-none cursor-pointer bg-bg3 text-text3 transition-colors hover:text-text1"
+            title="Alternar tema">
+      <i id="theme-icon" class="ti ti-sun text-[16px]"></i>
+    </button>
+    <a href="/dashboard"
+       class="flex items-center gap-[7px] px-[13px] py-[7px] rounded-[9px] text-[13px] font-semibold no-underline transition-colors bg-bg3 text-text2 border border-border2 hover:text-text1">
+      <i class="ti ti-arrow-left text-[13px]"></i>Ver plataforma
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0"
+           style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)">
+        <span th:text="${adminNome != null ? #strings.substring(adminNome,0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <span class="text-[13px] font-semibold text-text1 hidden sm:block" th:text="${adminNome}">Admin</span>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     CONTEÚDO PRINCIPAL
+════════════════════════════════════════ -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+
+  <!-- ── Título da página ── -->
+  <div class="flex items-start justify-between mb-7 flex-wrap gap-4">
+    <div>
+      <h1 class="font-display text-[26px] font-bold text-text1 leading-tight mb-[4px]">
+        Dashboard
+      </h1>
+      <p class="text-sm text-text3">Visão geral da plataforma Firstech</p>
+    </div>
+    <div class="flex items-center gap-[7px] text-[12px] text-text3 bg-bg2 border border-border2 rounded-[9px] px-3 py-2">
+      <i class="ti ti-circle-dot text-[12px]" style="color:var(--green)"></i>
+      Dados em tempo real
+    </div>
+  </div>
+
+  <!-- ════════ KPI CARDS ════════ -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-7">
+
+    <!-- Total de usuários -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(139,92,246,.12)">
+        <i class="ti ti-users text-[18px]" style="color:var(--purple2)"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.totalUsuarios}">0</div>
+      <div class="text-[11px] font-medium text-text3">Total de usuários</div>
+    </div>
+
+    <!-- Candidatos -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(52,211,153,.1)">
+        <i class="ti ti-code text-[18px]" style="color:var(--green)"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.totalCandidatos}">0</div>
+      <div class="text-[11px] font-medium text-text3">Candidatos</div>
+    </div>
+
+    <!-- Recrutadores -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(251,191,36,.1)">
+        <i class="ti ti-briefcase text-[18px]" style="color:var(--amber)"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.totalRecrutadores}">0</div>
+      <div class="text-[11px] font-medium text-text3">Recrutadores</div>
+    </div>
+
+    <!-- Vagas ativas -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(96,165,250,.1)">
+        <i class="ti ti-briefcase-check text-[18px]" style="color:#60a5fa"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.vagasAtivas}">0</div>
+      <div class="text-[11px] font-medium text-text3">Vagas ativas</div>
+      <div class="text-[10px] text-text3 mt-[3px]"
+           th:text="${stats.vagasEncerradas} + ' encerradas'">0 encerradas</div>
+    </div>
+
+    <!-- Posts -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(248,113,113,.08)">
+        <i class="ti ti-file-text text-[18px]" style="color:var(--red)"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.totalPosts}">0</div>
+      <div class="text-[11px] font-medium text-text3">Posts publicados</div>
+    </div>
+
+    <!-- Conexões -->
+    <div class="kpi-card">
+      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
+           style="background:rgba(52,211,153,.1)">
+        <i class="ti ti-users-group text-[18px]" style="color:var(--green)"></i>
+      </div>
+      <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
+           th:text="${stats.totalConexoesAceitas}">0</div>
+      <div class="text-[11px] font-medium text-text3">Conexões aceitas</div>
+    </div>
+
+  </div>
+
+  <!-- ════════ GRÁFICOS — LINHA 1 ════════ -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+
+    <!-- Tipo de usuário (doughnut) -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+          <i class="ti ti-users text-[15px] text-text3"></i>Distribuição de usuários
+        </h3>
+      </div>
+      <div class="panel-body flex items-center justify-center" style="height:230px">
+        <canvas id="chartUserType"></canvas>
+      </div>
+    </div>
+
+    <!-- Vagas por modalidade (doughnut) -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+          <i class="ti ti-map-pin text-[15px] text-text3"></i>Vagas por modalidade
+        </h3>
+      </div>
+      <div class="panel-body flex items-center justify-center" style="height:230px">
+        <canvas id="chartModalidade"></canvas>
+      </div>
+    </div>
+
+    <!-- Vagas por nível (bar) -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+          <i class="ti ti-chart-bar text-[15px] text-text3"></i>Vagas por nível
+        </h3>
+      </div>
+      <div class="panel-body" style="height:230px">
+        <canvas id="chartNivel" style="width:100%;height:100%"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════ GRÁFICOS — LINHA 2 ════════ -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+
+    <!-- Top 5 postadores (horizontal bar) -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+          <i class="ti ti-podium text-[15px] text-text3"></i>Top 5 postadores
+        </h3>
+      </div>
+      <div class="panel-body" style="height:240px">
+        <canvas id="chartTopPosters" style="width:100%;height:100%"></canvas>
+      </div>
+    </div>
+
+    <!-- Últimos usuários cadastrados -->
+    <div class="panel overflow-hidden">
+      <div class="panel-header">
+        <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+          <i class="ti ti-user-plus text-[15px] text-text3"></i>Últimos usuários cadastrados
+        </h3>
+      </div>
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Tipo</th>
+            <th>E-mail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="u : ${stats.ultimosUsuarios}">
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+                     style="background:linear-gradient(135deg,#6d28d9,#8b5cf6)"
+                     th:text="${#strings.substring(u.nome,0,1).toUpperCase()}">A</div>
+                <span class="font-medium text-text1" th:text="${u.nome}">Nome</span>
+              </div>
+            </td>
+            <td>
+              <span th:if="${u.recrutador}"
+                    class="badge"
+                    style="background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.25)">
+                <i class="ti ti-briefcase text-[9px]"></i>Recrutador
+              </span>
+              <span th:unless="${u.recrutador}"
+                    class="badge"
+                    style="background:rgba(52,211,153,.08);color:var(--green);border:1px solid rgba(52,211,153,.2)">
+                <i class="ti ti-code text-[9px]"></i>Candidato
+              </span>
+            </td>
+            <td class="text-text3" th:text="${u.email}">email@domain.com</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ════════ VAGAS RECENTES ════════ -->
+  <div class="panel overflow-hidden mb-5">
+    <div class="panel-header">
+      <h3 class="font-display text-[14px] font-semibold text-text1 flex items-center gap-2">
+        <i class="ti ti-briefcase text-[15px] text-text3"></i>Vagas mais recentes
+      </h3>
+    </div>
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Empresa</th>
+          <th>Nível</th>
+          <th>Modalidade</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="v : ${stats.ultimasVagas}">
+          <td class="font-medium text-text1" th:text="${v.titulo}">Título da vaga</td>
+          <td th:text="${v.empresa}">Empresa</td>
+          <td>
+            <span class="badge"
+                  style="background:var(--bg3);color:var(--text3);border:1px solid var(--border2)"
+                  th:text="${v.nivel}">Júnior</span>
+          </td>
+          <td th:text="${v.modalidade}">Remoto</td>
+          <td>
+            <span class="badge"
+                  th:style="${v.ativa}
+                    ? 'background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)'
+                    : 'background:var(--bg4);color:var(--text3);border:1px solid var(--border2)'"
+                  th:text="${v.ativa} ? 'Ativa' : 'Encerrada'">Ativa</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ════════ DADOS PARA OS GRÁFICOS (Thymeleaf → JS) ════════ -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+const STATS_CANDIDATOS    = /*[[${stats.totalCandidatos}]]*/ 0;
+const STATS_RECRUTADORES  = /*[[${stats.totalRecrutadores}]]*/ 0;
+const MODALIDADE_DATA     = /*[[${stats.vagasPorModalidade}]]*/ {};
+const NIVEL_DATA          = /*[[${stats.vagasPorNivel}]]*/ {};
+const TOP_POSTER_NAMES    = /*[[${topPosterNames}]]*/ [];
+const TOP_POSTER_VALUES   = /*[[${topPosterValues}]]*/ [];
+/*]]>*/
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  /* ── Helpers de tema ──────────────────────────────────────── */
+  const isDark   = () => document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridClr  = () => isDark() ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.07)';
+  const tickClr  = () => isDark() ? '#94a3b8' : '#64748b';
+  const tooltipBg  = () => isDark() ? '#1c2535' : '#ffffff';
+  const tooltipBdr = () => isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.1)';
+
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  Chart.defaults.font.size   = 12;
+
+  /* ── Paleta fixa para gráficos ────────────────────────────── */
+  const PALETTE = [
+    'rgba(139,92,246,.85)',   // purple
+    'rgba(52,211,153,.85)',   // green
+    'rgba(96,165,250,.85)',   // blue
+    'rgba(251,191,36,.85)',   // amber
+    'rgba(248,113,113,.85)',  // red
+  ];
+  const PALETTE_BORDER = PALETTE.map(c => c.replace('.85', '1'));
+
+  /* ── Shared tooltip config ────────────────────────────────── */
+  function tooltipCfg() {
+    return {
+      backgroundColor: tooltipBg(),
+      borderColor:     tooltipBdr(),
+      borderWidth:     1,
+      titleColor:      isDark() ? '#f0f4ff' : '#0f172a',
+      bodyColor:       isDark() ? '#94a3b8' : '#334155',
+      padding:         10,
+      cornerRadius:    8,
+    };
+  }
+
+  /* ── 1. Doughnut: Distribuição de usuários ────────────────── */
+  new Chart(document.getElementById('chartUserType'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Candidatos', 'Recrutadores'],
+      datasets: [{
+        data: [STATS_CANDIDATOS, STATS_RECRUTADORES],
+        backgroundColor: ['rgba(52,211,153,.8)', 'rgba(251,191,36,.8)'],
+        borderColor:     ['rgba(52,211,153,1)',   'rgba(251,191,36,1)'],
+        borderWidth: 2,
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: tickClr(), font: { size: 11 },
+            padding: 16, usePointStyle: true, pointStyleWidth: 8,
+          },
+        },
+        tooltip: {
+          ...tooltipCfg(),
+          callbacks: { label: ctx => `  ${ctx.label}: ${ctx.raw}` },
+        },
+      },
+    },
+  });
+
+  /* ── 2. Doughnut: Vagas por modalidade ───────────────────── */
+  const modalLabels = Object.keys(MODALIDADE_DATA);
+  const modalValues = Object.values(MODALIDADE_DATA);
+  new Chart(document.getElementById('chartModalidade'), {
+    type: 'doughnut',
+    data: {
+      labels: modalLabels,
+      datasets: [{
+        data: modalValues,
+        backgroundColor: PALETTE.slice(0, modalLabels.length),
+        borderColor:     PALETTE_BORDER.slice(0, modalLabels.length),
+        borderWidth: 2,
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: tickClr(), font: { size: 11 },
+            padding: 16, usePointStyle: true, pointStyleWidth: 8,
+          },
+        },
+        tooltip: { ...tooltipCfg() },
+      },
+    },
+  });
+
+  /* ── 3. Bar: Vagas por nível ─────────────────────────────── */
+  const nivelLabels = Object.keys(NIVEL_DATA);
+  const nivelValues = Object.values(NIVEL_DATA);
+  new Chart(document.getElementById('chartNivel'), {
+    type: 'bar',
+    data: {
+      labels: nivelLabels,
+      datasets: [{
+        label: 'Vagas',
+        data: nivelValues,
+        backgroundColor: 'rgba(139,92,246,.7)',
+        borderColor:     'rgba(139,92,246,1)',
+        borderWidth: 2,
+        borderRadius: 7,
+        borderSkipped: false,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...tooltipCfg() },
+      },
+      scales: {
+        x: {
+          grid:  { color: gridClr() },
+          ticks: { color: tickClr() },
+        },
+        y: {
+          grid:  { color: gridClr() },
+          ticks: { color: tickClr(), stepSize: 1, precision: 0 },
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+
+  /* ── 4. Horizontal bar: Top postadores ───────────────────── */
+  new Chart(document.getElementById('chartTopPosters'), {
+    type: 'bar',
+    data: {
+      labels: TOP_POSTER_NAMES,
+      datasets: [{
+        label: 'Posts',
+        data: TOP_POSTER_VALUES,
+        backgroundColor: PALETTE,
+        borderWidth: 0,
+        borderRadius: 7,
+        borderSkipped: false,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...tooltipCfg(),
+          callbacks: { label: ctx => `  ${ctx.raw} post${ctx.raw !== 1 ? 's' : ''}` },
+        },
+      },
+      scales: {
+        x: {
+          grid:  { color: gridClr() },
+          ticks: { color: tickClr(), stepSize: 1, precision: 0 },
+          beginAtZero: true,
+        },
+        y: {
+          grid:  { display: false },
+          ticks: { color: tickClr() },
+        },
+      },
+    },
+  });
+</script>
+</body>
+</html>

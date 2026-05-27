@@ -22,4 +22,8 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     /** Pedidos enviados pelo usuário com determinado status. */
     List<Connection> findByFromUserAndStatus(User fromUser, ConnectionStatus status);
+
+    /** Total de conexões aceitas em toda a plataforma. */
+    @Query("SELECT COUNT(c) FROM Connection c WHERE c.status = 'ACCEPTED'")
+    long countAllAccepted();
 }

@@ -77,6 +77,12 @@
                   onclick="go('portfolio'); closeUserMenu()">
             <i class="ti ti-user-circle text-[16px] text-text3"></i>Meu Perfil
           </button>
+          <!-- Link Admin — visível apenas para administradores -->
+          <a th:if="${usuario.administrador}"
+             href="/admin/dashboard"
+             class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors duration-150 no-underline">
+            <i class="ti ti-dashboard text-[16px] text-text3"></i>Painel Admin
+          </a>
           <!-- Alternar tema -->
           <button class="w-full flex items-center gap-3 px-4 py-[10px] text-[13px] text-text2 hover:bg-bg3 hover:text-text1 transition-colors duration-150 font-[inherit]"
                   onclick="toggleTheme(); closeUserMenu()">
