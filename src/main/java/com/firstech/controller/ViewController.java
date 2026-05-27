@@ -60,6 +60,11 @@ public class ViewController {
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
 
+        // Administradores vão direto para o painel admin
+        if (userDetails instanceof User u && u.getRoles().contains(Role.ADMINISTRADOR)) {
+            return "redirect:/admin/dashboard";
+        }
+
         UsuarioViewModel usuario;
         boolean isRecruiter = false;
 

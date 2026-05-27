@@ -118,10 +118,11 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         seedTechSkills();
+        User       admin       = seedAdmin();
         List<User> recruiters  = seedRecruiters();
         List<User> candidatos  = seedCandidatos();
         List<Job>  jobs        = seedJobs(recruiters);
-        seedPosts(candidatos, recruiters, jobs);
+        seedPosts(admin, candidatos, recruiters, jobs);
     }
 
     // ── Tech Skills ───────────────────────────────────────────────────────
@@ -132,21 +133,23 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Catálogo de habilidades populado: {} skills", TECH_SKILLS.size());
     }
 
-    // ── Recrutadores ──────────────────────────────────────────────────────
-    private List<User> seedRecruiters() {
+    // ── Administrador ─────────────────────────────────────────────────────
+    private User seedAdmin() {
         String pwd = passwordEncoder.encode("Admin@123");
-
         User admin = userRepository.save(User.builder()
                 .name("Administrador")
                 .email("admin@example.com")
                 .password(pwd)
-                .roles(Set.of(Role.ADMINISTRADOR, Role.RECRUTADOR))
-                .company("Firstech")
-                .companySize("11-50")
-                .website("https://firstech.com.br")
-                .tagline("Conectando talentos a oportunidades tech")
-                .cultureTags(List.of("Inovação", "Colaboração", "Aprendizado contínuo"))
+                .roles(Set.of(Role.ADMINISTRADOR))
+                .tagline("Administrador da plataforma Firstech")
                 .build());
+        log.info("Admin criado: {}", admin.getEmail());
+        return admin;
+    }
+
+    // ── Recrutadores ──────────────────────────────────────────────────────
+    private List<User> seedRecruiters() {
+        String pwd = passwordEncoder.encode("Admin@123");
 
         User amanda = userRepository.save(User.builder()
                 .name("Amanda Ferreira")
@@ -174,8 +177,8 @@ public class DataInitializer implements CommandLineRunner {
                 .cultureTags(List.of("Startup", "Autonomia", "Impacto"))
                 .build());
 
-        log.info("Recrutadores criados: {}", 3);
-        return List.of(admin, amanda, lucas);
+        log.info("Recrutadores criados: {}", 2);
+        return List.of(amanda, lucas);
     }
 
     // ── Candidatos ────────────────────────────────────────────────────────
@@ -276,9 +279,8 @@ public class DataInitializer implements CommandLineRunner {
 
     // ── Vagas ─────────────────────────────────────────────────────────────
     private List<Job> seedJobs(List<User> recruiters) {
-        User admin  = recruiters.get(0);
-        User amanda = recruiters.get(1);
-        User lucas  = recruiters.get(2);
+        User amanda = recruiters.get(0);
+        User lucas  = recruiters.get(1);
 
         Job j1 = jobRepository.save(Job.builder()
                 .title("Desenvolvedor Java Júnior")
@@ -289,7 +291,7 @@ public class DataInitializer implements CommandLineRunner {
                 .salary("R$ 4.000 – 6.000")
                 .jobCompany("Firstech")
                 .tags(List.of("Java", "Spring Boot", "MySQL", "REST APIs", "Git"))
-                .recruiter(admin)
+                .recruiter(amanda)
                 .build());
 
         Job j2 = jobRepository.save(Job.builder()
@@ -349,7 +351,7 @@ public class DataInitializer implements CommandLineRunner {
                 .salary("R$ 1.500 + benefícios")
                 .jobCompany("Firstech")
                 .tags(List.of("Vue.js", "Django", "Python", "JavaScript", "Git"))
-                .recruiter(admin)
+                .recruiter(amanda)
                 .build());
 
         Job j7 = jobRepository.save(Job.builder()
@@ -381,7 +383,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     // ── Posts ─────────────────────────────────────────────────────────────
-    private void seedPosts(List<User> candidatos, List<User> recruiters, List<Job> jobs) {
+    private void seedPosts(User admin, List<User> candidatos, List<User> recruiters, List<Job> jobs) {
         // candidatos: [devCandidato, ana, carlos, beatriz, rafael, mariana, pedro]
         User devCandidato = candidatos.get(0);
         User ana          = candidatos.get(1);
@@ -390,10 +392,9 @@ public class DataInitializer implements CommandLineRunner {
         User rafael       = candidatos.get(4);
         User mariana      = candidatos.get(5);
         User pedro        = candidatos.get(6);
-        // recruiters: [admin, amanda, lucas]
-        User admin  = recruiters.get(0);
-        User amanda = recruiters.get(1);
-        User lucas  = recruiters.get(2);
+        // recruiters: [amanda, lucas]
+        User amanda = recruiters.get(0);
+        User lucas  = recruiters.get(1);
 
         // vagas para linkar em posts de recrutadores
         Job vagaJava       = jobs.get(0);
@@ -524,10 +525,10 @@ public class DataInitializer implements CommandLineRunner {
 
         // ── posts de recrutadores (vagas) ─────────────────────────────
         save(Post.builder()
-                .author(admin)
-                .content("🚀 Estamos contratando! Firstech tem vaga aberta para Desenvolvedor Java Júnior.\n\n" +
-                         "Se você tem conhecimento em Spring Boot, gosta de trabalhar em equipe e quer " +
-                         "crescer rápido, essa pode ser a sua oportunidade!\n\n" +
+                .author(amanda)
+                .content("🚀 Firstech tem vaga aberta para Desenvolvedor Java Júnior!\n\n" +
+                         "Buscamos alguém com conhecimento em Spring Boot, que goste de trabalhar em equipe " +
+                         "e queira crescer rápido em um ambiente ágil.\n\n" +
                          "Modelo híbrido em São Paulo, salário competitivo. Candidate-se abaixo!")
                 .tags(List.of("Vaga", "Java", "SpringBoot", "Júnior", "SãoPaulo"))
                 .linkedJob(vagaJava)
@@ -558,7 +559,7 @@ public class DataInitializer implements CommandLineRunner {
                 .build());
 
         save(Post.builder()
-                .author(admin)
+                .author(amanda)
                 .content("📣 Vaga de estágio aberta na Firstech!\n\n" +
                          "Para estudantes que querem dar seus primeiros passos no desenvolvimento web com " +
                          "Vue.js e Django. Terá mentor dedicado, projetos reais e ambiente de aprendizado.\n\n" +

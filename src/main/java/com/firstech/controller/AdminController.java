@@ -1,7 +1,6 @@
 package com.firstech.controller;
 
 import com.firstech.dto.AdminDashboardDTO;
-import com.firstech.model.Role;
 import com.firstech.model.User;
 import com.firstech.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +31,7 @@ public class AdminController {
         AdminDashboardDTO stats = adminService.getDashboard();
         model.addAttribute("stats", stats);
 
-        // Pré-processamento dos dados para os gráficos Chart.js
-        // (listas separadas de labels e valores para o JS consumir diretamente)
+        // Listas separadas para os gráficos Chart.js
         List<String> topPosterNames  = stats.topPosters().stream()
                 .map(AdminDashboardDTO.TopPosterEntry::nome).collect(Collectors.toList());
         List<Long>   topPosterValues = stats.topPosters().stream()
@@ -42,13 +40,15 @@ public class AdminController {
         model.addAttribute("topPosterNames",  topPosterNames);
         model.addAttribute("topPosterValues", topPosterValues);
 
-        // Dados do admin logado para o topbar
+        // Dados do admin logado para a topbar
         if (userDetails instanceof User u) {
-            model.addAttribute("adminNome",  u.getName());
-            model.addAttribute("adminEmail", u.getEmail());
+            model.addAttribute("adminNome",   u.getName());
+            model.addAttribute("adminEmail",  u.getEmail());
+            model.addAttribute("adminAvatar", u.getAvatarBase64());
         } else {
-            model.addAttribute("adminNome",  "Admin");
-            model.addAttribute("adminEmail", "");
+            model.addAttribute("adminNome",   "Admin");
+            model.addAttribute("adminEmail",  "");
+            model.addAttribute("adminAvatar", null);
         }
 
         return "admin/dashboard";
