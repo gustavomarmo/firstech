@@ -412,7 +412,6 @@ public class DataInitializer implements CommandLineRunner {
                          "e a migração costuma ser simples.")
                 .tags(List.of("Java", "Java21", "ProjectLoom", "Backend"))
                 .likedByUserIds(setOf(carlos.getId(), pedro.getId(), rafael.getId(), admin.getId()))
-                .commentCount(3)
                 .build());
 
         save(Post.builder()
@@ -423,7 +422,6 @@ public class DataInitializer implements CommandLineRunner {
                          "dúvidas sobre o processo nos comentários!")
                 .tags(List.of("React", "Vite", "Frontend", "Performance"))
                 .likedByUserIds(setOf(ana.getId(), beatriz.getId(), mariana.getId(), amanda.getId()))
-                .commentCount(5)
                 .build());
 
         save(Post.builder()
@@ -435,7 +433,6 @@ public class DataInitializer implements CommandLineRunner {
                          "com essa abordagem. 🚀")
                 .tags(List.of("DevOps", "Kubernetes", "GitOps", "ArgoCD", "CI/CD"))
                 .likedByUserIds(setOf(ana.getId(), carlos.getId(), lucas.getId()))
-                .commentCount(2)
                 .build());
 
         save(Post.builder()
@@ -447,7 +444,6 @@ public class DataInitializer implements CommandLineRunner {
                          "O código está aberto no GitHub — link na bio!")
                 .tags(List.of("MachineLearning", "NLP", "Python", "BERT", "IA"))
                 .likedByUserIds(setOf(ana.getId(), carlos.getId(), rafael.getId(), lucas.getId(), amanda.getId()))
-                .commentCount(7)
                 .build());
 
         save(Post.builder()
@@ -459,7 +455,6 @@ public class DataInitializer implements CommandLineRunner {
                          "inicial é íngreme, mas compensa muito.")
                 .tags(List.of("Flutter", "Dart", "Firebase", "Mobile", "PlayStore"))
                 .likedByUserIds(setOf(mariana.getId(), beatriz.getId(), carlos.getId()))
-                .commentCount(4)
                 .build());
 
         save(Post.builder()
@@ -471,7 +466,6 @@ public class DataInitializer implements CommandLineRunner {
                          "\"good first issues\" e vá subindo a dificuldade.")
                 .tags(List.of("OpenSource", "Django", "Python", "GitHub"))
                 .likedByUserIds(setOf(beatriz.getId(), carlos.getId(), rafael.getId(), ana.getId()))
-                .commentCount(6)
                 .build());
 
         save(Post.builder()
@@ -481,7 +475,6 @@ public class DataInitializer implements CommandLineRunner {
                          "Planejando fazer em 3 semanas.")
                 .tags(List.of("AWS", "Certificação", "Cloud", "Estudos"))
                 .likedByUserIds(setOf(pedro.getId(), ana.getId()))
-                .commentCount(8)
                 .build());
 
         save(Post.builder()
@@ -493,7 +486,6 @@ public class DataInitializer implements CommandLineRunner {
                          "4/ Mas cuidado: redistribuir partições em produção é doloroso. Planejar antes é mais barato.")
                 .tags(List.of("Kafka", "Java", "EventDriven", "Arquitetura", "Backend"))
                 .likedByUserIds(setOf(carlos.getId(), pedro.getId(), lucas.getId(), admin.getId(), devCandidato.getId()))
-                .commentCount(9)
                 .build());
 
         save(Post.builder()
@@ -505,7 +497,6 @@ public class DataInitializer implements CommandLineRunner {
                          "projetos médios o Zustand está me deixando muito mais produtivo.")
                 .tags(List.of("React", "Zustand", "Redux", "StateManagement", "TypeScript"))
                 .likedByUserIds(setOf(mariana.getId(), beatriz.getId(), ana.getId()))
-                .commentCount(4)
                 .build());
 
         save(Post.builder()
@@ -517,7 +508,6 @@ public class DataInitializer implements CommandLineRunner {
                          "Lição: SEMPRE configure requests e limits. SEMPRE. Sem exceção.")
                 .tags(List.of("Kubernetes", "DevOps", "SRE", "PostMortem", "Lessons"))
                 .likedByUserIds(setOf(ana.getId(), lucas.getId(), admin.getId(), carlos.getId()))
-                .commentCount(12)
                 .build());
 
         save(Post.builder()
@@ -530,7 +520,6 @@ public class DataInitializer implements CommandLineRunner {
                          "Pequena mudança, grande impacto em legibilidade.")
                 .tags(List.of("Python", "DataScience", "CleanCode", "Dicas"))
                 .likedByUserIds(setOf(mariana.getId(), carlos.getId(), rafael.getId()))
-                .commentCount(3)
                 .build());
 
         // ── posts de recrutadores (vagas) ─────────────────────────────
@@ -543,7 +532,6 @@ public class DataInitializer implements CommandLineRunner {
                 .tags(List.of("Vaga", "Java", "SpringBoot", "Júnior", "SãoPaulo"))
                 .linkedJob(vagaJava)
                 .likedByUserIds(setOf(devCandidato.getId(), mariana.getId(), beatriz.getId()))
-                .commentCount(2)
                 .build());
 
         save(Post.builder()
@@ -556,7 +544,6 @@ public class DataInitializer implements CommandLineRunner {
                 .tags(List.of("Vaga", "React", "TypeScript", "Remoto", "Frontend"))
                 .linkedJob(vagaReact)
                 .likedByUserIds(setOf(carlos.getId(), mariana.getId(), beatriz.getId(), ana.getId()))
-                .commentCount(5)
                 .build());
 
         save(Post.builder()
@@ -568,7 +555,6 @@ public class DataInitializer implements CommandLineRunner {
                 .tags(List.of("Vaga", "DevOps", "Kubernetes", "AWS", "Startup"))
                 .linkedJob(vagaDevOps)
                 .likedByUserIds(setOf(pedro.getId(), ana.getId(), admin.getId()))
-                .commentCount(3)
                 .build());
 
         save(Post.builder()
@@ -580,7 +566,6 @@ public class DataInitializer implements CommandLineRunner {
                 .tags(List.of("Estágio", "VueJS", "Python", "Django", "BH"))
                 .linkedJob(vagaEstágio)
                 .likedByUserIds(setOf(mariana.getId(), beatriz.getId()))
-                .commentCount(4)
                 .build());
 
         save(Post.builder()
@@ -592,7 +577,6 @@ public class DataInitializer implements CommandLineRunner {
                 .tags(List.of("Vaga", "Flutter", "Mobile", "Júnior", "Curitiba"))
                 .linkedJob(vagaFlutter)
                 .likedByUserIds(setOf(rafael.getId(), mariana.getId()))
-                .commentCount(2)
                 .build());
 
         log.info("Posts criados: {}", 16);
