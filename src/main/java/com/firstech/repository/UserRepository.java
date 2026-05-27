@@ -22,4 +22,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
         ORDER BY u.name ASC
         """)
     List<User> searchByRole(@Param("role") Role role, @Param("q") String q);
+
+    @Query("""
+        SELECT DISTINCT u FROM User u
+        WHERE (:q = '' OR LOWER(u.name)    LIKE LOWER(CONCAT('%',:q,'%'))
+                       OR LOWER(u.tagline) LIKE LOWER(CONCAT('%',:q,'%'))
+                       OR LOWER(u.city)    LIKE LOWER(CONCAT('%',:q,'%')))
+        ORDER BY u.name ASC
+        """)
+    List<User> searchAll(@Param("q") String q);
 }

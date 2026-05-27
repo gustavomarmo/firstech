@@ -2018,7 +2018,7 @@ function switchMsgTab(tab) {
 
   // Carrega dados sob demanda
   if (tab === 'people' && !_connLoaded) {
-    loadMyConnections();
+    loadAllPeopleForMsg();
     _connLoaded = true;
   }
   if (tab === 'requests' && !_requestsLoaded) {
@@ -2119,8 +2119,13 @@ function filterConversations(q) {
 
 /* ── Aba Pessoas ─────────────────────────────────────────── */
 
-/** Carrega conexões aceitas (aba Pessoas, quando busca está vazia). */
-async function loadMyConnections() {
+let _allPeopleData = [];   // cache de todos os usuários da plataforma
+
+/**
+ * Carrega em paralelo as conexões do usuário (para badges "Conectado") e
+ * todos os usuários da plataforma (para renderizar na aba Pessoas).
+ */
+async function loadAllPeopleForMsg() {
   const container = document.getElementById('msg-connections-list');
   const loadingEl = document.getElementById('conn-msg-loading');
   if (!container) return;
@@ -2128,17 +2133,36 @@ async function loadMyConnections() {
 
   try {
     const token = localStorage.getItem('firstech_access_token');
-    const res = await fetch('/api/connections/my', {
-      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-    });
-    if (!res.ok) throw new Error();
-    _connData = await res.json();
-    _renderConnectionsForMsg(_connData);
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    // Busca conexões + todos usuários em paralelo
+    const [connRes, peopleRes] = await Promise.all([
+      fetch('/api/connections/my',       { headers }),
+      fetch('/api/search/users?q=',      { headers })
+    ]);
+
+    if (connRes.ok)   _connData      = await connRes.json();
+    if (peopleRes.ok) _allPeopleData = await peopleRes.json();
+
+    const labelEl = document.querySelector('#msg-people-section-label span');
+    if (labelEl) labelEl.textContent = 'Todas as pessoas';
+    _renderPeopleSearchForMsg(_allPeopleData);
   } catch {
-    if (container) container.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao carregar conexões.</div>';
+    if (container) container.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao carregar pessoas.</div>';
   } finally {
     loadingEl && loadingEl.classList.add('hidden');
   }
+}
+
+/** @deprecated Usado apenas internamente para refrescar _connData sem re-render. */
+async function _refreshConnData() {
+  try {
+    const token = localStorage.getItem('firstech_access_token');
+    const res = await fetch('/api/connections/my', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+    if (res.ok) _connData = await res.json();
+  } catch { /* silencioso */ }
 }
 
 function _renderConnectionsForMsg(conns) {
@@ -2175,7 +2199,7 @@ function _renderConnectionsForMsg(conns) {
   });
 }
 
-/** Busca pessoas (debounced). Quando vazia → mostra conexões. */
+/** Busca pessoas (debounced). Quando vazia → mostra todos da plataforma (cache). */
 let _peopleSrchData = [];
 function searchPeopleForMsg(q) {
   clearTimeout(_peopleSrchTimer);
@@ -2183,8 +2207,13 @@ function searchPeopleForMsg(q) {
   const labelEl = document.querySelector('#msg-people-section-label span');
 
   if (!query) {
-    if (labelEl) labelEl.textContent = 'Minhas conexões';
-    _renderConnectionsForMsg(_connData);
+    // Sem texto: mostra todos os usuários da plataforma (usa cache se disponível)
+    if (labelEl) labelEl.textContent = 'Todas as pessoas';
+    if (_allPeopleData.length) {
+      _renderPeopleSearchForMsg(_allPeopleData);
+    } else {
+      loadAllPeopleForMsg();
+    }
     return;
   }
 
@@ -2195,12 +2224,12 @@ function searchPeopleForMsg(q) {
 
     try {
       const token = localStorage.getItem('firstech_access_token');
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+      // Usa o endpoint dedicado de usuários (candidatos + recrutadores)
+      const res = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`, {
         headers: token ? { 'Authorization': 'Bearer ' + token } : {}
       });
       if (!res.ok) throw new Error();
-      const results = await res.json();
-      _peopleSrchData = results.filter(r => r.tipo === 'pessoa');
+      _peopleSrchData = await res.json();
       _renderPeopleSearchForMsg(_peopleSrchData);
     } catch {
       if (container) container.innerHTML = '<div class="px-4 py-3 text-[12px] text-text3">Erro ao buscar.</div>';
@@ -2335,7 +2364,8 @@ async function acceptConnectionRequest(fromId, btn) {
     });
     if (!res.ok) throw new Error();
     _removeRequestItem(fromId);
-    _connLoaded = false; // força reload das conexões
+    _connLoaded = false;      // força reload das conexões
+    _allPeopleData = [];      // invalida cache de pessoas (badges mudam)
     showJobToast('Conexão aceita!');
   } catch {
     btn.disabled = false;

@@ -88,6 +88,28 @@ public class SearchService {
         return results;
     }
 
+    /**
+     * Busca somente usuários (candidatos + recrutadores) da plataforma.
+     * Usado pela aba Pessoas na tela de Rede.
+     */
+    @Transactional(readOnly = true)
+    public List<SearchResultDTO> searchUsers(String q) {
+        String term = q != null ? q.trim() : "";
+        List<SearchResultDTO> results = new ArrayList<>();
+        userRepository.searchAll(term).forEach(u -> {
+            String nome    = u.getName() != null ? u.getName() : "Usuário";
+            String inicial = nome.isBlank() ? "?" : initials(nome);
+            String sub     = buildUserSubtitleWithRole(u);
+            results.add(new SearchResultDTO(
+                    u.getId(), nome, sub,
+                    "pessoa", "Pessoa",
+                    gradient(nome), inicial,
+                    u.getAvatarBase64()
+            ));
+        });
+        return results;
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────
 
     private static String buildUserSubtitle(User u) {
@@ -95,6 +117,18 @@ public class SearchService {
         if (u.getTagline() != null && !u.getTagline().isBlank()) parts.add(u.getTagline());
         if (u.getCity()    != null && !u.getCity().isBlank())    parts.add(u.getCity());
         return parts.isEmpty() ? "Candidato" : String.join(" · ", parts);
+    }
+
+    private static String buildUserSubtitleWithRole(User u) {
+        boolean isRecruiter = u.getRoles() != null && u.getRoles().contains(Role.RECRUTADOR);
+        List<String> parts = new ArrayList<>();
+        if (u.getTagline() != null && !u.getTagline().isBlank()) {
+            parts.add(u.getTagline());
+        } else {
+            parts.add(isRecruiter ? "Recrutador" : "Candidato");
+        }
+        if (u.getCity() != null && !u.getCity().isBlank()) parts.add(u.getCity());
+        return String.join(" · ", parts);
     }
 
     private static String buildJobSubtitle(Job j) {

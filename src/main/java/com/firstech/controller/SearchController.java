@@ -23,4 +23,11 @@ public class SearchController {
             @RequestParam(defaultValue = "") String q) {
         return ResponseEntity.ok(searchService.search(q));
     }
+
+    /** Busca apenas usuários (candidatos + recrutadores). Usado pela aba Pessoas na tela de Rede. */
+    @GetMapping("/users")
+    public ResponseEntity<List<SearchResultDTO>> searchUsers(
+            @RequestParam(defaultValue = "") String q) {
+        return ResponseEntity.ok(searchService.searchUsers(q));
+    }
 }
