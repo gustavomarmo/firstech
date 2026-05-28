@@ -30,6 +30,8 @@ public class UsuarioViewModel {
     @Builder.Default private List<HabilidadeViewModel>   habilidades   = List.of();
     @Builder.Default private List<CertificacaoViewModel> certificacoes = List.of();
     @Builder.Default private List<ProjetoViewModel>      projetos      = List.of();
+    @Builder.Default private List<PostResponseDTO>       projetoPosts  = List.of();
+    @Builder.Default private List<PostResponseDTO>       postagens     = List.of();
 
     public String getInicial() {
         if (nome == null || nome.isBlank()) return "?";

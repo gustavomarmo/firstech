@@ -256,8 +256,122 @@
         </div>
       </div>
 
-      <div th:if="${#lists.isEmpty(usuario.projetos)}"
+      <!-- Posts marcados como projeto -->
+      <div th:if="${!#lists.isEmpty(usuario.projetoPosts)}"
+           class="grid grid-cols-2 gap-[10px]"
+           th:classappend="${!#lists.isEmpty(usuario.projetos)} ? ' mt-[10px]' : ''">
+        <div th:each="pp : ${usuario.projetoPosts}"
+             class="group relative bg-bg3 rounded-[11px] overflow-hidden border border-border2 transition-all duration-200 hover:border-border"
+             th:classappend="${pp.githubUrl != null and !pp.githubUrl.isBlank()} ? ' cursor-pointer' : ' cursor-default'"
+             th:data-github-url="${pp.githubUrl}"
+             onclick="if(this.dataset.githubUrl) openProjGithub(this.dataset.githubUrl)">
+
+          <div class="h-[84px] flex items-center justify-center"
+               style="background:linear-gradient(135deg,#2d1b6e,#1a0533)">
+            <i class="ti ti-folder-code" style="font-size:30px;color:var(--purple2)"></i>
+          </div>
+
+          <div class="p-[10px_12px]">
+            <div class="flex items-center gap-1 mb-[3px]">
+              <div class="text-[13px] font-semibold text-text1 flex-1 truncate"
+                   th:text="${pp.title != null and !pp.title.isBlank() ? pp.title : 'Projeto sem título'}">Projeto</div>
+              <i th:if="${pp.githubUrl != null and !pp.githubUrl.isBlank()}"
+                 class="ti ti-brand-github text-[13px] text-text3 shrink-0" title="Ver no GitHub"></i>
+            </div>
+            <div class="text-[11px] text-text3 leading-[1.55] line-clamp-2" th:text="${pp.content}">Descrição.</div>
+          </div>
+
+          <!-- Ações (aparecem no hover) -->
+          <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+            <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-purple2"
+                    th:data-post-id="${pp.id}"
+                    th:data-post-title="${pp.title}"
+                    th:data-post-content="${pp.content}"
+                    th:data-post-tags="${#strings.listJoin(pp.tags, ',')}"
+                    th:data-is-project="${pp.isProject}"
+                    th:data-github-url="${pp.githubUrl}"
+                    onclick="event.stopPropagation(); editPostFromBtn(this)"
+                    title="Editar post">
+              <i class="ti ti-pencil"></i>
+            </button>
+            <button class="w-6 h-6 rounded-md bg-[rgba(7,10,16,.75)] text-text2 flex items-center justify-center cursor-pointer text-[12px] hover:text-red"
+                    th:data-post-id="${pp.id}"
+                    onclick="event.stopPropagation(); deletePost(this.dataset.postId)"
+                    title="Excluir post">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(usuario.projetos) and #lists.isEmpty(usuario.projetoPosts)}"
            class="text-sm text-text3 italic text-center py-3">Nenhum projeto adicionado ainda.</div>
+    </div>
+
+    <!-- ── POSTAGENS (apenas candidatos) ── -->
+    <div th:unless="${usuario.recrutador}"
+         class="bg-bg2 border border-border2 rounded-[14px] p-[18px] mb-[14px]">
+      <div class="font-display text-[15px] font-semibold text-text1 mb-[14px] flex items-center justify-between">
+        Postagens
+        <button class="flex items-center gap-1 py-[5px] px-3 rounded-[8px] bg-transparent border border-border2 text-text2 font-[inherit] text-[12px] font-medium cursor-pointer transition-all hover:bg-bg3 hover:text-text1"
+                onclick="go('home')">
+          <i class="ti ti-arrow-right text-[13px]"></i>Ver feed
+        </button>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(usuario.postagens)}">
+        <div th:each="p, iterStat : ${usuario.postagens}"
+             class="py-[12px]"
+             th:classappend="${!iterStat.last} ? ' border-b border-border2' : ''">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <div th:if="${p.title != null and !p.title.isBlank()}"
+                   class="text-[13px] font-semibold text-text1 mb-[3px] truncate" th:text="${p.title}"></div>
+              <p class="text-[13px] text-text2 leading-[1.6] line-clamp-2" th:text="${p.content}"></p>
+              <div th:if="${!#lists.isEmpty(p.tags)}" class="flex flex-wrap gap-[5px] mt-[6px]">
+                <span th:each="tag : ${p.tags}"
+                      class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-purplebg text-purple2 border border-border"
+                      th:text="${tag}"></span>
+              </div>
+              <div class="flex items-center gap-2 mt-[6px]">
+                <span class="text-[11px] text-text3" th:text="${p.tempoRelativo}"></span>
+                <span class="text-[11px] text-text3">·</span>
+                <span class="text-[11px] text-text3 flex items-center gap-[3px]">
+                  <i class="ti ti-heart text-[10px]"></i>
+                  <span th:text="${p.likes}">0</span>
+                </span>
+                <span class="text-[11px] text-text3 flex items-center gap-[3px]">
+                  <i class="ti ti-message-circle text-[10px]"></i>
+                  <span th:text="${p.commentCount}">0</span>
+                </span>
+              </div>
+            </div>
+            <!-- Botões de ação -->
+            <div class="flex gap-1 shrink-0">
+              <button class="w-7 h-7 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[14px] transition-all hover:text-purple2 hover:bg-bg3"
+                      th:data-post-id="${p.id}"
+                      th:data-post-title="${p.title}"
+                      th:data-post-content="${p.content}"
+                      th:data-post-tags="${#strings.listJoin(p.tags, ',')}"
+                      th:data-is-project="${p.isProject}"
+                      th:data-github-url="${p.githubUrl}"
+                      onclick="editPostFromBtn(this)"
+                      title="Editar">
+                <i class="ti ti-pencil"></i>
+              </button>
+              <button class="w-7 h-7 rounded border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[14px] transition-all hover:text-red hover:bg-bg3"
+                      th:data-post-id="${p.id}"
+                      onclick="deletePost(this.dataset.postId)"
+                      title="Excluir">
+                <i class="ti ti-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(usuario.postagens)}"
+           class="text-sm text-text3 italic text-center py-3">Nenhuma postagem ainda. Publique algo no feed!</div>
     </div>
 
     <!-- ── VAGAS PUBLICADAS (apenas recrutadores) ── -->

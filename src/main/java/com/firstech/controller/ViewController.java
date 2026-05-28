@@ -95,6 +95,8 @@ public class ViewController {
                     .habilidades(portfolioService.getSkills(user))
                     .certificacoes(portfolioService.getCertifications(user))
                     .projetos(portfolioService.getProjects(user))
+                    .projetoPosts(!isRecruiter ? postService.getProjectPostsByAuthor(user) : List.of())
+                    .postagens(!isRecruiter ? postService.getRegularPostsByAuthor(user) : List.of())
                     .build();
         } else {
             usuario = UsuarioViewModel.builder().build();
