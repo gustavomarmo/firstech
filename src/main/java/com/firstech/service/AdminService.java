@@ -2,6 +2,7 @@ package com.firstech.service;
 
 import com.firstech.dto.*;
 import com.firstech.model.*;
+import com.firstech.model.PostComment;
 import com.firstech.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -154,6 +155,27 @@ public class AdminService {
         postRepository.delete(post); // JPA cascades post_tags e post_likes
     }
 
+    // ── Gestão de comentários ─────────────────────────────────────────────────
+
+    public List<AdminCommentDTO> getCommentsByPost(Long postId) {
+        return postCommentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
+                .map(c -> toCommentDTO(c, postId))
+                .toList();
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId) {
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("Comentário não encontrado: " + commentId));
+        // Decrementa o contador no post
+        Post post = comment.getPost();
+        if (post != null) {
+            post.setCommentCount(Math.max(0, post.getCommentCount() - 1));
+            postRepository.save(post);
+        }
+        postCommentRepository.delete(comment);
+    }
+
     // ── Gestão de vagas ───────────────────────────────────────────────────────
 
     public List<AdminJobDTO> getAllJobs() {
@@ -233,6 +255,17 @@ public class AdminService {
                 j.getStatus()    != null ? j.getStatus().name() : "ATIVA",
                 j.getTags()      != null ? j.getTags()      : List.of(),
                 criadoEm
+        );
+    }
+
+    private AdminCommentDTO toCommentDTO(PostComment c, Long postId) {
+        User author  = c.getAuthor();
+        String role  = author.getRoles().isEmpty() ? "CANDIDATO" : author.getRoles().iterator().next().name();
+        String criado = c.getCreatedAt() != null ? c.getCreatedAt().format(DATETIME_FMT) : "—";
+        return new AdminCommentDTO(
+                c.getId(), postId,
+                author.getId(), author.getName(), author.getEmail(), role,
+                c.getContent(), criado
         );
     }
 
