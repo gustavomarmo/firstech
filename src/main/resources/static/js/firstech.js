@@ -73,6 +73,7 @@ function openModal(post) {
     resetPostModal();
   }
 
+  syncCharCounters();
   document.getElementById('post-overlay').classList.add('open');
   setTimeout(() => document.getElementById('modal-desc').focus(), 80);
 }
@@ -385,6 +386,7 @@ function openJobModal(vaga) {
     resetJobModal();
   }
 
+  syncCharCounters();
   document.getElementById('job-overlay').classList.add('open');
   setTimeout(() => document.getElementById('job-titulo').focus(), 80);
 }
@@ -984,6 +986,7 @@ function openExpModal(ds) {
   chk.checked = p.presente;
   toggleExpPresente(chk);
 
+  syncCharCounters();
   document.getElementById('port-exp-overlay').classList.add('open');
   setTimeout(() => document.getElementById('exp-title').focus(), 80);
 }
@@ -1143,6 +1146,7 @@ function openCertModal(ds) {
   document.getElementById('cert-issuer').value      = ds?.issuer || '';
   document.getElementById('cert-date').value        = ds?.date   || '';
   heading.textContent = ds?.id ? 'Editar certificação' : 'Adicionar certificação';
+  syncCharCounters();
   document.getElementById('port-cert-overlay').classList.add('open');
   setTimeout(() => document.getElementById('cert-name').focus(), 80);
 }
@@ -1234,6 +1238,7 @@ function openProjModal(ds) {
     document.getElementById('proj-image-input').value = '';
   }
 
+  syncCharCounters();
   document.getElementById('port-proj-overlay').classList.add('open');
   setTimeout(() => document.getElementById('proj-name').focus(), 80);
 }
@@ -2632,6 +2637,78 @@ async function _pollUnreadCount() {
 
 setInterval(_pollUnreadCount, 15000);
 _pollUnreadCount();
+
+/* ═══════════════════════════════════════════════════════════
+   CONTADORES DE CARACTERES
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * Inicializa contadores de caracteres discretos em todos os campos
+ * com o atributo [data-char-limit="N"].
+ *
+ * Para <textarea>: contador sobreposto no canto inferior-direito (estilo Twitter),
+ *   com padding-bottom extra para o texto não ficar sob o contador.
+ * Para <input>: contador abaixo do campo, dentro de um wrapper relativo.
+ *
+ * Deve ser chamado uma vez após o DOM estar pronto.
+ */
+function initCharCounters() {
+  document.querySelectorAll('[data-char-limit]').forEach(el => {
+    const max = parseInt(el.dataset.charLimit, 10);
+    if (!max) return;
+
+    const isTextarea = el.tagName === 'TEXTAREA';
+
+    // Envolve o elemento num wrapper com position:relative
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    if (!isTextarea) wrapper.style.paddingBottom = '16px';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+
+    // Textarea precisa de padding-bottom para o texto não passar sob o contador
+    if (isTextarea) el.style.paddingBottom = '22px';
+
+    // Cria o span do contador
+    const span = document.createElement('span');
+    span.style.cssText =
+      'position:absolute;font-size:10px;font-family:inherit;' +
+      'pointer-events:none;user-select:none;transition:color .2s;line-height:1;' +
+      (isTextarea ? 'bottom:7px;right:10px' : 'bottom:1px;right:2px');
+
+    // Guarda referência no elemento para sync programático posterior
+    el._charCounter    = span;
+    el._charCounterMax = max;
+
+    _updateCharCounter(span, el.value.length, max);
+    wrapper.appendChild(span);
+
+    el.addEventListener('input', () => _updateCharCounter(span, el.value.length, max));
+  });
+}
+
+/**
+ * Re-sincroniza todos os contadores (chamado após preenchimento programático
+ * de campos com .value = '...', que não dispara o evento 'input').
+ */
+function syncCharCounters() {
+  document.querySelectorAll('[data-char-limit]').forEach(el => {
+    if (el._charCounter && el._charCounterMax) {
+      _updateCharCounter(el._charCounter, el.value.length, el._charCounterMax);
+    }
+  });
+}
+
+function _updateCharCounter(span, len, max) {
+  span.textContent = len + ' / ' + max;
+  const ratio = len / max;
+  if      (ratio >= 0.95) span.style.color = 'var(--red)';
+  else if (ratio >= 0.80) span.style.color = 'var(--amber)';
+  else                    span.style.color = 'var(--text3)';
+}
+
+// Inicializa ao carregar a página (script é carregado no final do <body>)
+initCharCounters();
 
 /* ── URL params: ?tab=xxx  |  ?openChat=id&chatName=nome ── */
 (function () {

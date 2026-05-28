@@ -29,12 +29,14 @@
       <input class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[17px] font-semibold font-display transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
              type="text"
              th:placeholder="${usuario.recrutador} ? 'Título da atualização (opcional)' : 'Título do projeto (opcional)'"
-             id="modal-title"/>
+             id="modal-title"
+             maxlength="150" data-char-limit="150"/>
 
       <!-- Conteúdo (obrigatório — placeholder muda por papel) -->
       <textarea class="w-full min-h-[130px] bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
                 th:placeholder="${usuario.recrutador} ? 'Compartilhe uma atualização, novidade ou destaque uma conquista...' : 'Descreva seu projeto, conquista ou aprendizado...'"
-                id="modal-desc"></textarea>
+                id="modal-desc"
+                maxlength="2000" data-char-limit="2000"></textarea>
 
       <!-- Vincular à vaga — apenas recrutadores -->
       <div th:if="${usuario.recrutador}" class="relative">

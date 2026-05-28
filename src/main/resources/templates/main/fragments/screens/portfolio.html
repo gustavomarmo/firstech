@@ -445,10 +445,12 @@
       <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[70vh]">
         <input id="port-name" type="text" placeholder="Nome completo"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"
-               th:value="${usuario.nomeCompleto}"/>
+               th:value="${usuario.nomeCompleto}"
+               maxlength="100" data-char-limit="100"/>
         <input id="port-headline" type="text" placeholder="Headline (ex: Back-end Dev · Java · Spring)"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
-               th:value="${usuario.headline}"/>
+               th:value="${usuario.headline}"
+               maxlength="150" data-char-limit="150"/>
         <!-- Localização com autocomplete IBGE -->
         <div class="relative">
           <input id="port-city" type="text" autocomplete="off"
@@ -483,7 +485,8 @@
       <div class="p-5">
         <textarea id="port-sobre" rows="7" placeholder="Conte um pouco sobre você, suas experiências e objetivos..."
                   class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.7] resize-none focus:border-border placeholder:text-text3"
-                  th:text="${usuario.sobre}"></textarea>
+                  th:text="${usuario.sobre}"
+                  maxlength="2000" data-char-limit="2000"></textarea>
       </div>
       <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
@@ -506,9 +509,11 @@
       <div class="p-5 flex flex-col gap-3 overflow-y-auto max-h-[72vh]">
         <input type="hidden" id="exp-editing-id"/>
         <input id="exp-title" type="text" placeholder="Cargo / título*"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"
+               maxlength="100" data-char-limit="100"/>
         <input id="exp-company" type="text" placeholder="Empresa*"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+               maxlength="100" data-char-limit="100"/>
         <!-- Data início -->
         <div>
           <div class="text-[11px] text-text3 mb-[6px]">Data de início</div>
@@ -557,7 +562,8 @@
           </div>
         </div>
         <textarea id="exp-desc" rows="4" placeholder="Descrição das atividades (opcional)"
-                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"
+                  maxlength="500" data-char-limit="500"></textarea>
       </div>
       <div class="py-3 px-5 pb-4 flex justify-end gap-2 border-t border-border2">
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] cursor-pointer hover:bg-bg3"
@@ -630,10 +636,12 @@
           <input id="cert-emoji" type="text" placeholder="📜"
                  class="bg-bg3 border border-border2 rounded-[9px] py-2 px-3 outline-none text-text1 font-[inherit] text-[22px] text-center focus:border-border"/>
           <input id="cert-name" type="text" placeholder="Nome da certificação*"
-                 class="bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+                 class="bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+                 maxlength="150" data-char-limit="150"/>
         </div>
         <input id="cert-issuer" type="text" placeholder="Organização emissora (ex: Microsoft)"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"
+               maxlength="100" data-char-limit="100"/>
         <input id="cert-date" type="text" placeholder="Data de emissão (ex: Ago 2023)"
                class="w-full bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] focus:border-border placeholder:text-text3"/>
       </div>
@@ -659,10 +667,12 @@
         <input type="hidden" id="proj-editing-id"/>
 
         <input id="proj-name" type="text" placeholder="Nome do projeto*"
-               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"/>
+               class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[15px] font-semibold focus:border-border placeholder:text-text3"
+               maxlength="100" data-char-limit="100"/>
 
         <textarea id="proj-desc" rows="3" placeholder="Breve descrição do projeto"
-                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"></textarea>
+                  class="w-full bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none focus:border-border placeholder:text-text3"
+                  maxlength="2000" data-char-limit="2000"></textarea>
 
         <!-- Link do GitHub -->
         <div class="flex items-center gap-2 bg-bg3 border border-border2 rounded-[9px] px-[14px] focus-within:border-border transition-colors">

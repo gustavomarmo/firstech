@@ -19,7 +19,7 @@ public class Project {
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 500)
+    @Column(length = 2000)
     private String description;
 
     /**

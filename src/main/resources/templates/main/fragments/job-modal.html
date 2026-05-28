@@ -27,7 +27,8 @@
 
       <!-- Título -->
       <input class="w-full bg-bg3 border border-border2 rounded-[9px] py-[10px] px-[14px] outline-none text-text1 font-[inherit] text-[17px] font-semibold font-display transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
-             type="text" placeholder="Título da vaga" id="job-titulo"/>
+             type="text" placeholder="Título da vaga" id="job-titulo"
+             maxlength="150" data-char-limit="150"/>
 
       <!-- Empresa contratante — autocomplete Clearbit -->
       <div class="relative">
@@ -101,12 +102,14 @@
           <i class="ti ti-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text3 text-sm pointer-events-none"></i>
         </div>
         <input class="bg-bg3 border border-border2 rounded-[9px] py-2 px-[14px] outline-none text-text1 font-[inherit] text-[13px] transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
-               type="text" placeholder="Salário (opcional, ex: R$ 3.000 – 5.000)" id="job-salario"/>
+               type="text" placeholder="Salário (opcional, ex: R$ 3.000 – 5.000)" id="job-salario"
+               maxlength="80" data-char-limit="80"/>
       </div>
 
       <!-- Descrição -->
       <textarea class="w-full min-h-[110px] bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
-                placeholder="Descrição da vaga, requisitos e responsabilidades..." id="job-descricao"></textarea>
+                placeholder="Descrição da vaga, requisitos e responsabilidades..." id="job-descricao"
+                maxlength="2000" data-char-limit="2000"></textarea>
 
       <!-- Tags de tecnologias -->
       <div>
