@@ -24,6 +24,12 @@
         <span class="text-sm font-semibold text-text1 cursor-pointer hover:text-purple2 transition-colors"
               th:text="${post.autor.nome}"
               th:onclick="'openUserProfile(' + ${post.autor.id} + ')'">Autor</span>
+        <!-- Badge projeto -->
+        <span th:if="${post.isProject}"
+              class="inline-flex items-center gap-[3px] text-[9px] font-semibold px-[6px] py-[1px] rounded-full"
+              style="background:rgba(139,92,246,.12);color:var(--purple2);border:1px solid rgba(139,92,246,.3)">
+          <i class="ti ti-folder-code text-[9px]"></i>Projeto
+        </span>
         <!-- Badge de status de conexão -->
         <span th:if="${post.autor.connectionStatus == 'ACCEPTED'}"
               class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-[rgba(52,211,153,.12)] text-green border border-[rgba(52,211,153,.25)]">Conectado</span>
@@ -45,6 +51,8 @@
               th:data-post-content="${post.content}"
               th:data-post-tags="${#strings.listJoin(post.tags, ',')}"
               th:data-linked-job-id="${post.linkedJobId}"
+              th:data-is-project="${post.isProject}"
+              th:data-github-url="${post.githubUrl}"
               onclick="editPostFromBtn(this)">
         <i class="ti ti-pencil"></i>
       </button>

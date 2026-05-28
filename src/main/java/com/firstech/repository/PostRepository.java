@@ -12,6 +12,7 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByOrderByCreatedAtDesc();
     List<Post> findByAuthorOrderByCreatedAtDesc(User author);
+    List<Post> findByAuthorAndIsProjectOrderByCreatedAtDesc(User author, boolean isProject);
 
     @Query("""
         SELECT p FROM Post p

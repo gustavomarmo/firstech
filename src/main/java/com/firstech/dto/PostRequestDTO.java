@@ -10,5 +10,7 @@ public record PostRequestDTO(
 
         String title,
         List<String> tags,
-        Long linkedJobId
+        Long linkedJobId,
+        Boolean isProject,
+        String githubUrl
 ) {}

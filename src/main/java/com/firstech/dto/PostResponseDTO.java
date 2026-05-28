@@ -16,6 +16,8 @@ public class PostResponseDTO {
     private PostAutorDTO autor;
     private int likes;
     private boolean likedByMe;
+    private boolean isProject;
+    private String githubUrl;
     private int commentCount;
     private String tempoRelativo;
     private Long linkedJobId;

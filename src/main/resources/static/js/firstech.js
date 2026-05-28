@@ -33,6 +33,7 @@ function stab(el) {
 
 /** ID do post sendo editado. null = modo criação. */
 let editingPostId = null;
+let _isProject    = false;
 
 /**
  * Abre o modal de post.
@@ -55,6 +56,18 @@ function openModal(post) {
     // Restaura vaga vinculada (se houver select)
     const jobSel = document.getElementById('modal-linked-job');
     if (jobSel) jobSel.value = post.linkedJobId || '';
+
+    // Restaura flag de projeto
+    _isProject = post.isProject || false;
+    _applyProjectToggle();
+
+    // Restaura GitHub URL
+    const ghInp = document.getElementById('modal-github-url');
+    const ghRow = document.getElementById('github-url-row');
+    const ghBtn = document.getElementById('github-toggle-btn');
+    if (ghInp) ghInp.value = post.githubUrl || '';
+    if (ghRow) ghRow.style.display = post.githubUrl ? 'flex' : 'none';
+    if (ghBtn) ghBtn.style.color = post.githubUrl ? 'var(--purple2)' : '';
   } else {
     editingPostId = null;
     resetPostModal();
@@ -82,6 +95,48 @@ function resetPostModal() {
   document.querySelectorAll('#active-tags .m-tag').forEach(t => t.remove());
   const jobSel = document.getElementById('modal-linked-job');
   if (jobSel) jobSel.value = '';
+  _isProject = false;
+  _applyProjectToggle();
+  // Reset GitHub
+  const ghRow = document.getElementById('github-url-row');
+  const ghBtn = document.getElementById('github-toggle-btn');
+  const ghInp = document.getElementById('modal-github-url');
+  if (ghRow) ghRow.style.display = 'none';
+  if (ghBtn) ghBtn.style.color = '';
+  if (ghInp) ghInp.value = '';
+}
+
+function toggleGithubInput() {
+  const row = document.getElementById('github-url-row');
+  const btn = document.getElementById('github-toggle-btn');
+  if (!row) return;
+  const visible = row.style.display !== 'none';
+  row.style.display = visible ? 'none' : 'flex';
+  if (btn) btn.style.color = visible ? '' : 'var(--purple2)';
+  if (!visible) document.getElementById('modal-github-url')?.focus();
+  if (visible) { const inp = document.getElementById('modal-github-url'); if (inp) inp.value = ''; }
+}
+
+function toggleProjectFlag() {
+  _isProject = !_isProject;
+  _applyProjectToggle();
+}
+
+function _applyProjectToggle() {
+  const sw   = document.getElementById('project-toggle-switch');
+  const knob = document.getElementById('project-toggle-knob');
+  if (!sw || !knob) return;
+  if (_isProject) {
+    sw.style.background  = 'rgba(139,92,246,0.25)';
+    sw.style.borderColor = 'rgba(139,92,246,0.5)';
+    knob.style.background = 'var(--purple2)';
+    knob.style.left       = '21px';
+  } else {
+    sw.style.background  = '';
+    sw.style.borderColor = '';
+    knob.style.background = '';
+    knob.style.left       = '3px';
+  }
 }
 
 /* ── Tags do modal de post ── */
@@ -110,11 +165,12 @@ function collectPostTags() {
 
 /* ── Publicar ou atualizar post via API ── */
 async function publishPost() {
-  const title    = document.getElementById('modal-title').value.trim() || null;
-  const content  = document.getElementById('modal-desc').value.trim();
-  const tags     = collectPostTags();
-  const jobSel   = document.getElementById('modal-linked-job');
+  const title     = document.getElementById('modal-title').value.trim() || null;
+  const content   = document.getElementById('modal-desc').value.trim();
+  const tags      = collectPostTags();
+  const jobSel    = document.getElementById('modal-linked-job');
   const linkedJobId = jobSel && jobSel.value ? Number(jobSel.value) : null;
+  const githubUrl = (document.getElementById('modal-github-url')?.value || '').trim() || null;
 
   // Valida conteúdo
   if (!content) {
@@ -148,7 +204,7 @@ async function publishPost() {
         'Content-Type':  'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({ title, content, tags, linkedJobId }),
+      body: JSON.stringify({ title, content, tags, linkedJobId, isProject: _isProject, githubUrl }),
     });
 
     if (!resp.ok) {
@@ -162,6 +218,9 @@ async function publishPost() {
     if (isEdit) {
       showJobToast('Post atualizado com sucesso!');
       window.location.reload();
+    } else if (_isProject) {
+      // Projeto criado → vai direto para o perfil
+      window.location.href = '/dashboard?tab=portfolio';
     } else {
       showJobToast('Post publicado!');
       injectPostCard(post);
@@ -178,11 +237,13 @@ async function publishPost() {
 /* ── Abrir edição a partir do botão do card (server-side rendered) ── */
 function editPostFromBtn(btn) {
   const post = {
-    id:         btn.dataset.postId,
-    title:      btn.dataset.postTitle   || '',
-    content:    btn.dataset.postContent || '',
-    tags:       btn.dataset.postTags ? btn.dataset.postTags.split(',').filter(Boolean) : [],
+    id:          btn.dataset.postId,
+    title:       btn.dataset.postTitle   || '',
+    content:     btn.dataset.postContent || '',
+    tags:        btn.dataset.postTags ? btn.dataset.postTags.split(',').filter(Boolean) : [],
     linkedJobId: btn.dataset.linkedJobId || '',
+    isProject:   btn.dataset.isProject === 'true',
+    githubUrl:   btn.dataset.githubUrl || '',
   };
   openModal(post);
 }
@@ -228,7 +289,10 @@ function injectPostCard(post) {
       <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
            style="background:${autorCor}">${autorInicial}</div>
       <div class="flex-1">
-        <div class="text-sm font-semibold text-text1">${post.autor?.nome || 'Você'}</div>
+        <div class="flex items-center gap-[6px] flex-wrap">
+          <span class="text-sm font-semibold text-text1">${post.autor?.nome || 'Você'}</span>
+          ${post.isProject ? '<span class="inline-flex items-center gap-[3px] text-[9px] font-semibold px-[6px] py-[1px] rounded-full" style="background:rgba(139,92,246,.12);color:var(--purple2);border:1px solid rgba(139,92,246,.3)"><i class=\'ti ti-folder-code text-[9px]\'></i>Projeto</span>' : ''}
+        </div>
         <div class="text-[11px] text-text3 mt-px">${post.autor?.cargo || ''} · agora</div>
       </div>
       <div class="flex gap-1">
@@ -239,6 +303,8 @@ function injectPostCard(post) {
                 data-post-content="${post.content || ''}"
                 data-post-tags="${(post.tags || []).join(',')}"
                 data-linked-job-id="${post.linkedJobId || ''}"
+                data-is-project="${post.isProject || false}"
+                data-github-url="${post.githubUrl || ''}"
                 onclick="editPostFromBtn(this)">
           <i class="ti ti-pencil"></i>
         </button>

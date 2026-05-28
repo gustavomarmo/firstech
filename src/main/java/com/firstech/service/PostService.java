@@ -47,6 +47,8 @@ public class PostService {
                 .tags(dto.tags() != null ? new ArrayList<>(dto.tags()) : new ArrayList<>())
                 .author(author)
                 .linkedJob(linkedJob)
+                .isProject(Boolean.TRUE.equals(dto.isProject()))
+                .githubUrl(dto.githubUrl())
                 .build();
 
         return toDTO(postRepository.save(post), author.getId());
@@ -63,6 +65,8 @@ public class PostService {
             post.getTags().addAll(dto.tags());
         }
         post.setLinkedJob(resolveLinkedJob(dto.linkedJobId(), requester));
+        post.setProject(Boolean.TRUE.equals(dto.isProject()));
+        post.setGithubUrl(dto.githubUrl());
 
         return toDTO(postRepository.save(post), requester.getId());
     }
@@ -105,6 +109,18 @@ public class PostService {
         connectionRepository.findPendingReceived(user)
             .forEach(c -> map.putIfAbsent(c.getFromUser().getId(), "PENDING_RECEIVED"));
         return map;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getProjectPostsByAuthor(User author) {
+        return postRepository.findByAuthorAndIsProjectOrderByCreatedAtDesc(author, true)
+                .stream().map(p -> toDTO(p, null)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getRegularPostsByAuthor(User author) {
+        return postRepository.findByAuthorAndIsProjectOrderByCreatedAtDesc(author, false)
+                .stream().map(p -> toDTO(p, null)).toList();
     }
 
     // ── Curtidas ─────────────────────────────────────────────────────────
@@ -186,6 +202,8 @@ public class PostService {
                 .autor(buildAutor(author, currentUserId, connMap))
                 .likes(post.getLikedByUserIds().size())
                 .likedByMe(currentUserId != null && post.getLikedByUserIds().contains(currentUserId))
+                .isProject(post.isProject())
+                .githubUrl(post.getGithubUrl())
                 .commentCount(post.getCommentCount())
                 .tempoRelativo(relativeTime(post.getCreatedAt()))
                 .linkedJobId(post.getLinkedJob() != null ? post.getLinkedJob().getId() : null)

@@ -287,14 +287,15 @@
   </div>
 
   <!-- ── PROJETOS (candidatos) ── -->
-  <div th:if="${!profile.recrutador and !#lists.isEmpty(profile.projetos)}"
+  <div th:if="${!profile.recrutador and (!#lists.isEmpty(profile.projetos) or !#lists.isEmpty(profile.projetoPosts))}"
        class="bg-bg2 border border-border2 rounded-[18px] px-6 py-5 mb-4">
     <h2 class="font-display text-[15px] font-semibold text-text1 mb-4">Projetos</h2>
     <div class="grid grid-cols-2 gap-[10px]">
       <div th:each="proj : ${profile.projetos}"
            class="bg-bg3 rounded-[12px] overflow-hidden border border-border2 transition-all hover:border-border"
            th:classappend="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? ' cursor-pointer' : ''"
-           th:onclick="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? 'window.open(\'' + ${proj.githubUrl} + '\',\'_blank\')' : 'void 0'">
+           th:data-github-url="${proj.githubUrl}"
+           onclick="if(this.dataset.githubUrl) window.open(this.dataset.githubUrl,'_blank')">
         <!-- Thumbnail -->
         <div th:if="${proj.thumbImageBase64 != null}" class="h-[80px] overflow-hidden">
           <img th:src="${proj.thumbImageBase64}" class="w-full h-full object-cover" alt=""/>
@@ -311,6 +312,58 @@
                class="ti ti-brand-github text-[12px] text-text3 shrink-0"></i>
           </div>
           <p class="text-[11px] text-text3 leading-[1.5] line-clamp-2 mt-[2px]" th:text="${proj.descricao}"></p>
+        </div>
+      </div>
+
+      <!-- Posts marcados como projeto -->
+      <div th:each="pp : ${profile.projetoPosts}"
+           class="bg-bg3 rounded-[12px] overflow-hidden border border-border2 transition-all hover:border-border"
+           th:classappend="${pp.githubUrl != null and !pp.githubUrl.isBlank()} ? ' cursor-pointer' : ''"
+           th:data-github-url="${pp.githubUrl}"
+           onclick="if(this.dataset.githubUrl) window.open(this.dataset.githubUrl,'_blank')">
+        <div class="h-[80px] flex items-center justify-center"
+             style="background:linear-gradient(135deg,#2d1b6e,#1a0533)">
+          <i class="ti ti-folder-code" style="font-size:28px;color:var(--purple2)"></i>
+        </div>
+        <div class="p-[10px_12px]">
+          <div class="flex items-center gap-1 mb-[2px]">
+            <span class="text-[12px] font-semibold text-text1 truncate flex-1"
+                  th:text="${pp.title != null and !pp.title.isBlank() ? pp.title : 'Projeto sem título'}">Projeto</span>
+            <i th:if="${pp.githubUrl != null and !pp.githubUrl.isBlank()}"
+               class="ti ti-brand-github text-[12px] text-text3 shrink-0"></i>
+          </div>
+          <p class="text-[11px] text-text3 leading-[1.5] line-clamp-2" th:text="${pp.content}"></p>
+          <div th:if="${!#lists.isEmpty(pp.tags)}" class="flex flex-wrap gap-[4px] mt-[6px]">
+            <span th:each="tag : ${pp.tags}"
+                  class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-purplebg text-purple2"
+                  th:text="${tag}"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── POSTAGENS (candidatos) ── -->
+  <div th:if="${!profile.recrutador and !#lists.isEmpty(profile.postagens)}"
+       class="bg-bg2 border border-border2 rounded-[18px] px-6 py-5 mb-4">
+    <h2 class="font-display text-[15px] font-semibold text-text1 mb-4">Postagens</h2>
+    <div th:each="p, iterStat : ${profile.postagens}">
+      <div class="py-3" th:classappend="${!iterStat.last} ? ' border-b border-border2' : ''">
+        <div th:if="${p.title != null and !p.title.isBlank()}"
+             class="text-[13px] font-semibold text-text1 mb-1" th:text="${p.title}"></div>
+        <p class="text-[13px] text-text2 leading-[1.65] line-clamp-3" th:text="${p.content}"></p>
+        <div th:if="${!#lists.isEmpty(p.tags)}" class="flex flex-wrap gap-[5px] mt-2">
+          <span th:each="tag : ${p.tags}"
+                class="text-[9px] font-semibold px-[6px] py-[1px] rounded-full bg-purplebg text-purple2 border border-border"
+                th:text="${tag}"></span>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <span class="text-[11px] text-text3" th:text="${p.tempoRelativo}"></span>
+          <span class="text-[11px] text-text3">·</span>
+          <span class="text-[11px] text-text3 flex items-center gap-[3px]">
+            <i class="ti ti-heart text-[10px]"></i>
+            <span th:text="${p.likes}">0</span>
+          </span>
         </div>
       </div>
     </div>

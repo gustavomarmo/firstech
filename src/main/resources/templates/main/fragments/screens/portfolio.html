@@ -215,7 +215,8 @@
         <div th:each="proj : ${usuario.projetos}"
              class="group relative bg-bg3 rounded-[11px] overflow-hidden border border-border2 transition-all duration-200 hover:border-border"
              th:classappend="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? ' cursor-pointer' : ' cursor-default'"
-             th:onclick="${proj.githubUrl != null and !proj.githubUrl.isBlank()} ? 'openProjGithub(\'' + ${proj.githubUrl} + '\')' : 'void 0'">
+             th:data-github-url="${proj.githubUrl}"
+             onclick="if(this.dataset.githubUrl) openProjGithub(this.dataset.githubUrl)">
 
           <!-- Thumbnail: imagem enviada pelo usuário ou gradiente (fallback) -->
           <div th:if="${proj.thumbImageBase64 != null}"

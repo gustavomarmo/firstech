@@ -19,5 +19,7 @@ public record PublicProfileDTO(
     List<HabilidadeViewModel>   habilidades,
     List<CertificacaoViewModel> certificacoes,
     List<ProjetoViewModel>      projetos,
-    List<VagaResumoDTO>         vagasPublicadas
+    List<VagaResumoDTO>         vagasPublicadas,
+    List<PostResponseDTO>       projetoPosts,
+    List<PostResponseDTO>       postagens
 ) {}

@@ -50,6 +50,39 @@
         <i class="ti ti-link absolute right-3 top-1/2 -translate-y-1/2 text-text3 text-sm pointer-events-none"></i>
       </div>
 
+      <!-- Marcar como projeto — apenas candidatos -->
+      <div th:unless="${usuario.recrutador}"
+           id="project-toggle-row"
+           class="flex items-center justify-between py-[10px] px-[14px] bg-bg3 border border-border2 rounded-[9px] cursor-pointer select-none transition-[border-color] duration-200 hover:border-border"
+           onclick="toggleProjectFlag()">
+        <div class="flex items-center gap-[10px]">
+          <i class="ti ti-folder-code text-[18px]" style="color:var(--purple2)"></i>
+          <div>
+            <div class="text-[13px] font-semibold text-text1">Marcar como projeto</div>
+            <div class="text-[11px] text-text3">Aparece na aba Projetos do seu perfil</div>
+          </div>
+        </div>
+        <div id="project-toggle-switch"
+             class="relative w-[38px] h-[22px] rounded-full bg-bg4 border border-border2 transition-colors duration-200 shrink-0">
+          <div id="project-toggle-knob"
+               class="absolute top-[3px] left-[3px] w-[14px] h-[14px] rounded-full bg-text3 transition-all duration-200"></div>
+        </div>
+      </div>
+
+      <!-- Link do GitHub (oculto por padrão; exibido ao clicar no botão GitHub) -->
+      <div id="github-url-row"
+           style="display:none"
+           class="flex items-center gap-2 bg-bg3 border border-border2 rounded-[9px] py-[8px] px-3 transition-[border-color] duration-200 focus-within:border-border">
+        <i class="ti ti-brand-github text-text3 text-sm shrink-0"></i>
+        <input id="modal-github-url"
+               type="url"
+               placeholder="https://github.com/usuario/repositorio"
+               class="flex-1 bg-transparent border-none outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3"/>
+        <button type="button"
+                class="shrink-0 text-text3 bg-transparent border-none cursor-pointer hover:text-red transition-colors text-[16px] flex items-center"
+                onclick="toggleGithubInput()"><i class="ti ti-x"></i></button>
+      </div>
+
       <!-- Tags -->
       <div class="bg-bg3 border border-border2 rounded-[9px] py-2 px-3 flex flex-wrap gap-[7px] items-center cursor-text transition-[border-color] duration-200 focus-within:border-border"
            id="tags-area" onclick="document.getElementById('tag-input').focus()">
@@ -69,7 +102,10 @@
       <div class="flex gap-0.5">
         <button class="w-[34px] h-[34px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[18px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2" title="Código"><i class="ti ti-code"></i></button>
         <button class="w-[34px] h-[34px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[18px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2" title="Imagem"><i class="ti ti-photo"></i></button>
-        <button class="w-[34px] h-[34px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[18px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2" title="GitHub"><i class="ti ti-brand-github"></i></button>
+        <button id="github-toggle-btn"
+                class="w-[34px] h-[34px] rounded-lg border-none bg-transparent text-text3 flex items-center justify-center cursor-pointer text-[18px] transition-all duration-[180ms] hover:bg-bg3 hover:text-purple2"
+                title="Link do GitHub"
+                onclick="toggleGithubInput()"><i class="ti ti-brand-github"></i></button>
       </div>
       <div class="flex gap-2 items-center">
         <button class="py-2 px-4 rounded-lg bg-transparent text-text2 border border-border2 font-[inherit] text-[13px] font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1"

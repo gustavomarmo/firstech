@@ -19,6 +19,7 @@ public class ConnectionService {
     private final UserRepository       userRepository;
     private final PortfolioService     portfolioService;
     private final JobRepository        jobRepository;
+    private final PostService          postService;
 
     private static final String[] AVATAR_GRADIENTS = {
         "linear-gradient(135deg,#6d28d9,#8b5cf6)",
@@ -79,7 +80,9 @@ public class ConnectionService {
             portfolioService.getSkills(target),
             portfolioService.getCertifications(target),
             isRecruiter ? List.of() : portfolioService.getProjects(target),
-            vagasPublicadas
+            vagasPublicadas,
+            isRecruiter ? List.of() : postService.getProjectPostsByAuthor(target),
+            isRecruiter ? List.of() : postService.getRegularPostsByAuthor(target)
         );
     }
 

@@ -42,6 +42,15 @@ public class Post {
     @JoinColumn(name = "linked_job_id")
     private Job linkedJob;
 
+    /** Se true, o post aparece na aba Projetos do perfil do candidato. */
+    @Builder.Default
+    @Column(name = "is_project", nullable = false)
+    private boolean isProject = false;
+
+    /** Link do repositório GitHub (opcional, usado em posts de projeto). */
+    @Column(name = "github_url", length = 500)
+    private String githubUrl;
+
     /** IDs dos usuários que curtiram este post (tabela de junção simples). */
     @ElementCollection
     @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
