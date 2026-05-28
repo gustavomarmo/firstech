@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="topbar" class="flex items-center justify-between px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0 z-20">
+<div th:fragment="topbar" class="flex items-center justify-between px-4 md:px-7 h-[58px] bg-bg2 border-b border-border2 shrink-0 z-20">
 
   <!-- Logo -->
   <div class="font-display text-[19px] font-bold flex items-center gap-px select-none">
@@ -9,7 +9,7 @@
   </div>
 
   <!-- Navegação central -->
-  <nav class="flex gap-1">
+  <nav class="hidden md:flex gap-1">
     <button class="nav-btn flex items-center gap-[7px] px-[18px] py-2 rounded-[9px] border border-transparent bg-transparent text-text2 font-[inherit] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg3 hover:text-text1 active"
             onclick="go('home')" id="nb-home">
       <i class="ti ti-home text-[17px]"></i>Home
@@ -35,7 +35,7 @@
 
     <!-- Botão "Nova Vaga" — apenas para recrutadores -->
     <button th:if="${usuario.recrutador}"
-            class="flex items-center gap-[6px] py-[7px] px-[14px] rounded-[9px] bg-purple border border-[rgba(139,92,246,.5)] text-white font-[inherit] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2"
+            class="hidden md:flex items-center gap-[6px] py-[7px] px-[14px] rounded-[9px] bg-purple border border-[rgba(139,92,246,.5)] text-white font-[inherit] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-purple2"
             onclick="openJobModal()">
       <i class="ti ti-plus text-sm"></i>Nova Vaga
     </button>

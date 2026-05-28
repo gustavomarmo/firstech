@@ -98,6 +98,64 @@
     #conversations-list::-webkit-scrollbar-thumb { background:#222d3f; border-radius:4px; }
     #upm-content > div.overflow-y-auto::-webkit-scrollbar { width:4px; }
     #upm-content > div.overflow-y-auto::-webkit-scrollbar-thumb { background:#222d3f; border-radius:4px; }
+
+    /* ── Responsive: bottom nav active state ── */
+    .mobile-nav-btn.active { color: var(--purple2); }
+    .mobile-nav-btn { position: relative; }
+
+    /* ── Mobile: bottom padding for scrollable areas ── */
+    @media (max-width: 767px) {
+      .col, .port-body { padding-bottom: 72px; }
+
+      /* Messages: one panel at a time */
+      #s-messages > div:first-child {
+        width: 100% !important;
+        flex-shrink: 1 !important;
+      }
+      #s-messages > div:last-child {
+        display: none !important;
+      }
+      #s-messages.msg-chat-active > div:first-child {
+        display: none !important;
+      }
+      #s-messages.msg-chat-active > div:last-child {
+        display: flex !important;
+        flex: 1 !important;
+      }
+
+      /* Modals: bottom sheet on mobile */
+      #post-overlay,
+      #job-overlay,
+      #port-profile-overlay,
+      #port-sobre-overlay,
+      #port-exp-overlay,
+      #port-skill-overlay,
+      #port-cert-overlay,
+      #port-proj-overlay {
+        align-items: flex-end !important;
+      }
+      #post-modal,
+      #job-modal,
+      #port-profile-overlay > div,
+      #port-sobre-overlay > div,
+      #port-exp-overlay > div,
+      #port-skill-overlay > div,
+      #port-cert-overlay > div,
+      #port-proj-overlay > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 18px 18px 0 0 !important;
+        max-height: 92vh;
+        overflow: hidden;
+      }
+      /* User-profile drawer: full-height from right on mobile (keep as-is) */
+      #user-profile-drawer {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+      }
+    }
   </style>
 </head>
 <body class="h-full bg-bg text-text1 font-sans">
@@ -115,6 +173,32 @@
   <div th:replace="~{main/fragments/user-profile-modal :: modal}"></div>
 
 </div>
+
+<!-- ── Navegação inferior (mobile only) ── -->
+<nav id="bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 z-[25] bg-bg2 border-t border-border2 flex items-stretch h-[58px]">
+  <button class="mobile-nav-btn active flex flex-col items-center justify-center flex-1 gap-[3px] py-1 border-none bg-transparent text-text3 font-[inherit] cursor-pointer transition-colors duration-200"
+          onclick="go('home')" id="mbn-home">
+    <i class="ti ti-home text-[22px]"></i>
+    <span class="text-[9px] font-semibold">Home</span>
+  </button>
+  <button class="mobile-nav-btn flex flex-col items-center justify-center flex-1 gap-[3px] py-1 border-none bg-transparent text-text3 font-[inherit] cursor-pointer transition-colors duration-200"
+          onclick="go('jobs')" id="mbn-jobs">
+    <i class="ti ti-briefcase text-[22px]"></i>
+    <span class="text-[9px] font-semibold">Jobs</span>
+  </button>
+  <button class="mobile-nav-btn relative flex flex-col items-center justify-center flex-1 gap-[3px] py-1 border-none bg-transparent text-text3 font-[inherit] cursor-pointer transition-colors duration-200"
+          onclick="go('messages');loadConversations()" id="mbn-messages">
+    <i class="ti ti-users text-[22px]"></i>
+    <span class="text-[9px] font-semibold">Rede</span>
+    <span id="mbn-requests-badge"
+          class="hidden absolute top-[6px] right-[14px] w-[8px] h-[8px] rounded-full bg-purple"></span>
+  </button>
+  <button class="mobile-nav-btn flex flex-col items-center justify-center flex-1 gap-[3px] py-1 border-none bg-transparent text-text3 font-[inherit] cursor-pointer transition-colors duration-200"
+          onclick="go('portfolio')" id="mbn-portfolio">
+    <i class="ti ti-user-circle text-[22px]"></i>
+    <span class="text-[9px] font-semibold">Portfolio</span>
+  </button>
+</nav>
 
 <!-- Script -->
 <script th:src="@{/js/firstech.js}"></script>

@@ -7,11 +7,17 @@
 function go(name) {
   document.querySelectorAll('.screen, .port-screen')
     .forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn')
+  document.querySelectorAll('.nav-btn, .mobile-nav-btn')
     .forEach(b => b.classList.remove('active'));
 
   document.getElementById('s-' + name)?.classList.add('active');
   document.getElementById('nb-' + name)?.classList.add('active');
+  document.getElementById('mbn-' + name)?.classList.add('active');
+}
+
+/** Mobile: volta ao painel de conversas a partir do chat ativo. */
+function mobileBackToConvs() {
+  document.getElementById('s-messages')?.classList.remove('msg-chat-active');
 }
 
 /* ── FILTROS (toggle individual) ── */
@@ -2507,6 +2513,8 @@ function _updateRequestsBadge(count) {
   } else {
     badge.classList.add('hidden');
   }
+  const mobileDot = document.getElementById('mbn-requests-badge');
+  if (mobileDot) mobileDot.classList.toggle('hidden', count === 0);
 }
 
 /** Abre uma conversa no painel direito. */
@@ -2518,6 +2526,11 @@ async function openConversation(userId, name) {
   const active = document.getElementById('msg-active');
   active.classList.remove('hidden');
   active.style.display = 'flex';
+
+  // Mobile: mostrar painel de chat
+  if (window.innerWidth < 768) {
+    document.getElementById('s-messages')?.classList.add('msg-chat-active');
+  }
 
   document.getElementById('msg-chat-name').textContent = name || '';
   document.getElementById('msg-chat-sub').textContent  = 'Conectado';

@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="home" class="screen active" id="s-home">
-  <div class="grid grid-cols-[248px_1fr_252px] w-full h-full overflow-hidden">
+  <div class="grid grid-cols-1 md:grid-cols-[248px_1fr_252px] w-full h-full overflow-hidden">
 
     <!-- Coluna esquerda: perfil mini -->
-    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 last:border-r-0">
+    <div class="hidden md:block col p-[18px_16px] overflow-y-auto border-r border-border2">
       <div th:replace="~{main/fragments/profile-mini :: card(true)}"></div>
     </div>
 
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Coluna direita — candidato: vagas recomendadas | recrutador: resumo de vagas -->
-    <div class="col p-[18px_16px] overflow-y-auto last:border-r-0">
+    <div class="hidden md:block col p-[18px_16px] overflow-y-auto">
 
       <!-- ── CANDIDATO ── -->
       <th:block th:if="${!usuario.recrutador}">

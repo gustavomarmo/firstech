@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="jobs" class="screen" id="s-jobs">
-  <div class="grid grid-cols-[248px_1fr_252px] w-full h-full overflow-hidden">
+  <div class="grid grid-cols-1 md:grid-cols-[248px_1fr_252px] w-full h-full overflow-hidden">
 
     <!-- Coluna esquerda: perfil mini + filtros (candidato) / stats (recrutador) -->
-    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 last:border-r-0">
+    <div class="hidden md:block col p-[18px_16px] overflow-y-auto border-r border-border2">
       <div th:replace="~{main/fragments/profile-mini :: card(true)}"></div>
 
       <!-- Filtros — apenas para candidatos -->
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Coluna central: feed de vagas (candidato) | gerenciamento (recrutador) -->
-    <div class="col p-[18px_16px] overflow-y-auto border-r border-border2 bg-bg last:border-r-0">
+    <div class="col p-[18px_16px] overflow-y-auto md:border-r border-border2 bg-bg">
 
       <!-- ── CANDIDATO: feed de vagas ── -->
       <th:block th:if="${!usuario.recrutador}">
@@ -192,7 +192,7 @@
     </div>
 
     <!-- Coluna direita -->
-    <div class="col p-[18px_16px] overflow-y-auto last:border-r-0">
+    <div class="hidden md:block col p-[18px_16px] overflow-y-auto">
 
       <!-- Candidato: recrutadores para contatar -->
       <th:block th:if="${!usuario.recrutador}">
