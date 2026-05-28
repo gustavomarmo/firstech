@@ -110,6 +110,18 @@
     .skeleton { background:var(--bg3);border-radius:6px;animation:shimmer 1.4s infinite; }
     @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
     .empty-state { padding:60px 20px;text-align:center; }
+
+    /* Pagination */
+    .page-btn {
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:28px;height:28px;padding:0 5px;border-radius:7px;
+      font-size:12px;font-weight:500;border:none;cursor:pointer;
+      background:transparent;color:var(--text2);
+      transition:background .12s,color .12s;
+    }
+    .page-btn:hover:not(:disabled) { background:var(--bg4);color:var(--text1); }
+    .page-btn.active { background:var(--purplebg);color:var(--purple2);font-weight:700; }
+    .page-btn:disabled { opacity:.35;cursor:default; }
   </style>
 </head>
 
@@ -159,6 +171,12 @@
       <option value="ATIVA">Ativas</option>
       <option value="ENCERRADA">Encerradas</option>
     </select>
+    <input id="filter-salary-min" type="number" min="0" step="500"
+           placeholder="Salário mín. (R$)"
+           class="filter-select" style="width:160px" oninput="applyFilters()"/>
+    <input id="filter-salary-max" type="number" min="0" step="500"
+           placeholder="Salário máx. (R$)"
+           class="filter-select" style="width:160px" oninput="applyFilters()"/>
   </div>
 
   <!-- Tabela -->
@@ -213,6 +231,11 @@
         <p class="text-text3 text-sm">Nenhuma vaga encontrada com os filtros aplicados.</p>
       </div>
     </div>
+    <!-- Paginação -->
+    <div id="pagination-bar" style="display:none;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border2)">
+      <span id="pagination-info" style="font-size:12px;color:var(--text3)"></span>
+      <div id="pagination-controls" style="display:flex;align-items:center;gap:2px"></div>
+    </div>
   </div>
 
 </main>
@@ -251,6 +274,8 @@
 <script>
 let allJobs      = [];
 let filteredJobs = [];
+const PAGE_SIZE  = 10;
+let currentPage  = 1;
 
 document.addEventListener('DOMContentLoaded', loadJobs);
 
@@ -277,6 +302,8 @@ function applyFilters() {
   const modality = document.getElementById('filter-modality').value;
   const level    = document.getElementById('filter-level').value;
   const status   = document.getElementById('filter-status').value;
+  const salMin   = parseInt(document.getElementById('filter-salary-min').value || '0', 10);
+  const salMax   = parseInt(document.getElementById('filter-salary-max').value || '0', 10);
 
   filteredJobs = allJobs.filter(j => {
     const matchQ = !q ||
@@ -289,9 +316,13 @@ function applyFilters() {
     const matchMod    = !modality || j.modalidade === modality;
     const matchLevel  = !level    || j.nivel === level;
     const matchStatus = !status   || j.status === status;
-    return matchQ && matchMod && matchLevel && matchStatus;
+    const parsed      = parseSalary(j.salario);
+    const matchSalMin = !salMin || (parsed > 0 && parsed >= salMin);
+    const matchSalMax = !salMax || (parsed > 0 && parsed <= salMax);
+    return matchQ && matchMod && matchLevel && matchStatus && matchSalMin && matchSalMax;
   });
 
+  currentPage = 1;
   renderTable();
 }
 
@@ -306,11 +337,17 @@ function renderTable() {
   if (filteredJobs.length === 0) {
     tbody.innerHTML = '';
     empty.classList.remove('hidden');
+    renderPagination(0, 0);
     return;
   }
   empty.classList.add('hidden');
 
-  tbody.innerHTML = filteredJobs.map((j, i) => {
+  const totalPages = Math.ceil(filteredJobs.length / PAGE_SIZE);
+  const offset     = (currentPage - 1) * PAGE_SIZE;
+  const pageJobs   = filteredJobs.slice(offset, offset + PAGE_SIZE);
+
+  tbody.innerHTML = pageJobs.map((j, i) => {
+    const rowNum = offset + i + 1;
     const initial      = j.recrutadorNome ? j.recrutadorNome[0].toUpperCase() : '?';
     const modBadge     = modalidadeBadge(j.modalidade);
     const nivBadge     = `<span class="badge badge-nivel">${escHtml(j.nivel)}</span>`;
@@ -322,7 +359,7 @@ function renderTable() {
 
     return `
     <tr data-id="${j.id}">
-      <td class="text-text3 font-mono text-[11px]">${i + 1}</td>
+      <td class="text-text3 font-mono text-[11px]">${rowNum}</td>
       <td style="min-width:200px">
         <div class="text-[13px] font-medium text-text1 leading-tight">${escHtml(j.titulo)}</div>
         <div class="text-[11px] text-text3 flex items-center gap-1 mt-[2px]">
@@ -358,6 +395,58 @@ function renderTable() {
       </td>
     </tr>`;
   }).join('');
+
+  renderPagination(filteredJobs.length, totalPages);
+}
+
+/* ── Paginação ────────────────────────────────── */
+function renderPagination(total, totalPages) {
+  const bar      = document.getElementById('pagination-bar');
+  const info     = document.getElementById('pagination-info');
+  const controls = document.getElementById('pagination-controls');
+
+  if (total === 0 || totalPages <= 1) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+  info.textContent = `Mostrando ${start}–${end} de ${total}`;
+
+  let html = `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+  for (const p of getPageRange(currentPage, totalPages)) {
+    if (p === '…') {
+      html += `<span style="padding:0 4px;font-size:12px;color:var(--text3)">…</span>`;
+    } else {
+      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+    }
+  }
+  html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+  controls.innerHTML = html;
+}
+
+function getPageRange(cur, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = [1];
+  if (cur > 3)          pages.push('…');
+  for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
+  if (cur < total - 2)  pages.push('…');
+  pages.push(total);
+  return pages;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredJobs.length / PAGE_SIZE);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderTable();
+  document.querySelector('.panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Helpers de salário ───────────────────────── */
+function parseSalary(s) {
+  if (!s || s === '—') return 0;
+  const nums = s.replace(/\./g, '').replace(/,/g, '').match(/\d+/g);
+  return nums ? parseInt(nums[0], 10) : 0;
 }
 
 /* ── Toggle status ────────────────────────────── */

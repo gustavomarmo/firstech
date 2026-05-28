@@ -60,6 +60,8 @@
     }
     .kpi-card:hover { border-color:var(--border);transform:translateY(-1px); }
 
+    @keyframes kpi-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(.75)} }
+
     .panel {
       background:var(--bg2);border:1px solid var(--border2);border-radius:14px;
     }
@@ -130,9 +132,11 @@
 
     <!-- Vagas ativas -->
     <div class="kpi-card">
-      <div class="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
-           style="background:rgba(96,165,250,.1)">
-        <i class="ti ti-briefcase-check text-[18px]" style="color:#60a5fa"></i>
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-9 h-9 rounded-[10px] flex items-center justify-center"
+             style="background:rgba(52,211,153,.1)">
+          <i class="ti ti-briefcase text-[18px]" style="color:var(--green)"></i>
+        </div>
       </div>
       <div class="font-display text-[28px] font-bold text-text1 leading-none mb-1"
            th:text="${stats.vagasAtivas}">0</div>
@@ -202,8 +206,50 @@
         <i class="ti ti-podium text-[15px] text-text3"></i>Top 5 postadores
       </h3>
     </div>
-    <div class="panel-body" style="height:240px">
-      <canvas id="chartTopPosters" style="width:100%;height:100%"></canvas>
+    <div class="overflow-x-auto">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);background:var(--bg3);width:44px">#</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);background:var(--bg3)">Usuário</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);background:var(--bg3)">Perfil</th>
+            <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);background:var(--bg3)">Posts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p, iterStat : ${stats.topPosters}"
+              style="border-bottom:1px solid var(--border2);transition:background .12s">
+            <td style="padding:13px 16px;font-family:monospace;font-size:11px;color:var(--text3)"
+                th:text="${iterStat.count}">1</td>
+            <td style="padding:13px 16px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div th:text="${!#strings.isEmpty(p.nome) ? #strings.toUpperCase(#strings.substring(p.nome,0,1)) : '?'}"
+                     style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#6d28d9,#8b5cf6)">?</div>
+                <span style="font-size:13px;font-weight:500;color:var(--text1)" th:text="${p.nome}">Nome</span>
+              </div>
+            </td>
+            <td style="padding:13px 16px">
+              <span th:if="${p.recrutador}"
+                    style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.3)">
+                Recrutador
+              </span>
+              <span th:unless="${p.recrutador}"
+                    style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.3)">
+                Candidato
+              </span>
+            </td>
+            <td style="padding:13px 16px;text-align:right">
+              <span style="font-size:13px;font-weight:700;color:var(--text1)" th:text="${p.totalPosts}">0</span>
+              <span style="font-size:11px;color:var(--text3);margin-left:2px">posts</span>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(stats.topPosters)}">
+            <td colspan="4" style="padding:40px 16px;text-align:center;color:var(--text3);font-size:13px">
+              Nenhum post publicado ainda.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -216,8 +262,6 @@ const STATS_CANDIDATOS   = /*[[${stats.totalCandidatos}]]*/   0;
 const STATS_RECRUTADORES = /*[[${stats.totalRecrutadores}]]*/ 0;
 const MODALIDADE_DATA    = /*[[${stats.vagasPorModalidade}]]*/ {};
 const NIVEL_DATA         = /*[[${stats.vagasPorNivel}]]*/     {};
-const TOP_POSTER_NAMES   = /*[[${topPosterNames}]]*/           [];
-const TOP_POSTER_VALUES  = /*[[${topPosterValues}]]*/          [];
 /*]]>*/
 </script>
 
@@ -316,28 +360,6 @@ const TOP_POSTER_VALUES  = /*[[${topPosterValues}]]*/          [];
     },
   });
 
-  /* ── 4. Horizontal bar: Top postadores ─────────────────── */
-  new Chart(document.getElementById('chartTopPosters'), {
-    type: 'bar',
-    data: {
-      labels: TOP_POSTER_NAMES,
-      datasets: [{
-        label: 'Posts', data: TOP_POSTER_VALUES,
-        backgroundColor: PALETTE, borderWidth: 0, borderRadius: 7, borderSkipped: false,
-      }],
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display:false },
-        tooltip: { ...tooltipCfg(), callbacks:{ label: ctx => `  ${ctx.raw} post${ctx.raw!==1?'s':''}` }},
-      },
-      scales: {
-        x: { grid:{ color:gridClr() }, ticks:{ color:tickClr(), stepSize:1, precision:0 }, beginAtZero:true },
-        y: { grid:{ display:false }, ticks:{ color:tickClr() }},
-      },
-    },
-  });
 
   /* ── Menu de usuário ──────────────────────────────────────── */
   function toggleUserMenu(e) {
