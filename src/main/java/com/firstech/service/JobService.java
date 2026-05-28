@@ -42,6 +42,7 @@ public class JobService {
                 .salary(dto.salary())
                 .jobCompany(dto.jobCompany())
                 .jobCompanyLogoUrl(dto.jobCompanyLogoUrl())
+                .applyUrl(dto.applyUrl())
                 .tags(dto.tags() != null ? new ArrayList<>(dto.tags()) : new ArrayList<>())
                 .recruiter(recruiter)
                 .build();
@@ -60,6 +61,7 @@ public class JobService {
         job.setSalary(dto.salary());
         job.setJobCompany(dto.jobCompany());
         job.setJobCompanyLogoUrl(dto.jobCompanyLogoUrl());
+        job.setApplyUrl(dto.applyUrl());
         if (dto.tags() != null) {
             job.getTags().clear();
             job.getTags().addAll(dto.tags());
@@ -133,6 +135,7 @@ public class JobService {
                 .status(job.getStatus().name())
                 .createdAt(job.getCreatedAt())
                 .recruiterName(job.getRecruiter().getName())
+                .applyUrl(job.getApplyUrl())
                 .build();
     }
 

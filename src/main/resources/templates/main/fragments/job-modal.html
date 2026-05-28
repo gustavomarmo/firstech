@@ -106,6 +106,14 @@
                maxlength="80" data-char-limit="80"/>
       </div>
 
+      <!-- Link de candidatura -->
+      <div class="flex items-center gap-2 bg-bg3 border border-border2 rounded-[9px] px-[14px] transition-[border-color] duration-200 focus-within:border-border">
+        <i class="ti ti-external-link text-text3 text-[17px] shrink-0"></i>
+        <input id="job-apply-url" type="url"
+               placeholder="Link para candidatura (ex: https://empresa.com/vagas/123)"
+               class="flex-1 bg-transparent border-none py-[10px] outline-none text-text1 font-[inherit] text-[13px] placeholder:text-text3 min-w-0"/>
+      </div>
+
       <!-- Descrição -->
       <textarea class="w-full min-h-[110px] bg-bg3 border border-border2 rounded-[9px] py-3 px-[14px] outline-none text-text1 font-[inherit] text-sm leading-[1.65] resize-none transition-[border-color] duration-200 focus:border-border placeholder:text-text3"
                 placeholder="Descrição da vaga, requisitos e responsabilidades..." id="job-descricao"

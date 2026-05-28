@@ -28,4 +28,5 @@ public class JobResponseDTO {
     private String status;
     private LocalDate createdAt;
     private String recruiterName;
+    private String applyUrl;
 }

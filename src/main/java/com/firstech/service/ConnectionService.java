@@ -57,7 +57,8 @@ public class ConnectionService {
                     j.getModality(),
                     j.getLevel(),
                     j.getLocation(),
-                    j.getStatus() == JobStatus.ATIVA
+                    j.getStatus() == JobStatus.ATIVA,
+                    j.getApplyUrl()
                 ))
                 .toList()
             : List.of();

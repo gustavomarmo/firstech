@@ -15,5 +15,6 @@ public record JobRequestDTO(
         String salary,
         List<String> tags,
         String jobCompany,
-        String jobCompanyLogoUrl
+        String jobCompanyLogoUrl,
+        String applyUrl
 ) {}

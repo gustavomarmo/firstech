@@ -396,9 +396,17 @@
                   th:text="${vaga.nivel}"></span>
           </div>
         </div>
-        <span class="shrink-0 text-[9px] font-bold px-[8px] py-[3px] rounded-full"
-              th:style="${vaga.ativa} ? 'background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)' : 'background:var(--bg4);color:var(--text3);border:1px solid var(--border2)'"
-              th:text="${vaga.ativa} ? 'Ativa' : 'Encerrada'">Ativa</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-[9px] font-bold px-[8px] py-[3px] rounded-full"
+                th:style="${vaga.ativa} ? 'background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)' : 'background:var(--bg4);color:var(--text3);border:1px solid var(--border2)'"
+                th:text="${vaga.ativa} ? 'Ativa' : 'Encerrada'">Ativa</span>
+          <a th:if="${vaga.ativa and vaga.applyUrl != null and !vaga.applyUrl.isBlank()}"
+             th:href="${vaga.applyUrl}"
+             target="_blank" rel="noopener noreferrer"
+             class="flex items-center gap-[5px] text-[11px] font-semibold py-[5px] px-[11px] rounded-[8px] bg-purple text-white no-underline transition-all duration-200 hover:bg-purple2">
+            <i class="ti ti-send text-[11px]"></i>Candidatar-se
+          </a>
+        </div>
       </div>
     </div>
   </div>

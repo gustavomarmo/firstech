@@ -368,6 +368,7 @@ function openJobModal(vaga) {
     document.getElementById('job-localidade').value = vaga.location    || '';
     document.getElementById('job-salario').value    = vaga.salary      || '';
     document.getElementById('job-descricao').value  = vaga.description || '';
+    document.getElementById('job-apply-url').value  = vaga.applyUrl    || '';
     // Preenche campos de empresa (autocomplete + ocultos)
     _setCompanyFields(vaga.jobCompany || '', vaga.companyLogoUrl || '');
 
@@ -439,6 +440,7 @@ async function publishJob() {
   const level            = document.getElementById('job-nivel').value      || null;
   const salary           = document.getElementById('job-salario').value.trim() || null;
   const description      = document.getElementById('job-descricao').value.trim();
+  const applyUrl         = document.getElementById('job-apply-url').value.trim() || null;
   const tags             = collectJobTags();
   const jobCompany        = document.getElementById('job-company-name').value.trim()     || null;
   const jobCompanyLogoUrl = document.getElementById('job-company-logo-url').value.trim() || null;
@@ -475,7 +477,7 @@ async function publishJob() {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({ title, location: jobLocation, modality, level, salary, description, tags, jobCompany, jobCompanyLogoUrl }),
+      body: JSON.stringify({ title, location: jobLocation, modality, level, salary, description, applyUrl, tags, jobCompany, jobCompanyLogoUrl }),
     });
 
     if (!resp.ok) {
@@ -509,6 +511,7 @@ function resetJobModal() {
   document.getElementById('job-nivel').value      = '';
   document.getElementById('job-salario').value    = '';
   document.getElementById('job-descricao').value  = '';
+  document.getElementById('job-apply-url').value  = '';
   clearCompanySelection();
   document.querySelectorAll('#job-active-tags .job-tag').forEach(t => t.remove());
 }
@@ -523,6 +526,7 @@ function editJobFromBtn(btn) {
     level:            btn.dataset.level           || '',
     salary:           btn.dataset.salary          || '',
     description:      btn.dataset.description     || '',
+    applyUrl:         btn.dataset.applyUrl        || '',
     tags:             btn.dataset.tags ? btn.dataset.tags.split(',').filter(Boolean) : [],
     jobCompany:       btn.dataset.jobCompany      || '',
     companyLogoUrl:   btn.dataset.jobCompanyLogoUrl || '',
@@ -570,6 +574,7 @@ function injectJobCard(vaga) {
                 data-id="${vaga.id}" data-title="${vaga.title}" data-location="${vaga.location || ''}"
                 data-modality="${vaga.modality || ''}" data-level="${vaga.level || ''}"
                 data-salary="${vaga.salary || ''}" data-description="${vaga.description || ''}"
+                data-apply-url="${vaga.applyUrl || ''}"
                 data-tags="${(vaga.tags || []).join(',')}"
                 data-job-company="${vaga.jobCompany || ''}" data-job-company-logo-url="${vaga.companyLogoUrl || ''}"
                 onclick="editJobFromBtn(this)">
@@ -594,6 +599,12 @@ function injectJobCard(vaga) {
   } else {
     jobsFeed.appendChild(card);
   }
+}
+
+/* ── Candidatar-se a uma vaga (abre link externo em nova aba) ── */
+function applyToJob(url) {
+  if (!url || url === 'null' || !url.trim()) return;
+  window.open(url.trim(), '_blank', 'noopener,noreferrer');
 }
 
 /* ── Encerrar vaga ── */

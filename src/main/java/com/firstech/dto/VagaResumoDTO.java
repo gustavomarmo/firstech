@@ -10,5 +10,6 @@ public record VagaResumoDTO(
         String modalidade,
         String nivel,
         String localizacao,
-        boolean ativa
+        boolean ativa,
+        String applyUrl
 ) {}

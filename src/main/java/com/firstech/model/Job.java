@@ -37,6 +37,10 @@ public class Job {
     /** URL da logo da empresa (se vazio, usa gradiente gerado automaticamente). */
     private String jobCompanyLogoUrl;
 
+    /** Link externo para o candidato se candidatar (ex: ATS da empresa). */
+    @Column(length = 500)
+    private String applyUrl;
+
     @ElementCollection
     @CollectionTable(name = "job_tags", joinColumns = @JoinColumn(name = "job_id"))
     @Column(name = "tag")
