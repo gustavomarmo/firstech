@@ -163,6 +163,12 @@ public class ConnectionService {
         return new ConnectionStatusDTO("NONE", connectionRepository.countAcceptedConnections(currentUser));
     }
 
+    /** Retorna o total de conexões aceitas de um usuário. */
+    @Transactional(readOnly = true)
+    public int countConnections(User user) {
+        return connectionRepository.countAcceptedConnections(user);
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────
 
     private static final String[] JOB_GRADIENTS = {

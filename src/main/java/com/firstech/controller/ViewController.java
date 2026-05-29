@@ -91,6 +91,7 @@ public class ViewController {
                     .empresa(empresa)
                     .recrutador(isRecruiter)
                     .administrador(isAdmin)
+                    .conexoes(connectionService.countConnections(user))
                     .experiencias(portfolioService.getExperiences(user))
                     .habilidades(portfolioService.getSkills(user))
                     .certificacoes(portfolioService.getCertifications(user))
